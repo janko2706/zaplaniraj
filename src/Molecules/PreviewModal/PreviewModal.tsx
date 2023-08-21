@@ -1,5 +1,5 @@
-import { Dispatch, Fragment, SetStateAction, useState } from "react";
-import { Dialog, RadioGroup, Transition } from "@headlessui/react";
+import { type Dispatch, Fragment, type SetStateAction } from "react";
+import { Dialog, Transition } from "@headlessui/react";
 import { XMarkIcon } from "@heroicons/react/24/outline";
 import { StarIcon } from "@heroicons/react/20/solid";
 import Image from "next/image";

@@ -1,4 +1,3 @@
-import React from "react";
 import { useUser } from "@clerk/nextjs";
 import avatarPlaceholder from "../Assets/avatar-placeholder.png";
 
