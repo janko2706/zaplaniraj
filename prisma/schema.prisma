@@ -14,8 +14,61 @@ generator client {
 
 
 
-model Example {
+model User {
     id        String   @id @default(cuid())
     createdAt DateTime @default(now())
     updatedAt DateTime @updatedAt
+    isBussines Boolean 
+    business Business? @relation(fields: [businessId], references: [id])
+    businessId String? @unique
+    onboarding  String
+    clerkId String
+    @@index([id])
 }
+
+model NormalUser  {
+    id        String   @id @default(cuid())
+}
+
+model Business {
+    id        String   @id @default(cuid())
+    user User?
+    typeOfBusiness String
+    selectedCategoriesIds Category[]
+    name String
+    stripeId String?
+    freeTrial Boolean
+    location String?
+    priceRange Int
+    priceEsstimation Int?
+    shortDescription String?
+    fullDescription String?
+    options Options @relation(fields: [optionsId], references: [id])
+    optionsId Int @unique
+}
+
+model Category {
+    id        Int   @id @default(autoincrement())
+    value String
+    label String
+    businesses Business[]
+}
+
+model Socials {
+  id        Int   @id @default(autoincrement())
+  facebookLink Int?
+  instagramLink String?
+}
+
+model Options {
+  id        Int   @id @default(autoincrement())
+  business Business?
+  decoration Boolean @default(false)
+  PhotoCorner Boolean @default(false)
+  maximumNumberOfPeople Int @default(0)
+  minimumNumberOfPeople Int @default(0)
+  BuketiIReveri Boolean @default(false)
+
+}
+
+

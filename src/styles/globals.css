@@ -1,10 +1,75 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+:root {
+  --primary: #363aed;
+  --secondary: #37d279;
+  --tertiary: #ffbe46;
+  --bg-1: #f9f9fe;
+  --bg-2: #f5f5fe;
+  --btn-bg: #efeffd;
+  --border: #c2c7d0;
+  --neutral-700: #243757;
+  --primary-light: #ececfd;
+  --secondary-light: #eafbf1;
+  --secondary-500: #22804a;
+  --dark: #091e42;
+}
+
+@media (max-width: 700px) {
+  body::-webkit-scrollbar {
+    display: none;
+  }
+}
 
 @layer base {
-  html {
-    font-family: "PT Sans", sans-serif;
+}
+
+@layer components {
+  .h1 {
+    @apply text-3xl md:text-4xl lg:text-[56px] lg:leading-[68px];
+  }
+  .h2 {
+    @apply text-2xl font-medium text-[#243757] sm:text-3xl sm:font-semibold xl:text-[40px];
+  }
+  .h3 {
+    @apply text-lg font-medium leading-[120%] text-[#243757] sm:text-2xl sm:font-semibold md:text-[32px];
+  }
+  .container {
+    @apply mx-auto sm:max-w-[540px] md:max-w-[720px] lg:max-w-[960px] xl:max-w-[1140px] xl:max-w-[1320px];
+  }
+  .btn {
+    @apply inline-flex items-center gap-2 rounded-[30px];
+  }
+  .btn-outline {
+    @apply btn border border-[var(--primary)] px-3 py-2  font-semibold text-primary duration-300 hover:bg-primary hover:text-white md:px-6 md:py-3;
+  }
+  .btn-outline-secondary {
+    @apply btn-outline border border-[var(--secondary)] font-medium text-[var(--secondary)] hover:bg-[var(--secondary)] hover:text-neutral-950;
+  }
+  .btn-outline-gray {
+    @apply btn border border-[#7A8699] px-6 py-3 text-[#7A8699] duration-300 hover:bg-[#7A8699] hover:text-white;
+  }
+  .btn-outline-gray-small {
+    @apply btn border border-[#7A8699] px-3 py-1 text-[#7A8699] duration-300 hover:bg-[#7A8699] hover:text-white;
+  }
+  .btn-primary {
+    @apply btn bg-primary px-6 py-3 text-white;
+  }
+  .btn-tertiary {
+    @apply btn bg-[var(--tertiary)] px-6 py-3 text-white;
+  }
+  .btn-secondary {
+    @apply btn-primary bg-[var(--secondary)];
+  }
+  .btn-tertiary {
+    @apply btn-primary flex items-center gap-2 bg-[var(--tertiary)] font-medium text-neutral-950;
+  }
+  .btn-primary-lg {
+    @apply btn-primary bg-primary px-8 py-4;
+  }
+  .white-text-nav {
+    @apply text-gray-600 lg:text-white;
   }
 }
 .swiper {
