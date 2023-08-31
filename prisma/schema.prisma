@@ -26,15 +26,11 @@ model User {
     @@index([id])
 }
 
-model NormalUser  {
-    id        String   @id @default(cuid())
-}
-
 model Business {
     id        String   @id @default(cuid())
     user User?
-    typeOfBusiness String
-    selectedCategoriesIds Category[]
+    typeOfBusiness BusinessTypeCategory[]
+    selectedCategoriesIds EventCategory[]
     name String
     stripeId String?
     freeTrial Boolean
@@ -47,7 +43,13 @@ model Business {
     optionsId Int @unique
 }
 
-model Category {
+model EventCategory {
+    id        Int   @id @default(autoincrement())
+    value String
+    label String
+    businesses Business[]
+}
+model BusinessTypeCategory {
     id        Int   @id @default(autoincrement())
     value String
     label String

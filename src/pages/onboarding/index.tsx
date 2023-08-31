@@ -2,10 +2,11 @@ import { ArrowLeftIcon } from "@heroicons/react/24/outline";
 import { AnimatePresence } from "framer-motion";
 import UserType from "./chooseUserType";
 import { useRouter } from "next/router";
-import { SignOutButton } from "@clerk/nextjs";
+import { useClerk } from "@clerk/nextjs";
 
 export default function Index() {
   const router = useRouter();
+  const { signOut } = useClerk();
   return (
     <div className="mx-auto flex h-screen max-w-3xl flex-col items-center justify-center overflow-x-hidden">
       <div
@@ -20,19 +21,20 @@ export default function Index() {
           }}
         />
       </div>
-      <AnimatePresence mode="wait">
-        <SignOutButton>
-          <button
-            className="group absolute left-2 top-10 z-40 rounded-full p-2 transition-all hover:bg-gray-400 sm:left-10"
-            onClick={() => {
-              void (async () => {
-                await router.push("/");
-              })();
-            }}
-          >
-            <ArrowLeftIcon className="h-8 w-8 text-gray-500 group-hover:text-gray-800 group-active:scale-90" />
-          </button>
-        </SignOutButton>
+      <AnimatePresence mode="sync">
+        <button
+          className="group absolute left-2 top-10 z-40 rounded-full p-2 transition-all hover:bg-gray-400 sm:left-10"
+          onClick={(e) => {
+            e.preventDefault();
+
+            void (async () => {
+              await signOut();
+              await router.push("/");
+            })();
+          }}
+        >
+          <ArrowLeftIcon className="h-8 w-8 text-gray-500 group-hover:text-gray-800 group-active:scale-90" />
+        </button>
         <UserType key="next" />
       </AnimatePresence>
     </div>

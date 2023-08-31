@@ -10,8 +10,12 @@ import heroImage from "../../Assets/HeroAssets/heroImage.png";
 import Dropdown from "./DropdownCategories";
 import PriceSlider from "./PriceSlider";
 import DropdownArea from "./DropdownArea";
+import { useTranslation } from "next-i18next";
 
 function HeroSection() {
+  const { t } = useTranslation("frontPage");
+  console.log();
+
   return (
     <section className="relative border-t bg-[var(--bg-1)] lg:border-t-0">
       <CalendarDaysIcon
@@ -31,13 +35,13 @@ function HeroSection() {
       <div className="h-full px-3 pb-16 pt-[70px] sm:pt-[100px] md:pt-[150px] xl:pt-[180px]">
         <div className="container">
           <div className="relative z-10 text-center">
-            <h1 className=" text-5xl font-bold  text-neutral-700 sm:text-6xl">
-              Organiziraj svoj{" "}
-              <span className="text-purple-800"> nezaboravan </span>
-              provod
+            <h1 className=" text-7xl font-semibold  text-neutral-700">
+              {t("Hero-main1")}{" "}
+              <span className="text-purple-800"> {t("Hero-bold")} </span>
+              {t("Hero-main2")}
             </h1>
             <p className="mx-auto mt-4 max-w-[600px] text-xl text-gray-500 md:mt-9">
-              Odabir lokacije, hrane, muzike i fotografa nikada nisu bili lakši.
+              {t("Hero-sub")}
             </p>
             <div className="relative z-30 mx-auto mt-12 flex max-w-[1060px] flex-wrap items-center justify-between gap-3 rounded-xl bg-white p-4 shadow-lg lg:p-5">
               <Dropdown />
@@ -57,7 +61,6 @@ function HeroSection() {
                 </Link>
               </button>
               <br />
-              <span className="text-center">More Details</span>
             </div>
           </div>
         </div>
@@ -65,5 +68,4 @@ function HeroSection() {
     </section>
   );
 }
-
 export default HeroSection;

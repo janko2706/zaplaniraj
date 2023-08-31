@@ -10,6 +10,6 @@ export const exampleRouter = createTRPCRouter({
       };
     }),
   getAll: publicProcedure.query(({ ctx }) => {
-    return ctx.prisma.category.findMany();
+    return ctx.prisma.eventCategory.findMany();
   }),
 });

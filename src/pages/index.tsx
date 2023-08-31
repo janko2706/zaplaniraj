@@ -9,6 +9,8 @@ import RecommendedIndex from "~/Organisms/RecommendedIndex/RecommendedIndex";
 import { useRouter } from "next/router";
 import { useEffect } from "react";
 import { useUser } from "@clerk/nextjs";
+import type { GetStaticProps } from "next";
+import { serverSideTranslations } from "next-i18next/serverSideTranslations";
 
 export default function Home() {
   const router = useRouter();
@@ -29,7 +31,6 @@ export default function Home() {
       }
     }
   }, [router, user]);
-
   return (
     <>
       <MainTemplate>
@@ -60,7 +61,7 @@ export default function Home() {
                   <div className="flex flex-col space-y-4 sm:flex-row sm:items-center sm:justify-center sm:space-x-4 sm:space-y-0 lg:justify-center">
                     <a
                       href="#istraziPocetna"
-                      className="text-primaryBlue rounded-md bg-slate-300 px-8 py-3 text-lg font-semibold transition-all duration-300 hover:bg-purple-800 hover:text-white"
+                      className="text-primaryBlue mb-5 rounded-md bg-slate-300 px-8 py-3 text-lg font-semibold transition-all duration-300 hover:bg-purple-800 hover:text-white"
                     >
                       Pridruzi nam se
                     </a>
@@ -74,3 +75,9 @@ export default function Home() {
     </>
   );
 }
+
+export const getStaticProps: GetStaticProps = async ({ locale }) => ({
+  props: {
+    ...(await serverSideTranslations(locale ?? "hr", ["frontPage", "common"])),
+  },
+});

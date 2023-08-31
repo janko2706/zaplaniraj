@@ -1,7 +1,12 @@
 import React from "react";
+import MainTemplate from "~/Templates/MainTemplate";
 
 function favorites() {
-  return <div>favorites</div>;
+  return (
+    <MainTemplate>
+      <div>favorites</div>
+    </MainTemplate>
+  );
 }
 
 export default favorites;

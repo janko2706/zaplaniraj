@@ -3,11 +3,9 @@ import { api } from "~/utils/api";
 import "~/styles/globals.css";
 import { ClerkProvider } from "@clerk/nextjs";
 import { DefaultSeo } from "next-seo";
-import Footer from "~/Atoms/Footer/Footer";
-import MainTemplate from "~/Templates/MainTemplate";
 import "react-toastify/dist/ReactToastify.css";
-
 import { ToastContainer } from "react-toastify";
+import { appWithTranslation } from "next-i18next";
 
 const MyApp: AppType = ({ Component, pageProps }) => {
   return (
@@ -27,9 +25,8 @@ const MyApp: AppType = ({ Component, pageProps }) => {
       <ToastContainer position="top-right" />
 
       <Component {...pageProps} />
-      <Footer />
     </ClerkProvider>
   );
 };
 
-export default api.withTRPC(MyApp);
+export default api.withTRPC(appWithTranslation(MyApp));
