@@ -71,7 +71,11 @@ export default function ChooseCategory() {
         <button
           onClick={() => {
             void (async () => {
-              await router.push(`dashboard/company/${user.user?.id}`);
+              await router.replace(
+                `/company/${user.user?.id}/dashboard`,
+                undefined,
+                { locale: router.locale }
+              );
             })();
           }}
           disabled={selectedItem === undefined}
