@@ -54,7 +54,7 @@ const MobileMenu = ({ appLogo }: Props) => {
         </li>{" "}
         <li>
           <Link
-            href="/company/124345gdfg/dashboard"
+            href="/company/id/dashboard"
             className={`flex flex-col items-center gap-1 rounded-md px-3 py-2 ${
               path == "/property-list" && "bg-primary text-white"
             }`}

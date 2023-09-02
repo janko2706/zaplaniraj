@@ -11,8 +11,83 @@ import { useEffect } from "react";
 import { useUser } from "@clerk/nextjs";
 import type { GetStaticProps } from "next";
 import { serverSideTranslations } from "next-i18next/serverSideTranslations";
+import { useTranslation } from "next-i18next";
 
 export default function Home() {
+  const { t } = useTranslation(["common", "frontPage"]);
+
+  const menus = [
+    {
+      title: t("menu-home"),
+      url: "/",
+    },
+    {
+      title: t("menu-discover"),
+      url: "/discover",
+
+      submenu: [
+        {
+          title: t("Category1"),
+          submenu: [
+            {
+              title: "Agent",
+              url: "/agent",
+            },
+            {
+              title: "Agent Details List",
+              url: "/agent-details-list",
+            },
+          ],
+        },
+        {
+          title: t("Category2"),
+          submenu: [
+            {
+              title: "Agent",
+              url: "/agent",
+            },
+            {
+              title: "Agent Details List",
+              url: "/agent-details-list",
+            },
+          ],
+        },
+        {
+          title: t("Category3"),
+          url: "/about-us",
+          submenu: [
+            {
+              title: "Agent",
+              url: "/agent",
+            },
+            {
+              title: "Agent Details List",
+              url: "/agent-details-list",
+            },
+          ],
+        },
+        {
+          title: t("Category4"),
+          url: "/payment-method",
+          submenu: [
+            {
+              title: "Agent",
+              url: "/agent",
+            },
+            {
+              title: "Agent Details List",
+              url: "/agent-details-list",
+            },
+          ],
+        },
+      ],
+    },
+    {
+      title: t("menu-dashboard"),
+      url: "/company/id/dashboard",
+    },
+  ];
+
   const router = useRouter();
   const user = useUser();
   useEffect(() => {
@@ -33,7 +108,7 @@ export default function Home() {
   }, [router, user]);
   return (
     <>
-      <MainTemplate>
+      <MainTemplate menus={menus}>
         <>
           {/* HERO SECTION */}
           <div className="w-full bg-slate-100">
@@ -78,6 +153,10 @@ export default function Home() {
 
 export const getStaticProps: GetStaticProps = async ({ locale }) => ({
   props: {
-    ...(await serverSideTranslations(locale ?? "hr", ["frontPage", "common"])),
+    ...(await serverSideTranslations(locale ?? "hr", [
+      "frontPage",
+      "common",
+      "dashboard",
+    ])),
   },
 });

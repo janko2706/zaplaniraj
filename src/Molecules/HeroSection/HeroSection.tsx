@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import {
@@ -7,14 +7,43 @@ import {
   CalendarDaysIcon,
 } from "@heroicons/react/20/solid";
 import heroImage from "../../Assets/HeroAssets/heroImage.png";
-import Dropdown from "./DropdownCategories";
 import PriceSlider from "./PriceSlider";
-import DropdownArea from "./DropdownArea";
 import { useTranslation } from "next-i18next";
+import { CgRing } from "react-icons/cg";
+import { FaBirthdayCake, FaChurch } from "react-icons/fa";
+import { LuPartyPopper } from "react-icons/lu";
+import { HeroDropdown } from "./HeroDropdown/HeroDropdown";
 
 function HeroSection() {
   const { t } = useTranslation("frontPage");
-  console.log();
+  const areas = [
+    {
+      name: "Zagreb",
+    },
+    {
+      name: "Okolica Zagreba",
+    },
+  ];
+  const categories = [
+    {
+      name: "Vjenjcanja",
+      icon: <CgRing className="   h-5 w-5 text-black " />,
+    },
+    {
+      name: "Rodendani",
+      icon: <FaBirthdayCake className="   h-5 w-5 text-black " />,
+    },
+    {
+      name: "Sakramenti",
+      icon: <FaChurch className="   h-5 w-5 text-black " />,
+    },
+    {
+      name: "Slavlja",
+      icon: <LuPartyPopper className="   h-5 w-5 text-black " />,
+    },
+  ];
+  const [selectedCategory, setSelectedCategory] = useState(categories[0]);
+  const [selectedArea, setSelectedArea] = useState(areas[0]);
 
   return (
     <section className="relative border-t bg-[var(--bg-1)] lg:border-t-0">
@@ -44,8 +73,17 @@ function HeroSection() {
               {t("Hero-sub")}
             </p>
             <div className="relative z-30 mx-auto mt-12 flex max-w-[1060px] flex-wrap items-center justify-between gap-3 rounded-xl bg-white p-4 shadow-lg lg:p-5">
-              <Dropdown />
-              <DropdownArea />
+              <HeroDropdown
+                options={categories}
+                selected={selectedCategory}
+                setSelected={setSelectedCategory}
+              />
+              <HeroDropdown
+                options={areas}
+                selected={selectedArea}
+                setSelected={setSelectedArea}
+              />
+
               <PriceSlider />
               <Link
                 href="#"

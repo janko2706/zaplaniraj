@@ -1,15 +1,14 @@
 import { Menu, Transition } from "@headlessui/react";
 import { Fragment } from "react";
 import { ChevronDownIcon } from "@heroicons/react/24/outline";
-import { useRouter } from "next/router";
-import Link from "next/link";
 import Image from "next/image";
 import USFlag from "@assets/Flags/us.svg";
 import DEFlag from "@assets/Flags/de.svg";
 import HRFlag from "@assets/Flags/hr.svg";
+import { useRouter } from "next/router";
 
 export default function Language() {
-  const { locale } = useRouter();
+  const { locale, push, pathname, query, reload } = useRouter();
 
   const switchFlagonLocaleChange = (locale: string): string => {
     switch (locale) {
@@ -57,23 +56,37 @@ export default function Language() {
           <Menu.Items className="absolute left-0 mt-2 w-56 origin-top-right rounded-md border bg-white p-2 shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none lg:left-auto lg:right-0">
             <div className="flex gap-2 px-1 py-1">
               <Menu.Item>
-                <Link
-                  href={"/"}
+                <button
+                  type="button"
+                  onClick={() => {
+                    void (async () => {
+                      await push({ pathname, query }, undefined, {
+                        locale: "en-US",
+                      });
+                      reload();
+                    })();
+                  }}
                   className={`${
                     locale === "en-US"
                       ? "bg-gray-100 text-gray-900"
                       : "text-gray-700"
                   } group flex w-full flex-col rounded-md px-2 py-2 text-sm`}
-                  locale="en-US"
                 >
                   <span className="text-base text-gray-800">English</span>
-                  <span className="text-xs text-gray-500">United States</span>
-                </Link>
+                  <span className="text-xs text-gray-500">US</span>
+                </button>
               </Menu.Item>
               <Menu.Item>
-                <Link
-                  href={"/"}
-                  locale="de-DE"
+                <button
+                  type="button"
+                  onClick={() => {
+                    void (async () => {
+                      await push({ pathname, query }, undefined, {
+                        locale: "de-DE",
+                      });
+                      reload();
+                    })();
+                  }}
                   className={`${
                     locale === "de-DE"
                       ? "bg-gray-100 text-gray-900"
@@ -82,14 +95,21 @@ export default function Language() {
                 >
                   <span className="text-base text-gray-800">Deutsch</span>
                   <span className="text-xs text-gray-500">Deutschland</span>
-                </Link>
+                </button>
               </Menu.Item>
             </div>
             <div className="flex gap-2 px-1 py-1">
               <Menu.Item>
-                <Link
-                  href={"/"}
-                  locale="hr"
+                <button
+                  type="button"
+                  onClick={() => {
+                    void (async () => {
+                      await push({ pathname, query }, undefined, {
+                        locale: "hr",
+                      });
+                      reload();
+                    })();
+                  }}
                   className={`${
                     locale === "hr"
                       ? "bg-gray-100 text-gray-900"
@@ -98,7 +118,7 @@ export default function Language() {
                 >
                   <span className="text-base text-gray-800">Hrvatski</span>
                   <span className="text-xs text-gray-500">Hrvatska</span>
-                </Link>
+                </button>
               </Menu.Item>
             </div>
           </Menu.Items>

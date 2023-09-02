@@ -7,7 +7,7 @@ import type { StaticImageData } from "next/image";
 import Image from "next/image";
 import { FaBars } from "react-icons/fa";
 import { SignUpButton } from "@clerk/nextjs";
-import { useRouter } from "next/navigation";
+import { useRouter } from "next/router";
 
 type Props = {
   user: {
@@ -16,82 +16,34 @@ type Props = {
     isSingnedIn?: boolean;
   };
   appLogo: StaticImageData;
+  menus: (
+    | {
+        title: string;
+        url: string;
+        submenu?: undefined;
+      }
+    | {
+        title: string;
+        url: string;
+        submenu: {
+          title: string;
+          url?: string;
+          submenu: {
+            title: string;
+            url: string;
+          }[];
+        }[];
+      }
+  )[];
 };
-
-const DesktopHeader = ({ user, appLogo }: Props) => {
+const DesktopHeader = ({ user, appLogo, menus }: Props) => {
   const [menuOpen, setMenuOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const router = useRouter();
-  const menus = [
-    {
-      title: "Home",
-      submenu: [
-        {
-          title: "Real Estate",
-          url: "/",
-        },
-      ],
-    },
-    {
-      title: "Pages",
-      submenu: [
-        {
-          title: "Agent",
-          submenu: [
-            {
-              title: "Agent",
-              url: "/agent",
-            },
-            {
-              title: "Agent Details List",
-              url: "/agent-details-list",
-            },
-            {
-              title: "Agent Details Grid",
-              url: "/agent-details-grid",
-            },
-            {
-              title: "Agent Details Review",
-              url: "/agent-details-review",
-            },
-          ],
-        },
-        {
-          title: "Service",
-          submenu: [
-            {
-              title: "Service",
-              url: "/service",
-            },
-            {
-              title: "Service Details",
-              url: "/service-details",
-            },
-          ],
-        },
-        {
-          title: "About Us",
-          url: "/about-us",
-        },
-        {
-          title: "Payment Method",
-          url: "/payment-method",
-        },
-        {
-          title: "Pricing Plan",
-          url: "/pricing-plan",
-        },
-      ],
-    },
-    {
-      title: "Moja Statistika",
-      url: "/company/354gdsfgert/dashboard",
-    },
-  ];
 
   useEffect(() => {
     document.addEventListener("scroll", () => {
-      if (window.scrollY > 50) {
+      if (window.scrollY > 10) {
         setScrolled(true);
       } else {
         setScrolled(false);
@@ -113,7 +65,11 @@ const DesktopHeader = ({ user, appLogo }: Props) => {
           src={appLogo}
           alt="ZAplaniraj logo"
           onClick={() => {
-            router.push("/");
+            void (async () => {
+              await router.push("/", undefined, {
+                locale: router.locale,
+              });
+            })();
           }}
         />
         <div className="flex items-center gap-2 lg:order-2">

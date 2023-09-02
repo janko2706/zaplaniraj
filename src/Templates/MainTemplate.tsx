@@ -6,6 +6,25 @@ import Footer from "~/Atoms/Footer/Footer";
 
 type Props = {
   children: JSX.Element;
+  menus: (
+    | {
+        title: string;
+        url: string;
+        submenu?: undefined;
+      }
+    | {
+        title: string;
+        url: string;
+        submenu: {
+          title: string;
+          url?: string;
+          submenu: {
+            title: string;
+            url: string;
+          }[];
+        }[];
+      }
+  )[];
 };
 
 function MainTemplate(props: Props) {
@@ -13,7 +32,7 @@ function MainTemplate(props: Props) {
   return (
     <>
       <div className="min-h-full">
-        <DesktopHeader user={user} appLogo={AppLogo} />
+        <DesktopHeader menus={props.menus} user={user} appLogo={AppLogo} />
         <MobileMenu appLogo={AppLogo} />
 
         <main>{props.children}</main>
