@@ -11,6 +11,7 @@ import { type CreateNextContextOptions } from "@trpc/server/adapters/next";
 import superjson from "superjson";
 import { ZodError } from "zod";
 import { prisma } from "~/server/db";
+import { stripe } from "~/server/stripe/client";
 
 /**
  * 1. CONTEXT
@@ -32,9 +33,13 @@ type CreateContextOptions = Record<string, never>;
  *
  * @see https://create.t3.gg/en/usage/trpc#-serverapitrpcts
  */
-const createInnerTRPCContext = (_opts: CreateContextOptions) => {
+const createInnerTRPCContext = (opts: CreateContextOptions) => {
+  const { res, req } = opts;
   return {
     prisma,
+    stripe,
+    res,
+    req,
   };
 };
 

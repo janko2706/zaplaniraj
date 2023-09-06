@@ -93,7 +93,9 @@ export default function Home() {
   useEffect(() => {
     // GET the in onboarding string or boolean from BE
     const isOnboarding = window.localStorage.getItem("onboarding");
-    if (isOnboarding && user.isSignedIn) {
+    const { success } = router.query;
+    if (success === "true") window.localStorage.removeItem("onboarding");
+    if (isOnboarding && user.isSignedIn && !success) {
       switch (isOnboarding) {
         case "welcome":
           void (async () => {
@@ -106,6 +108,7 @@ export default function Home() {
       }
     }
   }, [router, user]);
+
   return (
     <>
       <MainTemplate menus={menus}>

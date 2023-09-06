@@ -23,7 +23,10 @@ export default function PriceSlider() {
               backgroundColor: "var(--primary)",
               borderColor: "var(--primary)",
             }}
-            trackStyle={{ backgroundColor: "var(--primary)" }}
+            trackStyle={{
+              backgroundColor: "var(--primary)",
+              transition: "all 300ms cubic-bezier(.17,.67,.83,.67)",
+            }}
             value={value}
             step={100}
             max={10000}

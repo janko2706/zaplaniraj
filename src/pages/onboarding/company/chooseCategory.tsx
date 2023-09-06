@@ -3,9 +3,7 @@ import { motion } from "framer-motion";
 import { ArrowRightIcon } from "@heroicons/react/24/outline";
 import Select from "react-select";
 import type { SingleValue } from "react-select";
-import { useUser } from "@clerk/nextjs";
 import { useState } from "react";
-
 const STAGGER_CHILD_VARIANTS = {
   hidden: { opacity: 0, y: 20 },
   show: { opacity: 1, y: 0, transition: { duration: 0.4, type: "spring" } },
@@ -20,7 +18,6 @@ export default function ChooseCategory() {
       }>
     | undefined
   >(undefined);
-  const user = useUser();
   const options = [
     { value: "muzika", label: "Muzika" },
     { value: "prostor", label: "Prostor" },
@@ -69,21 +66,21 @@ export default function ChooseCategory() {
           onChange={(value) => setSelectedItem(value)}
         />
         <button
-          onClick={() => {
-            void (async () => {
-              await router.replace(
-                `/company/${user.user?.id}/dashboard`,
-                undefined,
-                { locale: router.locale }
-              );
-            })();
-          }}
+          type="button"
           disabled={selectedItem === undefined}
           className="mx-auto  mt-5 flex  items-center justify-center overflow-hidden rounded-2xl border p-2 transition-colors hover:bg-blue-500 hover:text-white disabled:opacity-30 disabled:hover:cursor-not-allowed"
+          onClick={() => {
+            void (async () => {
+              await router.push("/onboarding/company/PricingPlan", undefined, {
+                locale: router.locale,
+              });
+            })();
+          }}
         >
           <p>Dalje</p>
           <ArrowRightIcon className="pointer-events-none ml-3  h-5 w-5 " />
         </button>
+
         <h1 className="pt-10">
           Nema vase kategorije? Odaberite opciju &quot;Ostalo&quot;, te cemo ju
           mi ubrzo dodati!
