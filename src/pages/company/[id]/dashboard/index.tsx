@@ -1,5 +1,4 @@
 import React from "react";
-import RootLayout from "../layout";
 
 import type { GetStaticPaths, GetStaticProps } from "next";
 import { serverSideTranslations } from "next-i18next/serverSideTranslations";
@@ -12,6 +11,7 @@ import {
   StarIcon,
 } from "@heroicons/react/20/solid";
 import StatisticDashboardTab from "~/Organisms/CompanySpecific/StatisticDashboardTab";
+import RootLayout from "~/Templates/CompanyLayout/layout";
 
 function Dashboard() {
   const { t } = useTranslation("common");

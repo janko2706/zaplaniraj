@@ -5,7 +5,6 @@ import { CheckIcon, PencilIcon } from "@heroicons/react/24/outline";
 import avatarPlaceholder from "@assets/avatar-placeholder.png";
 import MainTemplate from "~/Templates/MainTemplate";
 import { useUser } from "@clerk/nextjs";
-import { useTranslation } from "next-i18next";
 
 type Props = {
   children: JSX.Element;
@@ -32,7 +31,6 @@ type Props = {
 
 function RootLayout({ children, menus }: Props) {
   const user = useUser();
-  const { t } = useTranslation("common");
 
   return (
     <>
@@ -63,7 +61,7 @@ function RootLayout({ children, menus }: Props) {
                 </div>
               </div>
               <Link href="/add-property" className="btn-primary">
-                <PencilIcon className="h-5 w-5" /> {t("edit-post")}
+                <PencilIcon className="h-5 w-5" /> Uredi oglas
               </Link>
             </div>
             <div className="flex items-center justify-center bg-dark py-4"></div>
