@@ -8,6 +8,7 @@ import { useUser } from "@clerk/nextjs";
 
 type Props = {
   children: JSX.Element;
+  type: string;
   menus: (
     | {
         title: string;
@@ -29,7 +30,7 @@ type Props = {
   )[];
 };
 
-function RootLayout({ children, menus }: Props) {
+function RootLayout({ children, menus, type }: Props) {
   const user = useUser();
 
   return (
@@ -61,7 +62,7 @@ function RootLayout({ children, menus }: Props) {
                 </div>
               </div>
               <Link href="/add-property" className="btn-primary">
-                <PencilIcon className="h-5 w-5" /> Uredi oglas
+                <PencilIcon className="h-5 w-5" /> {type}
               </Link>
             </div>
             <div className="flex items-center justify-center bg-dark py-4"></div>

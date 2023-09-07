@@ -13,9 +13,13 @@ import { CgRing } from "react-icons/cg";
 import { FaBirthdayCake, FaChurch } from "react-icons/fa";
 import { LuPartyPopper } from "react-icons/lu";
 import { HeroDropdown } from "./HeroDropdown/HeroDropdown";
+import { useParallax } from "react-scroll-parallax";
 
 function HeroSection() {
   const { t } = useTranslation("frontPage");
+  const calendar = useParallax<HTMLDivElement>({ speed: -10 });
+  const celebration = useParallax<HTMLImageElement>({ speed: 40 });
+
   const areas = [
     {
       name: "Zagreb",
@@ -47,12 +51,15 @@ function HeroSection() {
 
   return (
     <section className="relative border-t bg-[var(--bg-1)] lg:border-t-0">
-      <CalendarDaysIcon
-        width={508}
-        height={500}
-        className="absolute right-0 top-0 hidden w-[20%]  text-slate-400  xl:block"
-      />
+      <div ref={calendar.ref}>
+        <CalendarDaysIcon
+          width={508}
+          height={500}
+          className="absolute right-0 top-0 hidden w-[20%]  text-slate-400  xl:block"
+        />
+      </div>
       <Image
+        ref={celebration.ref}
         priority
         className="absolute left-0 top-[70%] z-10 hidden w-[25%] lg:block"
         src={heroImage}
@@ -63,8 +70,8 @@ function HeroSection() {
 
       <div className="h-full px-3 pb-16 pt-[70px] sm:pt-[100px] md:pt-[150px] xl:pt-[180px]">
         <div className="container">
-          <div className="relative z-10 text-center">
-            <h1 className=" text-7xl font-semibold  text-neutral-700">
+          <div className="relative z-10  text-center">
+            <h1 className=" text-6xl font-semibold  text-neutral-700">
               {t("Hero-main1")}{" "}
               <span className="text-purple-800"> {t("Hero-bold")} </span>
               {t("Hero-main2")}

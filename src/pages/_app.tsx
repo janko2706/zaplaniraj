@@ -6,6 +6,7 @@ import { DefaultSeo } from "next-seo";
 import "react-toastify/dist/ReactToastify.css";
 import { ToastContainer } from "react-toastify";
 import { appWithTranslation } from "next-i18next";
+import { ParallaxProvider } from "react-scroll-parallax";
 
 const MyApp: AppType = ({ Component, pageProps }) => {
   return (
@@ -23,8 +24,9 @@ const MyApp: AppType = ({ Component, pageProps }) => {
         description="Platforma za organiziranje dogadaja poput vjenjcanja, prvih pricesti, krizma, rodendana, itd."
       />
       <ToastContainer position="top-right" />
-
-      <Component {...pageProps} />
+      <ParallaxProvider scrollAxis="vertical">
+        <Component {...pageProps} />
+      </ParallaxProvider>
     </ClerkProvider>
   );
 };

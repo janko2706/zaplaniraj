@@ -12,8 +12,9 @@ export default function UserType() {
   async function asyncFunction(type: string) {
     switch (type) {
       case "user":
+        localStorage.removeItem("onboarding");
         await router.push({
-          pathname: "/onboarding/user",
+          pathname: "/",
         });
         break;
       case "company":

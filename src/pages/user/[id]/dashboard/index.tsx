@@ -5,32 +5,35 @@ import { serverSideTranslations } from "next-i18next/serverSideTranslations";
 import { useTranslation } from "next-i18next";
 import PortalTabs from "~/Organisms/PortalTabs/PortalTabs";
 import {
-  CalendarIcon,
-  ChartBarIcon,
+  CalendarDaysIcon,
   Cog6ToothIcon,
-  StarIcon,
+  HeartIcon,
+  PencilSquareIcon,
 } from "@heroicons/react/20/solid";
-import StatisticDashboardTab from "~/Organisms/CompanySpecific/StatisticDashboardTab";
 import RootLayout from "~/Templates/PortalLayout/layout";
+import MyPlans from "~/Organisms/UserSpecific/MyPlans";
 
 function Dashboard() {
   const { t } = useTranslation("common");
-  const i18n = useTranslation("dashboard");
+  const i18n = useTranslation("dashboard-user");
 
   const menuOptions = [
     {
-      title: i18n.t("menu-stats"),
-      icon: <ChartBarIcon className="h-5 w-5" />,
-      children: <StatisticDashboardTab />,
+      title: i18n.t("menu-plans"),
+      icon: <PencilSquareIcon className="h-5 w-5" />,
+      children: <MyPlans />,
     },
     {
       title: i18n.t("menu-settings"),
       icon: <Cog6ToothIcon className="h-5 w-5" />,
     },
-    { title: i18n.t("menu-reviews"), icon: <StarIcon className="h-5 w-5" /> },
     {
-      title: i18n.t("menu-calendar"),
-      icon: <CalendarIcon className="h-5 w-5" />,
+      title: i18n.t("menu-schedule"),
+      icon: <CalendarDaysIcon className="h-5 w-5" />,
+    },
+    {
+      title: i18n.t("menu-favorites"),
+      icon: <HeartIcon className="h-5 w-5 text-red-500" />,
     },
   ];
   const menus = [
@@ -105,7 +108,7 @@ function Dashboard() {
     },
   ];
   return (
-    <RootLayout menus={menus} type={t("edit-post")}>
+    <RootLayout menus={menus} type={t("new-plan")}>
       <PortalTabs tabs={menuOptions} />
     </RootLayout>
   );
@@ -114,7 +117,10 @@ function Dashboard() {
 export default Dashboard;
 export const getStaticProps: GetStaticProps = async ({ locale }) => ({
   props: {
-    ...(await serverSideTranslations(locale ?? "hr", ["common", "dashboard"])),
+    ...(await serverSideTranslations(locale ?? "hr", [
+      "common",
+      "dashboard-user",
+    ])),
   },
 });
 
