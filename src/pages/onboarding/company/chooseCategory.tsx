@@ -24,6 +24,7 @@ export default function ChooseCategory() {
     { value: "prostor_i_catering", label: "Prostor i Catering" },
     { value: "transport", label: "Transport" },
     { value: "torte", label: "Torte" },
+    { value: "cvijece", label: "Cvijece" },
     { value: "vjencanice", label: "vjencanice" },
     { value: "vjencanice_i_torte", label: "Vjencanice i torte" },
     { value: "ostalo", label: "Ostalo" },

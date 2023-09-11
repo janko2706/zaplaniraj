@@ -1,6 +1,9 @@
 import { useRouter } from "next/router";
 import { motion } from "framer-motion";
 import { BriefcaseIcon, CakeIcon } from "@heroicons/react/24/outline";
+import { useOnboarding } from "~/hooks/onboarding/useOnboarding";
+import { toast } from "react-toastify";
+import { useUser } from "@clerk/nextjs";
 const STAGGER_CHILD_VARIANTS = {
   hidden: { opacity: 0, y: 20 },
   show: { opacity: 1, y: 0, transition: { duration: 0.4, type: "spring" } },
@@ -8,16 +11,21 @@ const STAGGER_CHILD_VARIANTS = {
 
 export default function UserType() {
   const router = useRouter();
-
+  const user = useUser();
+  const { setOnboarding } = useOnboarding();
   async function asyncFunction(type: string) {
     switch (type) {
       case "user":
-        localStorage.removeItem("onboarding");
-        await router.push({
-          pathname: "/",
+        await setOnboarding({ onboardingLevel: "done" }).then(async () => {
+          await router.replace({
+            pathname: `user/${user.user?.id}/dashboard`,
+          });
+          toast.success(`Welcome to your event planner!`);
         });
+
         break;
       case "company":
+        await setOnboarding({ onboardingLevel: "isBusiness" });
         await router.push({
           pathname: "/onboarding/company",
         });
@@ -26,6 +34,7 @@ export default function UserType() {
         break;
     }
   }
+
   return (
     <motion.div
       className="z-10 mx-5 flex flex-col items-center space-y-10 text-center sm:mx-auto"

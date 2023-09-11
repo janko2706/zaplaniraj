@@ -8,14 +8,14 @@ import IndexCategorySection from "~/Organisms/IndexCategorySection/IndexCategory
 import RecommendedIndex from "~/Organisms/RecommendedIndex/RecommendedIndex";
 import { useRouter } from "next/router";
 import { useEffect } from "react";
-import { useUser } from "@clerk/nextjs";
 import type { GetStaticProps } from "next";
 import { serverSideTranslations } from "next-i18next/serverSideTranslations";
 import { useTranslation } from "next-i18next";
+import { useHome } from "~/hooks/home/useHome";
+import { useUser } from "@clerk/nextjs";
 
 export default function Home() {
   const { t } = useTranslation(["common", "frontPage"]);
-
   const menus = [
     {
       title: t("menu-home"),
@@ -87,27 +87,32 @@ export default function Home() {
       url: "/company/id/dashboard",
     },
   ];
-
-  const router = useRouter();
   const user = useUser();
+  const router = useRouter();
+  const { getUserOnboarding } = useHome();
+
   useEffect(() => {
-    // GET the in onboarding string or boolean from BE
-    const isOnboarding = window.localStorage.getItem("onboarding");
-    const { success } = router.query;
-    if (success === "true") window.localStorage.removeItem("onboarding");
-    if (isOnboarding && user.isSignedIn && !success) {
-      switch (isOnboarding) {
+    if (getUserOnboarding.data && user.isSignedIn) {
+      switch (getUserOnboarding.data) {
+        case "done":
+          break;
         case "welcome":
           void (async () => {
-            await router.push("/onboarding");
+            await router.replace(`/onboarding`);
+          })();
+          break;
+        case getUserOnboarding.data:
+          void (async () => {
+            await router.replace(`/onboarding/${getUserOnboarding.data}`);
           })();
           break;
 
         default:
           break;
       }
+    } else {
     }
-  }, [router, user]);
+  }, [getUserOnboarding.data, user.isSignedIn, router]);
 
   return (
     <>

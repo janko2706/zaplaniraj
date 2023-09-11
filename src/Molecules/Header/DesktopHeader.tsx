@@ -39,8 +39,8 @@ type Props = {
 const DesktopHeader = ({ user, appLogo, menus }: Props) => {
   const [menuOpen, setMenuOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
-  const router = useRouter();
 
+  const router = useRouter();
   useEffect(() => {
     document.addEventListener("scroll", () => {
       if (window.scrollY > 10) {
@@ -50,6 +50,7 @@ const DesktopHeader = ({ user, appLogo, menus }: Props) => {
       }
     });
   }, []);
+
   return (
     <header
       className={`sticky top-0 z-30 hidden h-[75px] border-y align-middle lg:block  ${
@@ -81,7 +82,6 @@ const DesktopHeader = ({ user, appLogo, menus }: Props) => {
             >
               <button
                 type="button"
-                onClick={() => localStorage.setItem("onboarding", "welcome")}
                 className=" rounded-3xl bg-slate-200 px-4 py-3 text-sm hover:bg-blue-300 "
               >
                 Nemas racun?

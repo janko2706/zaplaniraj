@@ -12,6 +12,7 @@ import {
 } from "@heroicons/react/20/solid";
 import RootLayout from "~/Templates/PortalLayout/layout";
 import MyPlans from "~/Organisms/UserSpecific/MyPlans";
+import { api } from "~/utils/api";
 
 function Dashboard() {
   const { t } = useTranslation("common");
@@ -24,16 +25,12 @@ function Dashboard() {
       children: <MyPlans />,
     },
     {
-      title: i18n.t("menu-settings"),
-      icon: <Cog6ToothIcon className="h-5 w-5" />,
-    },
-    {
-      title: i18n.t("menu-schedule"),
-      icon: <CalendarDaysIcon className="h-5 w-5" />,
-    },
-    {
       title: i18n.t("menu-favorites"),
       icon: <HeartIcon className="h-5 w-5 text-red-500" />,
+    },
+    {
+      title: i18n.t("menu-settings"),
+      icon: <Cog6ToothIcon className="h-5 w-5" />,
     },
   ];
   const menus = [
@@ -124,7 +121,50 @@ export const getStaticProps: GetStaticProps = async ({ locale }) => ({
   },
 });
 
-export const getStaticPaths: GetStaticPaths = () => {
+export const getStaticPaths: GetStaticPaths = async () => {
+  // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+  const result: {
+    result: {
+      data: {
+        json: { id: string }[];
+      };
+    };
+  } = await fetch("http://localhost:3000/api/trpc/user.getAllForPages").then(
+    (res) => {
+      return res.json();
+    }
+  );
+  const userData = result.result.data.json;
+  const engPaths = userData.map((item) => {
+    return {
+      params: {
+        id: item.id,
+      },
+      locale: "en-US",
+    };
+  });
+  const hrPaths = userData.map((item) => {
+    return {
+      params: {
+        id: item.id,
+      },
+      locale: "hr",
+    };
+  });
+  const dePaths = userData.map((item) => {
+    return {
+      params: {
+        id: item.id,
+      },
+      locale: "de-DE",
+    };
+  });
+  if (userData) {
+    return {
+      paths: [...engPaths, ...dePaths, ...hrPaths],
+      fallback: true,
+    };
+  }
   return {
     paths: [
       {

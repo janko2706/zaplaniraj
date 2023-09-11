@@ -1,12 +1,14 @@
-// FOR PRODUCTION UNCOMMENT
-// import { authMiddleware } from "@clerk/nextjs";
+import { authMiddleware } from "@clerk/nextjs";
 
-// export default authMiddleware({});
+export default authMiddleware({
+  publicRoutes: [
+    "/",
+    "",
+    "/api/trpc/user.getUserOnboarding",
+    "/api/trpc/user.getAllForPages",
+  ],
+});
 
 export const config = {
   matcher: ["/((?!.*\\..*|_next).*)", "/", "/(api|trpc)(.*)"],
 };
-
-export function middleware() {
-  return null
-}

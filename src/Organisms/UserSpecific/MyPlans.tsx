@@ -4,28 +4,44 @@ import { FaBirthdayCake, FaChurch } from "react-icons/fa";
 import { LuPartyPopper } from "react-icons/lu";
 import Image from "next/image";
 import { AnimatePresence, motion } from "framer-motion";
+import moment from "moment";
+import { EllipsisVerticalIcon } from "@heroicons/react/24/outline";
 
 function MyPlans() {
   const [selectedCategoryPlans, setSelectedCategoryPlans] =
     useState<string>("Wedding");
-  const iconClasses = "lg:h-20 lg:w-20 h-14 w-14  self-center text-primary ";
-  const categories = [
+  // const iconClasses = "lg:h-20 lg:w-20 h-14 w-14  self-center text-primary ";
+  const iconClasses = "h-7  w-7 ";
+  const categories: {
+    name: string;
+    color: string;
+    icon: JSX.Element;
+    date: Date;
+  }[] = [
     {
-      name: "Vjenjcanja",
+      name: "My wedding",
+      color: "bg-slate-200",
       icon: <CgRing className={`${iconClasses}`} />,
+      date: new Date("2024/01/01"),
     },
-    {
-      name: "Rodendani",
-      icon: <FaBirthdayCake className={`${iconClasses}`} />,
-    },
-    {
-      name: "Sakramenti",
-      icon: <FaChurch className={`${iconClasses}`} />,
-    },
-    {
-      name: "Slavlja",
-      icon: <LuPartyPopper className={`${iconClasses}`} />,
-    },
+    // {
+    //   name: "Rodendan Matija",
+    //   color: "bg-blue-200",
+    //   icon: <FaBirthdayCake className={`${iconClasses}`} />,
+    //   date: new Date(2024, 12, 1),
+    // },
+    // {
+    //   name: "Krizma John",
+    //   color: "bg-orange-200",
+    //   icon: <FaChurch className={`${iconClasses}`} />,
+    //   date: new Date(2024, 12, 1),
+    // },
+    // {
+    //   name: "Party Party!!",
+    //   color: "bg-purple-200",
+    //   icon: <LuPartyPopper className={`${iconClasses}`} />,
+    //   date: new Date(2024, 12, 1),
+    // },
   ];
 
   const chooseList = (selectedCategoryPlans: string) => {
@@ -105,49 +121,71 @@ function MyPlans() {
     }
   };
   return (
-    <section className="mx-52 my-10 flex h-[70vmin] w-full">
-      {/* <div className="grid  grid-cols-2 grid-rows-2 gap-4  md:grid-cols-3  lg:grid-cols-4 ">
-        {categories.map((item, idx) => {
-          return <Card key={idx} name={item.name} icon={item.icon} />;
-        })}
-      </div> */}
-      <div className="flex h-full  flex-col justify-start gap-4  ">
+    <section className="mx-5 my-10 h-full w-full  ">
+      <div className="grid h-full grid-cols-2 gap-4 md:grid-cols-4 lg:grid-cols-5  ">
         {categories.map((item, idx) => {
           return (
             <Card
               key={idx}
               name={item.name}
               icon={item.icon}
+              color={item.color}
               setSelectedCategoryPlans={setSelectedCategoryPlans}
+              date={item.date}
             />
           );
         })}
       </div>
-      <PlanList people={chooseList(selectedCategoryPlans)} />
+      {/* <PlanList people={chooseList(selectedCategoryPlans)} /> */}
     </section>
   );
 }
 
 export default MyPlans;
 
-type Props = {
+type PropsCard = {
   name: string;
   icon: JSX.Element;
   setSelectedCategoryPlans: React.Dispatch<React.SetStateAction<string>>;
+  color: string;
+  date: Date;
 };
 
-const Card = ({ name, icon, setSelectedCategoryPlans }: Props) => {
+const Card = ({
+  name,
+  icon,
+  setSelectedCategoryPlans,
+  color,
+  date,
+}: PropsCard) => {
+  const endDate = moment(date),
+    todayDate = moment();
+
+  const daysDifference = moment(endDate).diff(todayDate, "days");
+
   return (
     <label onChange={() => setSelectedCategoryPlans(name)}>
-      <input
-        type="radio"
-        name="category"
-        className="peer hidden"
-        value={name}
-      />
-      <div className="flex h-32 w-32 flex-col justify-center gap-4 rounded-lg text-center shadow-md transition-all duration-300 hover:cursor-pointer  hover:bg-gray-300 hover:shadow-2xl peer-checked:bg-gray-400 lg:h-52 lg:w-52">
-        {icon}
-        <p className="text-md lg:text-lg">{name}</p>
+      <div
+        className={` ${color} flex h-[15rem] w-[10rem] flex-col gap-4 rounded-xl p-6 opacity-100 shadow-md transition-all duration-300 hover:cursor-pointer hover:opacity-100 hover:shadow-2xl lg:h-[25rem]  lg:w-[18rem] `}
+      >
+        <div className="flex w-full justify-between">
+          {icon}
+          <EllipsisVerticalIcon className="h-7 w-7 " />
+        </div>
+
+        <p className="text-md font-semibold lg:text-xl">{name}</p>
+        <div className=" flex h-full w-full flex-col justify-end ">
+          <Image
+            height={300}
+            width={300}
+            className="m-auto hidden rounded-md object-fill lg:block lg:w-[70%] lg:max-w-none"
+            src={
+              "https://images.unsplash.com/photo-1694231665185-bf22c08d9ced?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2487&q=80"
+            }
+            alt={""}
+          />
+          <p className="text-md lg:text-lg">{daysDifference} days remaining</p>
+        </div>
       </div>
     </label>
   );

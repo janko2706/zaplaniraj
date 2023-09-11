@@ -120,10 +120,12 @@ export default function Profile({ user }: Props) {
               <Menu.Item>
                 {({ active }) =>
                   !user.isSingnedIn ? (
-                    <SignInButton mode="modal">
+                    <SignInButton
+                      mode="modal"
+                      redirectUrl="http://localhost:3000/"
+                    >
                       <button
                         type="button"
-                        onClick={()=>localStorage.setItem("userType", "")}
                         className={`${
                           active ? "bg-gray-200 text-gray-800" : ""
                         } group flex w-full items-center gap-2 rounded-md px-2 py-2 text-sm`}

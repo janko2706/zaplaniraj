@@ -1,12 +1,22 @@
-import { ArrowLeftIcon } from "@heroicons/react/24/outline";
 import { AnimatePresence } from "framer-motion";
 import UserType from "./chooseUserType";
-import { useRouter } from "next/router";
-import { useClerk } from "@clerk/nextjs";
+import { useOnboarding } from "~/hooks/onboarding/useOnboarding";
+import { useEffect } from "react";
+import { toast } from "react-toastify";
 
 export default function Index() {
-  const router = useRouter();
-  const { signOut } = useClerk();
+  const { createUser, doesUserExists } = useOnboarding();
+
+  useEffect(() => {
+    void (() => {
+      if (doesUserExists.data === 300) {
+        void (async () => {
+          await createUser().catch((err) => toast.error(`${err}`));
+        })();
+      }
+    })();
+  }, [doesUserExists.isLoading]);
+
   return (
     <div className="mx-auto flex h-screen max-w-3xl flex-col items-center justify-center overflow-x-hidden">
       <div
@@ -22,20 +32,7 @@ export default function Index() {
         />
       </div>
       <AnimatePresence mode="sync">
-        <button
-          className="group absolute left-2 top-10 z-40 rounded-full p-2 transition-all hover:bg-gray-400 sm:left-10"
-          onClick={(e) => {
-            e.preventDefault();
-
-            void (async () => {
-              await signOut();
-              await router.push("/");
-            })();
-          }}
-        >
-          <ArrowLeftIcon className="h-8 w-8 text-gray-500 group-hover:text-gray-800 group-active:scale-90" />
-        </button>
-        <UserType key="next" />
+        <UserType />
       </AnimatePresence>
     </div>
   );

@@ -23,23 +23,24 @@ model User {
     businessId String? @unique
     onboarding  String
     clerkId String
-    @@index([id])
+    @@index([clerkId])
 }
 
 model Business {
     id        String   @id @default(cuid())
     user User?
-    typeOfBusiness BusinessTypeCategory[]
+    typeOfBusiness BusinessTypeCategory @relation(fields: [typeOfBusinessId], references: [id])
+    typeOfBusinessId Int @unique
     selectedCategoriesIds EventCategory[]
     name String
     stripeId String?
     freeTrial Boolean
     location String?
-    priceRange Int
+    priceRange Int?
     priceEsstimation Int?
     shortDescription String?
     fullDescription String?
-    options Options @relation(fields: [optionsId], references: [id])
+    options Options? @relation(fields: [optionsId], references: [id])
     optionsId Int @unique
 }
 
@@ -53,7 +54,7 @@ model BusinessTypeCategory {
     id        Int   @id @default(autoincrement())
     value String
     label String
-    businesses Business[]
+    businesses Business?
 }
 
 model Socials {
