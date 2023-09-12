@@ -18,6 +18,9 @@ export default {
         secondary500: "#22804a",
         dark: "#091e42",
       },
+      animation: {
+        "spin-slow": "spin 5s linear infinite",
+      },
     },
   },
   plugins: [],

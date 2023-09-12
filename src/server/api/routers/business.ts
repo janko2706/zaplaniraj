@@ -12,7 +12,7 @@ export const businessRouter = createTRPCRouter({
       })
     )
     .mutation(async ({ input, ctx }) => {
-      const clerkId = ctx.currentUser.id;
+      const clerkId = ctx.userId;
       const user = await ctx.prisma.user.findFirst({
         where: {
           clerkId: clerkId,
