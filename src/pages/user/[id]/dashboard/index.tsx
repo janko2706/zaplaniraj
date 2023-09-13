@@ -128,8 +128,8 @@ export const getStaticPaths: GetStaticPaths = async () => {
     };
   } // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
   const result: {
-    result: {
-      data: {
+    result?: {
+      data?: {
         json: { id: string }[];
       };
     };
@@ -138,6 +138,31 @@ export const getStaticPaths: GetStaticPaths = async () => {
   ).then((res) => {
     return res.json();
   });
+  if (!result ?? !result.result ?? !result.result.data) {
+    return {
+      paths: [
+        {
+          params: {
+            id: "id",
+          },
+          locale: "en-US",
+        },
+        {
+          params: {
+            id: "id",
+          },
+          locale: "hr",
+        },
+        {
+          params: {
+            id: "id",
+          },
+          locale: "de-DE",
+        },
+      ],
+      fallback: true,
+    };
+  }
 
   const userData = result.result.data.json;
   const engPaths = userData.map((item) => {
@@ -170,27 +195,4 @@ export const getStaticPaths: GetStaticPaths = async () => {
       fallback: true,
     };
   }
-  return {
-    paths: [
-      {
-        params: {
-          id: "id",
-        },
-        locale: "en-US",
-      },
-      {
-        params: {
-          id: "id",
-        },
-        locale: "hr",
-      },
-      {
-        params: {
-          id: "id",
-        },
-        locale: "de-DE",
-      },
-    ],
-    fallback: true,
-  };
 };
