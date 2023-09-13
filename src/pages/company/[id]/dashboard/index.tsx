@@ -4,109 +4,16 @@ import type { GetStaticPaths, GetStaticProps } from "next";
 import { serverSideTranslations } from "next-i18next/serverSideTranslations";
 import { useTranslation } from "next-i18next";
 import PortalTabs from "~/Organisms/PortalTabs/PortalTabs";
-import {
-  CalendarIcon,
-  ChartBarIcon,
-  Cog6ToothIcon,
-  StarIcon,
-} from "@heroicons/react/20/solid";
-import StatisticDashboardTab from "~/Organisms/CompanySpecific/StatisticDashboardTab";
 import RootLayout from "~/Templates/PortalLayout/layout";
+import useMenu from "~/hooks/useMenu/useMenu";
 
 function Dashboard() {
   const { t } = useTranslation("common");
-  const i18n = useTranslation("dashboard");
 
-  const menuOptions = [
-    {
-      title: i18n.t("menu-stats"),
-      icon: <ChartBarIcon className="h-5 w-5" />,
-      children: <StatisticDashboardTab />,
-    },
-    {
-      title: i18n.t("menu-settings"),
-      icon: <Cog6ToothIcon className="h-5 w-5" />,
-    },
-    { title: i18n.t("menu-reviews"), icon: <StarIcon className="h-5 w-5" /> },
-    {
-      title: i18n.t("menu-calendar"),
-      icon: <CalendarIcon className="h-5 w-5" />,
-    },
-  ];
-  const menus = [
-    {
-      title: t("menu-home"),
-      url: "/",
-    },
-    {
-      title: t("menu-discover"),
-      url: "/discover",
-
-      submenu: [
-        {
-          title: t("Category1"),
-          submenu: [
-            {
-              title: "Agent",
-              url: "/agent",
-            },
-            {
-              title: "Agent Details List",
-              url: "/agent-details-list",
-            },
-          ],
-        },
-        {
-          title: t("Category2"),
-          submenu: [
-            {
-              title: "Agent",
-              url: "/agent",
-            },
-            {
-              title: "Agent Details List",
-              url: "/agent-details-list",
-            },
-          ],
-        },
-        {
-          title: t("Category3"),
-          url: "/about-us",
-          submenu: [
-            {
-              title: "Agent",
-              url: "/agent",
-            },
-            {
-              title: "Agent Details List",
-              url: "/agent-details-list",
-            },
-          ],
-        },
-        {
-          title: t("Category4"),
-          url: "/payment-method",
-          submenu: [
-            {
-              title: "Agent",
-              url: "/agent",
-            },
-            {
-              title: "Agent Details List",
-              url: "/agent-details-list",
-            },
-          ],
-        },
-      ],
-    },
-    {
-      title: t("menu-dashboard"),
-      url: "/company/id/dashboard",
-    },
-  ];
+  const { menus, companyDashboardMenu } = useMenu();
   return (
     <RootLayout menus={menus} type={t("edit-post")}>
-      <PortalTabs tabs={menuOptions} />
+      <PortalTabs tabs={companyDashboardMenu} />
     </RootLayout>
   );
 }

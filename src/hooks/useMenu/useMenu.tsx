@@ -1,0 +1,148 @@
+import { UserProfile } from "@clerk/nextjs";
+import {
+  ChartBarIcon,
+  Cog6ToothIcon,
+  StarIcon,
+  CalendarIcon,
+  HeartIcon,
+  PencilSquareIcon,
+} from "@heroicons/react/20/solid";
+import { useTranslation } from "next-i18next";
+import StatisticDashboardTab from "~/Organisms/CompanySpecific/StatisticDashboardTab";
+import MyPlans from "~/Organisms/UserSpecific/MyPlans";
+
+function useMenu() {
+  const { t } = useTranslation("common");
+  const company = useTranslation("dashboard");
+  const user = useTranslation("dashboard-user");
+
+  const menus = [
+    {
+      title: t("menu-home"),
+      url: "/",
+    },
+    {
+      title: t("menu-discover"),
+      url: "/discover",
+
+      submenu: [
+        {
+          title: t("Category1"),
+          submenu: [
+            {
+              title: "Agent",
+              url: "/agent",
+            },
+            {
+              title: "Agent Details List",
+              url: "/agent-details-list",
+            },
+          ],
+        },
+        {
+          title: t("Category2"),
+          submenu: [
+            {
+              title: "Agent",
+              url: "/agent",
+            },
+            {
+              title: "Agent Details List",
+              url: "/agent-details-list",
+            },
+          ],
+        },
+        {
+          title: t("Category3"),
+          url: "/about-us",
+          submenu: [
+            {
+              title: "Agent",
+              url: "/agent",
+            },
+            {
+              title: "Agent Details List",
+              url: "/agent-details-list",
+            },
+          ],
+        },
+        {
+          title: t("Category4"),
+          url: "/payment-method",
+          submenu: [
+            {
+              title: "Agent",
+              url: "/agent",
+            },
+            {
+              title: "Agent Details List",
+              url: "/agent-details-list",
+            },
+          ],
+        },
+      ],
+    },
+    {
+      title: t("menu-dashboard"),
+      url: "/company/id/dashboard",
+    },
+  ];
+  const userDashboardMenu = [
+    {
+      title: user.t("menu-plans"),
+      icon: <PencilSquareIcon className="h-5 w-5" />,
+      children: <MyPlans />,
+    },
+    {
+      title: user.t("menu-favorites"),
+      icon: <HeartIcon className="h-5 w-5 text-red-500" />,
+      children: <MyPlans />,
+    },
+    {
+      title: user.t("menu-settings"),
+      icon: <Cog6ToothIcon className="h-5 w-5" />,
+      children: (
+        <UserProfile
+          appearance={{
+            elements: {
+              rootBox: "w-full ",
+              pageScrollBox: "w-full ",
+              card: "w-full",
+              navbar: "hidden",
+            },
+          }}
+        />
+      ),
+    },
+  ];
+  const companyDashboardMenu: {
+    title: string;
+    icon: JSX.Element;
+    children: JSX.Element;
+  }[] = [
+    {
+      title: company.t("menu-stats"),
+      icon: <ChartBarIcon className="h-5 w-5" />,
+      children: <StatisticDashboardTab />,
+    },
+    {
+      title: company.t("menu-settings"),
+      icon: <Cog6ToothIcon className="h-5 w-5" />,
+      children: <StatisticDashboardTab />,
+    },
+    {
+      title: company.t("menu-reviews"),
+      icon: <StarIcon className="h-5 w-5" />,
+      children: <StatisticDashboardTab />,
+    },
+
+    {
+      title: company.t("menu-calendar"),
+      icon: <CalendarIcon className="h-5 w-5" />,
+      children: <StatisticDashboardTab />,
+    },
+  ];
+  return { menus, companyDashboardMenu, userDashboardMenu };
+}
+
+export default useMenu;

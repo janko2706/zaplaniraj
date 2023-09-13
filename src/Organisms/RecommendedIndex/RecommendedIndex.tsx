@@ -3,10 +3,7 @@ import Link from "next/link";
 import React from "react";
 import BasicCard from "~/Atoms/Card/BasicCard";
 import { FaHourglassHalf } from "react-icons/fa";
-
-function classNames(...classes: string[]) {
-  return classes.filter(Boolean).join(" ");
-}
+import classNames from "~/utils/classNames";
 
 function RecommendedIndex() {
   return (

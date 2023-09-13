@@ -10,11 +10,9 @@ import { type NextRouter, useRouter } from "next/router";
 import { Tab } from "@headlessui/react";
 import Link from "next/link";
 import { ChevronDoubleRightIcon } from "@heroicons/react/20/solid";
+import classNames from "~/utils/classNames";
 
 function MyPlans() {
-  function classNames(...classes: string[]) {
-    return classes.filter(Boolean).join(" ");
-  }
   const iconClasses = "h-7 w-7";
   const router = useRouter();
   const plansInProgress: {
@@ -57,13 +55,6 @@ function MyPlans() {
     icon: JSX.Element;
     date: Date;
   }[] = [
-    {
-      id: "fiouasgodiuz5554325bcasdf",
-
-      name: "Krizma John",
-      icon: <FaChurch className={`${iconClasses}`} />,
-      date: new Date(2024, 12, 1),
-    },
     {
       id: "fiouasg2345odiuzbcasdf",
 

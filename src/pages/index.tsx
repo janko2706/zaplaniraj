@@ -10,86 +10,15 @@ import { useRouter } from "next/router";
 import { useEffect } from "react";
 import type { GetStaticProps } from "next";
 import { serverSideTranslations } from "next-i18next/serverSideTranslations";
-import { useTranslation } from "next-i18next";
 import { useHome } from "~/hooks/home/useHome";
 import { useUser } from "@clerk/nextjs";
+import useMenu from "~/hooks/useMenu/useMenu";
 
 export default function Home() {
-  const { t } = useTranslation(["common", "frontPage"]);
-  const menus = [
-    {
-      title: t("menu-home"),
-      url: "/",
-    },
-    {
-      title: t("menu-discover"),
-      url: "/discover",
-
-      submenu: [
-        {
-          title: t("Category1"),
-          submenu: [
-            {
-              title: "Agent",
-              url: "/agent",
-            },
-            {
-              title: "Agent Details List",
-              url: "/agent-details-list",
-            },
-          ],
-        },
-        {
-          title: t("Category2"),
-          submenu: [
-            {
-              title: "Agent",
-              url: "/agent",
-            },
-            {
-              title: "Agent Details List",
-              url: "/agent-details-list",
-            },
-          ],
-        },
-        {
-          title: t("Category3"),
-          url: "/about-us",
-          submenu: [
-            {
-              title: "Agent",
-              url: "/agent",
-            },
-            {
-              title: "Agent Details List",
-              url: "/agent-details-list",
-            },
-          ],
-        },
-        {
-          title: t("Category4"),
-          url: "/payment-method",
-          submenu: [
-            {
-              title: "Agent",
-              url: "/agent",
-            },
-            {
-              title: "Agent Details List",
-              url: "/agent-details-list",
-            },
-          ],
-        },
-      ],
-    },
-    {
-      title: t("menu-dashboard"),
-      url: "/company/id/dashboard",
-    },
-  ];
   const user = useUser();
   const router = useRouter();
   const { getUserOnboarding } = useHome();
+  const { menus } = useMenu();
 
   useEffect(() => {
     if (getUserOnboarding.data && user.isSignedIn) {
