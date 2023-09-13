@@ -1,5 +1,4 @@
 import type { GetStaticPaths, GetStaticProps } from "next";
-import { useTranslation } from "next-i18next";
 import { serverSideTranslations } from "next-i18next/serverSideTranslations";
 import MainTemplate from "~/Templates/MainTemplate";
 import React, { useState } from "react";
@@ -281,7 +280,9 @@ function Index() {
               <ol className="relative border-l border-gray-200 dark:border-gray-700">
                 <li className="mb-10 ml-6">
                   <span className="absolute -left-3 flex h-6 w-6 items-center justify-center rounded-full bg-blue-100 ring-8 ring-white dark:bg-blue-900 dark:ring-gray-900">
-                    <img
+                    <Image
+                      height={999}
+                      width={999}
                       className="rounded-full shadow-lg"
                       src="/docs/images/people/profile-picture-3.jpg"
                       alt="Bonnie image"
@@ -308,7 +309,9 @@ function Index() {
                 </li>
                 <li className="mb-10 ml-6">
                   <span className="absolute -left-3 flex h-6 w-6 items-center justify-center rounded-full bg-blue-100 ring-8 ring-white dark:bg-blue-900 dark:ring-gray-900">
-                    <img
+                    <Image
+                      height={999}
+                      width={999}
                       className="rounded-full shadow-lg"
                       src="/docs/images/people/profile-picture-5.jpg"
                       alt="Thomas Lean image"
@@ -330,17 +333,19 @@ function Index() {
                       </div>
                     </div>
                     <div className="rounded-lg border border-gray-200 bg-gray-50 p-3 text-xs font-normal italic text-gray-500 dark:border-gray-500 dark:bg-gray-600 dark:text-gray-300">
-                      Hi ya'll! I wanted to share a webinar zeroheight is having
-                      regarding how to best measure your design system! This is
-                      the second session of our new webinar series on
-                      #DesignSystems discussions where we'll be speaking about
-                      Measurement.
+                      Hi ya&apos;ll! I wanted to share a webinar zeroheight is
+                      having regarding how to best measure your design system!
+                      This is the second session of our new webinar series on
+                      #DesignSystems discussions where we&apos;ll be speaking
+                      about Measurement.
                     </div>
                   </div>
                 </li>
                 <li className="ml-6">
                   <span className="absolute -left-3 flex h-6 w-6 items-center justify-center rounded-full bg-blue-100 ring-8 ring-white dark:bg-blue-900 dark:ring-gray-900">
-                    <img
+                    <Image
+                      height={999}
+                      width={999}
                       className="rounded-full shadow-lg"
                       src="/docs/images/people/profile-picture-1.jpg"
                       alt="Jese Leos image"
