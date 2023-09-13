@@ -121,14 +121,9 @@ export const getStaticProps: GetStaticProps = async ({ locale }) => ({
 });
 
 export const getStaticPaths: GetStaticPaths = async () => {
-  if (process.env.SKIP_BUILD_STATIC_GENERATION) {
-    return {
-      paths: [],
-      fallback: "blocking",
-    };
-  } // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+  // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
   const result: {
-    result?: {
+    result: {
       data?: {
         json: { id: string }[];
       };
@@ -138,28 +133,9 @@ export const getStaticPaths: GetStaticPaths = async () => {
   ).then((res) => {
     return res.json();
   });
-  if (!result ?? !result.result ?? !result.result.data) {
+  if (!result?.result?.data) {
     return {
-      paths: [
-        {
-          params: {
-            id: "id",
-          },
-          locale: "en-US",
-        },
-        {
-          params: {
-            id: "id",
-          },
-          locale: "hr",
-        },
-        {
-          params: {
-            id: "id",
-          },
-          locale: "de-DE",
-        },
-      ],
+      paths: [],
       fallback: true,
     };
   }
@@ -189,10 +165,8 @@ export const getStaticPaths: GetStaticPaths = async () => {
       locale: "de-DE",
     };
   });
-  if (userData) {
-    return {
-      paths: [...engPaths, ...dePaths, ...hrPaths],
-      fallback: true,
-    };
-  }
+  return {
+    paths: [...engPaths, ...dePaths, ...hrPaths],
+    fallback: true,
+  };
 };
