@@ -5,14 +5,12 @@ import { serverSideTranslations } from "next-i18next/serverSideTranslations";
 import { useTranslation } from "next-i18next";
 import PortalTabs from "~/Organisms/PortalTabs/PortalTabs";
 import {
-  CalendarDaysIcon,
   Cog6ToothIcon,
   HeartIcon,
   PencilSquareIcon,
 } from "@heroicons/react/20/solid";
 import RootLayout from "~/Templates/PortalLayout/layout";
 import MyPlans from "~/Organisms/UserSpecific/MyPlans";
-import { api } from "~/utils/api";
 
 function Dashboard() {
   const { t } = useTranslation("common");
@@ -112,6 +110,8 @@ function Dashboard() {
 }
 
 export default Dashboard;
+
+import { env } from "~/env.mjs";
 export const getStaticProps: GetStaticProps = async ({ locale }) => ({
   props: {
     ...(await serverSideTranslations(locale ?? "hr", [
@@ -129,11 +129,11 @@ export const getStaticPaths: GetStaticPaths = async () => {
         json: { id: string }[];
       };
     };
-  } = await fetch("http://localhost:3000/api/trpc/user.getAllForPages").then(
-    (res) => {
-      return res.json();
-    }
-  );
+  } = await fetch(
+    env.NEXT_PUBLIC_WEBSITE_URL + "/api/trpc/user.getAllForPages"
+  ).then((res) => {
+    return res.json();
+  });
   const userData = result.result.data.json;
   const engPaths = userData.map((item) => {
     return {

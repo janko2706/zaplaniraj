@@ -1,3 +1,4 @@
+import { env } from "~/env.mjs";
 import { createTRPCRouter, publicProcedure } from "~/server/api/trpc";
 
 export const stripeRouter = createTRPCRouter({
@@ -13,8 +14,8 @@ export const stripeRouter = createTRPCRouter({
           quantity: 1,
         },
       ],
-      success_url: `http://localhost:3000?success=true`,
-      cancel_url: `http://localhost:3000/onboarding/company`,
+      success_url: `${env.NEXT_PUBLIC_WEBSITE_URL}?success=true`,
+      cancel_url: `${env.NEXT_PUBLIC_WEBSITE_URL}/onboarding/company`,
     });
 
     if (!checkoutSession) {
@@ -29,7 +30,7 @@ export const stripeRouter = createTRPCRouter({
     const stripeBillingPortalSession =
       await stripe.billingPortal.sessions.create({
         customer: "cus_OZ8NCJaHCG0Ash",
-        return_url: `http://localhost:3000/onboarding/company`,
+        return_url: `${env.NEXT_PUBLIC_WEBSITE_URL}/onboarding/company`,
       });
 
     if (!stripeBillingPortalSession) {

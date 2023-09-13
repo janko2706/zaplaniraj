@@ -8,6 +8,7 @@ import Image from "next/image";
 import { FaBars } from "react-icons/fa";
 import { SignUpButton } from "@clerk/nextjs";
 import { useRouter } from "next/router";
+import { env } from "~/env.mjs";
 
 type Props = {
   user: {
@@ -78,7 +79,7 @@ const DesktopHeader = ({ user, appLogo, menus }: Props) => {
           {!user.isSingnedIn && (
             <SignUpButton
               mode="modal"
-              redirectUrl="http://localhost:3000/onboarding"
+              redirectUrl={env.NEXT_PUBLIC_WEBSITE_URL + "/onboarding"}
             >
               <button
                 type="button"

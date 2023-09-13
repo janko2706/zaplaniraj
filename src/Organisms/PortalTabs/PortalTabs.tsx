@@ -53,7 +53,7 @@ export default function PortalTabs({ tabs }: { tabs: Tab[] }) {
                     as="article"
                     show={selectedIndex === index}
                     unmount={false}
-                    className="h-full w-full items-stretch overflow-y-auto rounded-t-2xl bg-white  shadow-xl focus-visible:outline-none focus-visible:ring focus-visible:ring-indigo-300 min-[480px]:flex lg:h-[50vmin]"
+                    className="h-full w-full items-stretch overflow-y-auto rounded-t-2xl  bg-white shadow-xl focus-visible:outline-none focus-visible:ring focus-visible:ring-indigo-300 min-[480px]:flex lg:h-[50vmin]"
                     enter="transition ease-[cubic-bezier(0.68,-0.3,0.32,1)] duration-700 transform order-first"
                     enterFrom="opacity-0 -translate-y-8"
                     enterTo="opacity-100 translate-y-0"

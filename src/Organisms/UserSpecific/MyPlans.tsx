@@ -3,33 +3,75 @@ import { CgRing } from "react-icons/cg";
 import { FaBirthdayCake, FaChurch } from "react-icons/fa";
 import { LuPartyPopper } from "react-icons/lu";
 import moment from "moment";
-import { EllipsisVerticalIcon } from "@heroicons/react/24/outline";
+import {
+  CheckBadgeIcon,
+  EllipsisVerticalIcon,
+  ShoppingBagIcon,
+  XMarkIcon,
+} from "@heroicons/react/24/outline";
 import Spotlight from "~/Molecules/SpotlightCard/Spotlight";
 import SpotlightCard from "~/Molecules/SpotlightCard/SpotlightCard";
+import { type NextRouter, useRouter } from "next/router";
+import { Tab } from "@headlessui/react";
+import Link from "next/link";
+import { ChevronDoubleRightIcon } from "@heroicons/react/20/solid";
 
 function MyPlans() {
+  function classNames(...classes: string[]) {
+    return classes.filter(Boolean).join(" ");
+  }
   const iconClasses = "h-7 w-7";
-  const categories: {
+  const router = useRouter();
+  const plansInProgress: {
+    id: string;
     name: string;
     icon: JSX.Element;
     date: Date;
   }[] = [
     {
+      id: "fiouasgodiuzbcas2344df",
       name: "My wedding",
       icon: <CgRing className={`${iconClasses}`} />,
       date: new Date("2024/01/01"),
     },
     {
+      id: "fio2432354uasgodiuzbcasdf",
+
       name: "Rodendan Matija",
       icon: <FaBirthdayCake className={`${iconClasses}`} />,
       date: new Date(2024, 12, 1),
     },
     {
+      id: "fiouasgodiuz5554325bcasdf",
+
       name: "Krizma John",
       icon: <FaChurch className={`${iconClasses}`} />,
       date: new Date(2024, 12, 1),
     },
     {
+      id: "fiouasg2345odiuzbcasdf",
+
+      name: "Party Party!!",
+      icon: <LuPartyPopper className={`${iconClasses}`} />,
+      date: new Date(2024, 12, 1),
+    },
+  ];
+  const plansCompleted: {
+    id: string;
+    name: string;
+    icon: JSX.Element;
+    date: Date;
+  }[] = [
+    {
+      id: "fiouasgodiuz5554325bcasdf",
+
+      name: "Krizma John",
+      icon: <FaChurch className={`${iconClasses}`} />,
+      date: new Date(2024, 12, 1),
+    },
+    {
+      id: "fiouasg2345odiuzbcasdf",
+
       name: "Party Party!!",
       icon: <LuPartyPopper className={`${iconClasses}`} />,
       date: new Date(2024, 12, 1),
@@ -38,15 +80,77 @@ function MyPlans() {
 
   return (
     <section className="  h-full w-full  px-5 py-5 ">
-      <Spotlight className="group mx-0 grid h-full grid-cols-2 gap-7 md:grid-cols-4  lg:mx-40  lg:grid-cols-4 lg:gap-0">
-        {categories.map((item, idx) => {
-          return (
-            <SpotlightCard key={idx}>
-              <Card name={item.name} icon={item.icon} date={item.date} />
-            </SpotlightCard>
-          );
-        })}
-      </Spotlight>
+      <ul>
+        <li>
+          <div className=" rounded-2xl bg-white p-3 sm:p-4 lg:p-4">
+            <Tab.Group>
+              <Tab.List className="col-span-12 mb-4 flex flex-wrap justify-around rounded-2xl border px-4 lg:mb-6">
+                <Tab
+                  className={({ selected }) =>
+                    classNames(
+                      "flex items-center gap-2 px-3 py-4 font-medium focus:outline-none",
+                      selected ? "border-b border-primary text-primary" : ""
+                    )
+                  }
+                >
+                  <ChevronDoubleRightIcon className="h-5 w-5" />
+                  <span className="inline-block"> In Progress (1)</span>
+                </Tab>
+                <Tab
+                  className={({ selected }) =>
+                    classNames(
+                      "flex items-center gap-2 px-3 py-4 font-medium focus:outline-none",
+                      selected ? "border-b border-primary text-primary" : ""
+                    )
+                  }
+                >
+                  <CheckBadgeIcon className="h-5 w-5" />
+                  <span className="inline-block"> Completed (4)</span>
+                </Tab>
+              </Tab.List>
+              <Tab.Panels>
+                <Tab.Panel
+                  className="tab-pane fade show active"
+                  id="inprogress"
+                >
+                  <Spotlight className="group mx-0 flex h-full w-full flex-col gap-5 overflow-y-auto  ">
+                    {plansInProgress.map((item, idx) => {
+                      return (
+                        <SpotlightCard key={idx}>
+                          <Card
+                            router={router}
+                            name={item.name}
+                            icon={item.icon}
+                            date={item.date}
+                            id={item.id}
+                          />
+                        </SpotlightCard>
+                      );
+                    })}
+                  </Spotlight>
+                </Tab.Panel>
+                <Tab.Panel className="tab-pane fade" id="completed">
+                  <Spotlight className="group mx-0 flex h-full w-full flex-col gap-5 overflow-y-auto  ">
+                    {plansCompleted.map((item, idx) => {
+                      return (
+                        <SpotlightCard key={idx}>
+                          <Card
+                            router={router}
+                            name={item.name}
+                            icon={item.icon}
+                            date={item.date}
+                            id={item.id}
+                          />
+                        </SpotlightCard>
+                      );
+                    })}
+                  </Spotlight>
+                </Tab.Panel>
+              </Tab.Panels>
+            </Tab.Group>
+          </div>
+        </li>
+      </ul>
     </section>
   );
 }
@@ -54,42 +158,60 @@ function MyPlans() {
 export default MyPlans;
 
 type PropsCard = {
+  router: NextRouter;
+  id: string;
   name: string;
   icon: JSX.Element;
   date: Date;
 };
 
-const Card = ({ name, icon, date }: PropsCard) => {
+const Card = ({ name, icon, date, id, router }: PropsCard) => {
   const endDate = moment(date),
     todayDate = moment();
 
   const daysDifference = moment(endDate).diff(todayDate, "days");
 
   return (
-    <div className="flex h-[15em] w-[10em] items-center lg:h-[20em] lg:w-[18em] ">
-      <div className="group relative flex h-[15rem] w-[10rem] overflow-hidden rounded-[16px]  bg-gradient-to-r from-primary via-purple-500 to-dark   lg:h-[20em] lg:w-[18em]">
-        <div className=" visible absolute  -bottom-40 -top-40 left-10 right-10 animate-spin-slow bg-gradient-to-r from-transparent via-white/90 to-transparent"></div>
-        <div className="relative m-auto h-[14.6rem] w-[9.6rem] rounded-[15px] bg-white p-6   lg:h-[19.7rem] lg:w-[17.7rem]">
-          <div className="space-y-4">
-            <div className="flex w-full justify-between">
-              {icon}
-              <EllipsisVerticalIcon className="h-7 w-7 cursor-pointer" />
+    <>
+      <div
+        className="cursor-pointer"
+        onClick={(evnt) => {
+          evnt.stopPropagation();
+          evnt.preventDefault();
+          void (async () => await router.replace(`/plan/${id}`))();
+        }}
+      >
+        <div className="group flex  overflow-hidden rounded-2xl bg-gradient-to-r from-primary via-purple-500 to-dark p-[0.17em] ">
+          <div className=" visible absolute  -bottom-40 -top-40 left-10 right-10 animate-spin-slow bg-gradient-to-r from-transparent via-white/90 to-transparent"></div>
+          <div className=" flex  w-full flex-wrap  items-center justify-between rounded-2xl bg-white p-8">
+            <div className="z-50 flex flex-wrap items-center gap-4 space-y-4">
+              <div className="grid h-12 w-12 shrink-0 place-content-center rounded-full shadow-xl">
+                <div className="grid h-10 w-10 place-content-center rounded-full bg-[var(--primary-light)] text-primary">
+                  {icon}
+                </div>
+              </div>
+              <div className="flex-grow">
+                <h5 className="mb-1 font-medium">{name}</h5>
+                <ul className=" flex flex-wrap items-center">
+                  <li>
+                    <span className="inline-block text-sm">
+                      <span className="inline-block text-neutral-500">
+                        {daysDifference} days remaining
+                      </span>
+                    </span>
+                  </li>
+                </ul>
+              </div>
             </div>
-            <p className="text-md line-clamp-1 font-semibold lg:text-xl">
-              {name}
-            </p>
-            <div className=" justify-between ">
-              <p className="line-clamp-2 text-slate-400 lg:line-clamp-3">
-                Lorem ipsum dolor sit amet consectetur adipisicing elit. At
-                possimus quidem in cum id ad eveniet a saepe, consectetur rerum?
-              </p>
-            </div>
-            <p className="text-md lg:text-lg">
-              {daysDifference} days remaining
-            </p>
+            <Link
+              href="#"
+              className="btn-outline z-50 shrink-0 font-semibold text-primary"
+            >
+              Manage Plan
+            </Link>
           </div>
         </div>
       </div>
-    </div>
+    </>
   );
 };

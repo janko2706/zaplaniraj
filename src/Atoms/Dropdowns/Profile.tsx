@@ -11,6 +11,7 @@ import {
 } from "../Icons/Icons";
 import { CgLogIn } from "react-icons/cg";
 import { SignInButton, SignOutButton } from "@clerk/nextjs";
+import { env } from "~/env.mjs";
 
 type Props = {
   user: {
@@ -122,7 +123,7 @@ export default function Profile({ user }: Props) {
                   !user.isSingnedIn ? (
                     <SignInButton
                       mode="modal"
-                      redirectUrl="http://localhost:3000/"
+                      redirectUrl={env.NEXT_PUBLIC_WEBSITE_URL + "/"}
                     >
                       <button
                         type="button"
