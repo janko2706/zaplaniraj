@@ -111,7 +111,6 @@ function Dashboard() {
 
 export default Dashboard;
 
-import { env } from "~/env.mjs";
 export const getStaticProps: GetStaticProps = async ({ locale }) => ({
   props: {
     ...(await serverSideTranslations(locale ?? "hr", [
@@ -122,7 +121,12 @@ export const getStaticProps: GetStaticProps = async ({ locale }) => ({
 });
 
 export const getStaticPaths: GetStaticPaths = async () => {
-  // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+  if (process.env.SKIP_BUILD_STATIC_GENERATION) {
+    return {
+      paths: [],
+      fallback: "blocking",
+    };
+  } // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
   const result: {
     result: {
       data: {
@@ -130,10 +134,11 @@ export const getStaticPaths: GetStaticPaths = async () => {
       };
     };
   } = await fetch(
-    env.NEXT_PUBLIC_WEBSITE_URL + "/api/trpc/user.getAllForPages"
+    "https://zaplaniraj.vercel.app/api/trpc/user.getAllForPages"
   ).then((res) => {
     return res.json();
   });
+
   const userData = result.result.data.json;
   const engPaths = userData.map((item) => {
     return {

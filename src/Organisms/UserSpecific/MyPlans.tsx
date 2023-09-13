@@ -3,12 +3,7 @@ import { CgRing } from "react-icons/cg";
 import { FaBirthdayCake, FaChurch } from "react-icons/fa";
 import { LuPartyPopper } from "react-icons/lu";
 import moment from "moment";
-import {
-  CheckBadgeIcon,
-  EllipsisVerticalIcon,
-  ShoppingBagIcon,
-  XMarkIcon,
-} from "@heroicons/react/24/outline";
+import { CheckBadgeIcon } from "@heroicons/react/24/outline";
 import Spotlight from "~/Molecules/SpotlightCard/Spotlight";
 import SpotlightCard from "~/Molecules/SpotlightCard/SpotlightCard";
 import { type NextRouter, useRouter } from "next/router";
