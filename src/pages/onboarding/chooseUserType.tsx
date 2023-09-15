@@ -4,6 +4,7 @@ import { BriefcaseIcon, CakeIcon } from "@heroicons/react/24/outline";
 import { useOnboarding } from "~/hooks/onboarding/useOnboarding";
 import { toast } from "react-toastify";
 import { useUser } from "@clerk/nextjs";
+import { useState } from "react";
 const STAGGER_CHILD_VARIANTS = {
   hidden: { opacity: 0, y: 20 },
   show: { opacity: 1, y: 0, transition: { duration: 0.4, type: "spring" } },
@@ -25,7 +26,7 @@ export default function UserType() {
 
         break;
       case "company":
-        await setOnboarding({ onboardingLevel: "isBusiness" });
+        await setOnboarding({ onboardingLevel: "isBussines" });
         await router.push({
           pathname: "/onboarding/company",
         });
@@ -68,17 +69,19 @@ export default function UserType() {
         variants={STAGGER_CHILD_VARIANTS}
         className="grid w-full grid-cols-1 gap-6  rounded-md   text-white md:grid-cols-2 md:divide-x"
       >
-        <button
-          onClick={() => {
-            void (async () => {
-              await asyncFunction("user");
-            })();
-          }}
-          className="flex min-h-[200px] flex-col items-center justify-center space-y-5 overflow-hidden bg-gray-800 p-5 transition-colors hover:bg-blue-500 md:p-10"
-        >
-          <CakeIcon className="pointer-events-none  h-auto w-12 sm:w-12" />
-          <p>Zelim organizirati dogadaje</p>
-        </button>
+        {
+          <button
+            onClick={() => {
+              void (async () => {
+                await asyncFunction("user");
+              })();
+            }}
+            className="flex min-h-[200px] flex-col items-center justify-center space-y-5 overflow-hidden bg-gray-800 p-5 transition-colors hover:bg-blue-500 md:p-10"
+          >
+            <CakeIcon className="pointer-events-none  h-auto w-12 sm:w-12" />
+            <p>Zelim organizirati dogadaje</p>
+          </button>
+        }
         <button
           onClick={() => {
             void (async () => {

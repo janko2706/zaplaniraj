@@ -47,7 +47,7 @@ function NotFound() {
                 />
               </svg>
 
-              <p className="text-lg">Go back</p>
+              <p className="text-lg">Go back home</p>
             </Link>
           </div>
         </div>

@@ -1,11 +1,18 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { ArrowLeftIcon } from "@heroicons/react/20/solid";
 import { AnimatePresence } from "framer-motion";
 import { useRouter } from "next/router";
 import PricingPlan from "./PricingPlan";
+import { toast } from "react-toastify";
 
 function Index() {
   const router = useRouter();
+  useEffect(() => {
+    if (router.query.success === "false") {
+      toast.error("Payment Failed");
+    }
+  }, [router.query.success]);
+
   return (
     <div className="mx-auto flex h-screen max-w-4xl flex-col items-center justify-center overflow-x-hidden">
       <div

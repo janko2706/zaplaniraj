@@ -5,10 +5,12 @@ import { CheckIcon, PencilIcon } from "@heroicons/react/24/outline";
 import avatarPlaceholder from "@assets/avatar-placeholder.png";
 import MainTemplate from "~/Templates/MainTemplate";
 import { useUser } from "@clerk/nextjs";
+import type { Business } from "@prisma/client";
 
 type Props = {
   children: JSX.Element;
   type: string;
+  isCompany?: boolean;
   menus: (
     | {
         title: string;
@@ -28,14 +30,14 @@ type Props = {
         }[];
       }
   )[];
-};
+} & ({ isCompany: true; business?: Business } | { isCompany: false });
 
-function RootLayout({ children, menus, type }: Props) {
+function RootLayout(props: Props) {
   const user = useUser();
 
   return (
     <>
-      <MainTemplate menus={menus}>
+      <MainTemplate menus={props.menus}>
         <section className="bg-white">
           <div>
             <div className="flex flex-wrap items-center justify-between gap-5 bg-[var(--dark)] px-3 py-5 md:p-[30px] lg:p-[60px]">
@@ -61,12 +63,17 @@ function RootLayout({ children, menus, type }: Props) {
                   </Link>
                 </div>
               </div>
+              {props.isCompany && (
+                <div className="line-clamp-1 rounded-none bg-dark text-center font-mono text-4xl font-semibold tracking-normal text-white">
+                  {props.business?.name.toLocaleUpperCase() ?? ""}
+                </div>
+              )}
               <Link href="/add-property" className="btn-primary">
-                <PencilIcon className="h-5 w-5" /> {type}
+                <PencilIcon className="h-5 w-5" /> {props.type}
               </Link>
             </div>
-            <div className="flex items-center justify-center bg-dark py-4"></div>
-            <section>{children}</section>
+
+            <section>{props.children}</section>
           </div>
         </section>
       </MainTemplate>

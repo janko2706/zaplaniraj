@@ -6,6 +6,11 @@ import Link from "next/link";
 import Counter from "@atoms/Counter/Counter";
 import dynamic from "next/dynamic";
 import type { ApexOptions } from "apexcharts";
+import type { Business } from "@prisma/client";
+
+type Props = {
+  business?: Business;
+};
 
 const options2: ApexOptions = {
   chart: {
@@ -40,11 +45,11 @@ const options2: ApexOptions = {
 };
 const series2 = [
   {
-    name: "Good Reviews",
+    name: "Dobre recenzije",
     data: [19, 40, 45, 30, 25, 43, 45, 62, 66, 112, 105, 100],
   },
   {
-    name: "Bad Reviews",
+    name: "Lose Recenzije",
     data: [10, 30, 32, 50, 42, 33, 36, 45, 44, 40, 66, 56],
   },
 ];
@@ -88,9 +93,9 @@ const series = [
   },
 ];
 
-function StatisticDashboardTab() {
+function StatisticDashboardTab({ business }: Props) {
   return (
-    <div className="w-full ">
+    <div className="h-full w-full">
       <div className="xxl:after:bg-white xxl:pb-0 relative z-[1] grid grid-cols-12 gap-4 bg-[var(--dark)] px-6 pb-10 after:absolute after:bottom-0 after:left-0 after:z-[-1] after:h-[50%] after:w-full lg:gap-6">
         <div className="xxl:col-span-3 col-span-12 flex gap-4 rounded-2xl bg-[#EBEBFD] p-4 sm:col-span-6 sm:p-6 lg:p-8 xl:col-span-4">
           <FaFileAlt className="h-16 w-16 self-center rounded-xl bg-primary p-4 text-3xl text-white" />
@@ -191,18 +196,16 @@ function StatisticDashboardTab() {
         </div>
       </section>
       {/* Candlestick chart*/}
-      <section className="mt-4 bg-white px-3 pb-5 lg:mt-6 lg:px-6">
-        <div className="mt-4 rounded-2xl border bg-white p-3 sm:p-4 md:px-6 md:py-6 lg:mt-6 lg:px-10 lg:py-8">
-          <h3 className="h3 mb-4">Earning Average Chart</h3>
-          <div className="grid grid-cols-12 gap-4 lg:gap-6">
-            <div className="col-span-12 h-full">
-              <Chart
-                options={options2}
-                height={350}
-                type="area"
-                series={series2}
-              />
-            </div>
+      <section className=" mt-4  bg-white px-3 pb-16 lg:mt-6 lg:px-6">
+        <div className="mt-4 rounded-2xl border bg-white p-3 sm:p-4 md:px-6 md:py-6 lg:mt-6 lg:px-10 lg:py-9">
+          <h3 className="h3 mb-4">Recenzije</h3>
+          <div className="col-span-12 h-full">
+            <Chart
+              options={options2}
+              height={350}
+              type="area"
+              series={series2}
+            />
           </div>
         </div>
       </section>

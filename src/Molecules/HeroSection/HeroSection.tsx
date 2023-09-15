@@ -60,7 +60,6 @@ function HeroSection() {
       </div>
       <Image
         ref={celebration.ref}
-        priority
         className="absolute left-0 top-[70%] z-10 hidden w-[25%] lg:block"
         src={heroImage}
         width={808}

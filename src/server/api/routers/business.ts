@@ -1,34 +1,40 @@
 import { TRPCError } from "@trpc/server";
 import { z } from "zod";
+import { Ratelimit } from "@upstash/ratelimit";
+import { Redis } from "@upstash/redis/nodejs";
 import { createTRPCRouter, privateProcedure } from "~/server/api/trpc";
-import { createBusiness } from "~/utils/reusableApiLogic/createBusiness";
+
+const ratelimit = new Ratelimit({
+  redis: Redis.fromEnv(),
+  limiter: Ratelimit.slidingWindow(5, "1 m"),
+  analytics: true,
+});
 
 export const businessRouter = createTRPCRouter({
-  createBusiness: privateProcedure
+  getById: privateProcedure
     .input(
       z.object({
-        typeOfBusinessValue: z.string(),
-        businessName: z.string(),
+        clerkId: z.string(),
       })
     )
-    .mutation(async ({ input, ctx }) => {
-      const clerkId = ctx.userId;
-      const user = await ctx.prisma.user.findFirst({
+    .query(async ({ input, ctx }) => {
+      const { success } = await ratelimit.limit(ctx.userId);
+      if (!success) throw new TRPCError({ code: "TOO_MANY_REQUESTS" });
+      const business = await ctx.prisma.business.findFirst({
         where: {
-          clerkId: clerkId,
+          user: {
+            clerkId: input.clerkId,
+          },
         },
       });
-      if (!user) {
+
+      if (!business) {
         throw new TRPCError({
           code: "INTERNAL_SERVER_ERROR",
-          message: "User does not exist",
+          message: "No business found!",
         });
+      } else {
+        return business;
       }
-      return await createBusiness(
-        input.typeOfBusinessValue,
-        input.businessName,
-        user.id,
-        ctx.prisma
-      );
     }),
 });

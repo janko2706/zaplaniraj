@@ -99,7 +99,7 @@ export default function BasicCard({ item }: Props) {
           {popular && (
             <span className="absolute">
               <span className="relative -left-4 bottom-5 z-10 inline-block rounded-t rounded-br bg-primary px-9 py-2.5 text-sm font-medium text-white before:absolute before:-bottom-2 before:left-0 before:h-2 before:w-2 before:rounded-bl-md before:bg-[#2628A6] ">
-                Popular
+                Available online booking
               </span>
             </span>
           )}

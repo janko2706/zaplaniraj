@@ -3,9 +3,11 @@ import UserType from "./chooseUserType";
 import { useOnboarding } from "~/hooks/onboarding/useOnboarding";
 import { useEffect } from "react";
 import { toast } from "react-toastify";
+import { useRouter } from "next/router";
 
 export default function Index() {
-  const { createUser, doesUserExists } = useOnboarding();
+  const { createUser, doesUserExists, getUserOnboarding } = useOnboarding();
+  const { replace } = useRouter();
 
   useEffect(() => {
     void (() => {
@@ -13,9 +15,29 @@ export default function Index() {
         void (async () => {
           await createUser().catch((err) => toast.error(`${err}`));
         })();
+      } else if (doesUserExists.data === 200) {
+        if (getUserOnboarding.data) {
+          switch (getUserOnboarding.data) {
+            case "done":
+              void (async () => {
+                await replace(`/`);
+              })();
+              break;
+            case "welcome":
+              break;
+            case getUserOnboarding.data:
+              void (async () => {
+                await replace(`/onboarding/company/${getUserOnboarding.data}`);
+              })();
+              break;
+
+            default:
+              break;
+          }
+        }
       }
     })();
-  }, [doesUserExists.isLoading]);
+  }, [getUserOnboarding.isLoading]);
 
   return (
     <div className="mx-auto flex h-screen max-w-3xl flex-col items-center justify-center overflow-x-hidden">

@@ -4,15 +4,20 @@ import type { GetStaticPaths, GetStaticProps } from "next";
 import { serverSideTranslations } from "next-i18next/serverSideTranslations";
 import { useTranslation } from "next-i18next";
 import PortalTabs from "~/Organisms/PortalTabs/PortalTabs";
-import RootLayout from "~/Templates/PortalLayout/layout";
 import useMenu from "~/hooks/useMenu/useMenu";
+import RootLayout from "~/Templates/PortalLayout/layout";
 
 function Dashboard() {
   const { t } = useTranslation("common");
+  const { menus, companyDashboardMenu, userCompany } = useMenu();
 
-  const { menus, companyDashboardMenu } = useMenu();
   return (
-    <RootLayout menus={menus} type={t("edit-post")}>
+    <RootLayout
+      business={userCompany}
+      menus={menus}
+      isCompany={true}
+      type={userCompany?.hasPost ? t("edit-post") : t("new-post")}
+    >
       <PortalTabs tabs={companyDashboardMenu} />
     </RootLayout>
   );

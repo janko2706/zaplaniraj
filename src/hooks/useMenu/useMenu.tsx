@@ -1,4 +1,4 @@
-import { UserProfile } from "@clerk/nextjs";
+import { UserProfile, useUser } from "@clerk/nextjs";
 import {
   ChartBarIcon,
   Cog6ToothIcon,
@@ -7,6 +7,8 @@ import {
   HeartIcon,
   PencilSquareIcon,
 } from "@heroicons/react/20/solid";
+import useCompany from "~/hooks/company/useCompany";
+
 import { useTranslation } from "next-i18next";
 import StatisticDashboardTab from "~/Organisms/CompanySpecific/StatisticDashboardTab";
 import MyPlans from "~/Organisms/UserSpecific/MyPlans";
@@ -15,6 +17,10 @@ function useMenu() {
   const { t } = useTranslation("common");
   const company = useTranslation("dashboard");
   const user = useTranslation("dashboard-user");
+  const clerkUser = useUser();
+  const { userCompany } = useCompany({
+    clerkId: clerkUser.user?.id ?? "",
+  });
 
   const menus = [
     {
@@ -123,26 +129,26 @@ function useMenu() {
     {
       title: company.t("menu-stats"),
       icon: <ChartBarIcon className="h-5 w-5" />,
-      children: <StatisticDashboardTab />,
+      children: <StatisticDashboardTab business={userCompany} />,
     },
     {
       title: company.t("menu-settings"),
       icon: <Cog6ToothIcon className="h-5 w-5" />,
-      children: <StatisticDashboardTab />,
+      children: <StatisticDashboardTab business={userCompany} />,
     },
     {
       title: company.t("menu-reviews"),
       icon: <StarIcon className="h-5 w-5" />,
-      children: <StatisticDashboardTab />,
+      children: <StatisticDashboardTab business={userCompany} />,
     },
 
     {
       title: company.t("menu-calendar"),
       icon: <CalendarIcon className="h-5 w-5" />,
-      children: <StatisticDashboardTab />,
+      children: <StatisticDashboardTab business={userCompany} />,
     },
   ];
-  return { menus, companyDashboardMenu, userDashboardMenu };
+  return { menus, companyDashboardMenu, userDashboardMenu, userCompany };
 }
 
 export default useMenu;

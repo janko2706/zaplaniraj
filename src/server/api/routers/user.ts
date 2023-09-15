@@ -5,14 +5,14 @@ import {
   privateProcedure,
   publicProcedure,
 } from "~/server/api/trpc";
-import { createBusiness } from "~/utils/reusableApiLogic/createBusiness";
+import { prisma } from "~/server/db";
 
 export const userRouter = createTRPCRouter({
   setOnboarding: privateProcedure
     .input(
       z.object({
         onboardingLevel: z.string(),
-        typeOfBusinessValue: z.string().optional(),
+        typeOfBusinessId: z.number().optional(),
         businessName: z.string().optional(),
       })
     )
@@ -43,19 +43,41 @@ export const userRouter = createTRPCRouter({
         });
       }
       if (input.onboardingLevel === "businessDetails") {
-        if (input.typeOfBusinessValue && input.businessName) {
-          await createBusiness(
-            input.typeOfBusinessValue,
-            input.businessName,
-            user.id,
-            ctx.prisma
-          );
+        if (input.typeOfBusinessId && input.businessName) {
+          const typeOfBusiness = await prisma.businessTypeCategory.findFirst({
+            where: {
+              id: input.typeOfBusinessId,
+            },
+          });
+          if (!typeOfBusiness) {
+            throw new TRPCError({
+              code: "INTERNAL_SERVER_ERROR",
+              message: "Business type doesn't exist",
+            });
+          }
+
+          const newBusiness = await prisma.business.create({
+            data: {
+              name: input.businessName,
+              typeOfBusiness: { connect: typeOfBusiness },
+              options: { connect: { id: 1 } },
+              freeTrial: false,
+              user: { connect: { id: user.id } },
+              priceRange: 0,
+            },
+          });
+          if (!newBusiness) {
+            throw new TRPCError({
+              code: "INTERNAL_SERVER_ERROR",
+              message: "Business not created",
+            });
+          }
           return ctx.prisma.user.update({
             where: {
               id: user.id,
             },
             data: {
-              onboarding: "done",
+              onboarding: "payment",
             },
           });
         } else {
@@ -76,11 +98,12 @@ export const userRouter = createTRPCRouter({
         },
       });
     }),
-  createUser: publicProcedure.mutation(({ ctx }) => {
+  createUser: privateProcedure.mutation(async ({ ctx }) => {
     const userId = ctx.userId;
-    return ctx.prisma.user.create({
+
+    return await ctx.prisma.user.create({
       data: {
-        clerkId: userId ?? "asdas",
+        clerkId: userId ?? "",
         onboarding: "welcome",
         isBussines: false,
       },
@@ -126,7 +149,7 @@ export const userRouter = createTRPCRouter({
   doesUserExist: publicProcedure.query(async ({ ctx }) => {
     const userId = ctx.userId;
     if (!userId) {
-      return 200;
+      return 400;
     }
     const res = await ctx.prisma.user.findFirst({
       where: {

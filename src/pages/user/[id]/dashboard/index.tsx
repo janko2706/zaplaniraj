@@ -1,5 +1,4 @@
 import React from "react";
-
 import type { GetStaticPaths, GetStaticProps } from "next";
 import { serverSideTranslations } from "next-i18next/serverSideTranslations";
 import { useTranslation } from "next-i18next";
@@ -12,7 +11,7 @@ function Dashboard() {
 
   const { menus, userDashboardMenu } = useMenu();
   return (
-    <RootLayout menus={menus} type={t("new-plan")}>
+    <RootLayout isCompany={false} menus={menus} type={t("new-plan")}>
       <PortalTabs tabs={userDashboardMenu} />
     </RootLayout>
   );
@@ -20,14 +19,16 @@ function Dashboard() {
 
 export default Dashboard;
 
-export const getStaticProps: GetStaticProps = async ({ locale }) => ({
-  props: {
-    ...(await serverSideTranslations(locale ?? "hr", [
-      "common",
-      "dashboard-user",
-    ])),
-  },
-});
+export const getStaticProps: GetStaticProps = async ({ locale }) => {
+  return {
+    props: {
+      ...(await serverSideTranslations(locale ?? "hr", [
+        "common",
+        "dashboard-user",
+      ])),
+    },
+  };
+};
 
 export const getStaticPaths: GetStaticPaths = async () => {
   // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment

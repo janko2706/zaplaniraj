@@ -17,29 +17,39 @@ import useMenu from "~/hooks/useMenu/useMenu";
 export default function Home() {
   const user = useUser();
   const router = useRouter();
-  const { getUserOnboarding } = useHome();
+  const { getUserOnboarding, doesUserExists } = useHome();
   const { menus } = useMenu();
 
   useEffect(() => {
-    if (getUserOnboarding.data && user.isSignedIn) {
-      switch (getUserOnboarding.data) {
-        case "done":
-          break;
-        case "welcome":
-          void (async () => {
-            await router.replace(`/onboarding`);
-          })();
-          break;
-        case getUserOnboarding.data:
-          void (async () => {
-            await router.replace(`/onboarding/${getUserOnboarding.data}`);
-          })();
-          break;
-
-        default:
-          break;
+    if (user.isSignedIn) {
+      if (doesUserExists.data === 300) {
+        void (async () => {
+          await router.replace(`/onboarding`);
+        })();
       }
-    } else {
+      if (getUserOnboarding.data) {
+        switch (getUserOnboarding.data) {
+          case "done":
+            break;
+          case "401":
+            break;
+          case "welcome":
+            void (async () => {
+              await router.replace(`/onboarding`);
+            })();
+            break;
+          case getUserOnboarding.data:
+            void (async () => {
+              await router.replace(
+                `/onboarding/company/${getUserOnboarding.data}`
+              );
+            })();
+            break;
+
+          default:
+            break;
+        }
+      }
     }
   }, [getUserOnboarding.data, user.isSignedIn, router]);
 
@@ -88,12 +98,32 @@ export default function Home() {
   );
 }
 
-export const getStaticProps: GetStaticProps = async ({ locale }) => ({
-  props: {
-    ...(await serverSideTranslations(locale ?? "hr", [
-      "frontPage",
-      "common",
-      "dashboard",
-    ])),
-  },
-});
+import { appRouter } from "~/server/api/root";
+import superjson from "superjson";
+import { prisma } from "~/server/db";
+import Stripe from "stripe";
+import { createServerSideHelpers } from "@trpc/react-query/server";
+
+export const getStaticProps: GetStaticProps = async ({ locale }) => {
+  const ssg = createServerSideHelpers({
+    router: appRouter,
+    ctx: {
+      prisma: prisma,
+      stripe: new Stripe("", { apiVersion: "2023-08-16" }),
+      userId: null,
+    },
+    transformer: superjson,
+  });
+
+  await ssg.user.getUserOnboarding.prefetch();
+  return {
+    props: {
+      ...(await serverSideTranslations(locale ?? "hr", [
+        "frontPage",
+        "common",
+        "dashboard",
+      ])),
+      trpcState: ssg.dehydrate(),
+    },
+  };
+};

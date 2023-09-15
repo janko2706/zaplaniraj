@@ -12,6 +12,7 @@ import {
 import { CgLogIn } from "react-icons/cg";
 import { SignInButton, SignOutButton } from "@clerk/nextjs";
 import { env } from "~/env.mjs";
+import { useRouter } from "next/router";
 
 type Props = {
   user: {
@@ -22,6 +23,7 @@ type Props = {
 };
 
 export default function Profile({ user }: Props) {
+  const { replace } = useRouter();
   return (
     <div className="z-20 text-left">
       <Menu as="div" className="relative top-1 inline-block md:top-[2px]">
@@ -139,6 +141,11 @@ export default function Profile({ user }: Props) {
                     <SignOutButton>
                       <button
                         type="button"
+                        onClick={() => {
+                          void (async () => {
+                            await replace("/");
+                          })();
+                        }}
                         className={`${
                           active ? "bg-gray-200 text-gray-800" : ""
                         } group flex w-full items-center gap-2 rounded-md px-2 py-2 text-sm`}

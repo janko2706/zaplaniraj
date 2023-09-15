@@ -22,7 +22,7 @@ model User {
     business Business? @relation(fields: [businessId], references: [id])
     businessId String? @unique
     onboarding  String
-    clerkId String
+    clerkId String @unique
     @@index([clerkId])
 }
 
@@ -34,6 +34,8 @@ model Business {
     selectedCategoriesIds EventCategory[]
     name String
     stripeId String?
+    hasPost Boolean @default(false)
+    postIsLive Boolean @default(false)
     freeTrial Boolean
     location String?
     priceRange Int?

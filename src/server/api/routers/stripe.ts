@@ -1,29 +1,58 @@
 import { env } from "~/env.mjs";
-import { createTRPCRouter, publicProcedure } from "~/server/api/trpc";
+import {
+  createTRPCRouter,
+  privateProcedure,
+  publicProcedure,
+} from "~/server/api/trpc";
+import { z } from "zod";
+import { TRPCError } from "@trpc/server";
 
 export const stripeRouter = createTRPCRouter({
-  createCheckoutSession: publicProcedure.mutation(async ({ ctx }) => {
-    const { stripe } = ctx;
+  createCheckoutSession: privateProcedure
+    .input(
+      z.object({
+        priceId: z.string(),
+        businessId: z.string(),
+      })
+    )
+    .mutation(async ({ input, ctx }) => {
+      const { stripe } = ctx;
 
-    const checkoutSession = await stripe.checkout.sessions.create({
-      customer: "cus_OZ8NCJaHCG0Ash",
-      mode: "subscription",
-      line_items: [
-        {
-          price: "price_1NnKsCLlVV4ETbZO1222v7qx",
-          quantity: 1,
+      const newStripeCustomer = await stripe.customers.create({});
+      const businessToUpdate = await ctx.prisma.business.update({
+        where: {
+          id: input.businessId,
         },
-      ],
-      success_url: `${env.NEXT_PUBLIC_WEBSITE_URL}?success=true`,
-      cancel_url: `${env.NEXT_PUBLIC_WEBSITE_URL}/onboarding/company`,
-    });
+        data: {
+          stripeId: newStripeCustomer.id,
+        },
+      });
 
-    if (!checkoutSession) {
-      throw new Error("Could not create checkout session");
-    }
+      if (!businessToUpdate) {
+        throw new TRPCError({
+          code: "NOT_FOUND",
+          message: "No business found with given ID!",
+        });
+      }
+      const checkoutSession = await stripe.checkout.sessions.create({
+        customer: newStripeCustomer.id,
+        mode: "subscription",
+        line_items: [
+          {
+            price: input.priceId,
+            quantity: 1,
+          },
+        ],
+        success_url: `${env.NEXT_PUBLIC_WEBSITE_URL}/company/${businessToUpdate.id}/dashboard`,
+        cancel_url: `${env.NEXT_PUBLIC_WEBSITE_URL}/onboarding/company/payment?success=false`,
+      });
 
-    return { checkoutUrl: checkoutSession.url };
-  }),
+      if (!checkoutSession) {
+        throw new Error("Could not create checkout session");
+      }
+
+      return { checkoutUrl: checkoutSession.url };
+    }),
   createBillingPortalSession: publicProcedure.mutation(async ({ ctx }) => {
     const { stripe } = ctx;
 
