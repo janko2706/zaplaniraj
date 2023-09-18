@@ -15,6 +15,9 @@
   --secondary-500: #22804a;
   --dark: #091e42;
 }
+* {
+  font-family: "PT Sans", sans-serif;
+}
 
 @media (max-width: 700px) {
   body::-webkit-scrollbar {

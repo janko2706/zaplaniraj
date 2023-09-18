@@ -31,26 +31,36 @@ model Business {
     user User?
     typeOfBusiness BusinessTypeCategory @relation(fields: [typeOfBusinessId], references: [id])
     typeOfBusinessId Int @unique
-    selectedCategoriesIds EventCategory[]
+
     name String
     stripeId String?
     hasPost Boolean @default(false)
     postIsLive Boolean @default(false)
     freeTrial Boolean
-    location String?
-    priceRange Int?
-    priceEsstimation Int?
-    shortDescription String?
-    fullDescription String?
-    options Options? @relation(fields: [optionsId], references: [id])
-    optionsId Int @unique
+    companyPost CompanyPost? @relation(fields: [companyPostId], references: [id]) 
+    companyPostId Int @unique
+}
+
+
+model CompanyPost {
+  id        Int   @id @default(autoincrement())
+  title String
+  priceRangeMin Int?
+  priceRangeMax Int?
+  selectedCategoriesIds EventCategory[]
+  location String?
+  shortDescription String?
+  fullDescription String?
+  options Options? @relation(fields: [optionsId], references: [id])
+  optionsId Int @unique
+  business Business?
 }
 
 model EventCategory {
     id        Int   @id @default(autoincrement())
     value String
     label String
-    businesses Business[]
+    companyPost CompanyPost[]
 }
 model BusinessTypeCategory {
     id        Int   @id @default(autoincrement())
@@ -67,7 +77,7 @@ model Socials {
 
 model Options {
   id        Int   @id @default(autoincrement())
-  business Business?
+  companyPost CompanyPost?
   decoration Boolean @default(false)
   PhotoCorner Boolean @default(false)
   maximumNumberOfPeople Int @default(0)

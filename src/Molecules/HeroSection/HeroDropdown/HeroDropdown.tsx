@@ -39,6 +39,7 @@ const dropdownVariants = cva("cursor-pointer text-left", {
     size: {
       default: "w-full  md:w-[48%] xl:w-[50%]",
       small: "w-52",
+      thin: "    ",
     },
   },
   defaultVariants: {

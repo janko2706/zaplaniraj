@@ -1,9 +1,6 @@
 import MainTemplate from "~/Templates/MainTemplate";
 import ContentMarginsTemplate from "~/Templates/ContentMarginsTemplate";
 import HeroSection from "~/Molecules/HeroSection/HeroSection";
-// Import Swiper styles
-import "swiper/css/navigation";
-import "swiper/css";
 import IndexCategorySection from "~/Organisms/IndexCategorySection/IndexCategorySection";
 import RecommendedIndex from "~/Organisms/RecommendedIndex/RecommendedIndex";
 import { useRouter } from "next/router";

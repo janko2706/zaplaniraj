@@ -18,6 +18,9 @@ export default {
         secondary500: "#22804a",
         dark: "#091e42",
       },
+      fontFamily: {
+        "Alex-Brush": ["Alex Brush, cursive"],
+      },
       animation: {
         "spin-slow": "spin 5s linear infinite",
       },
