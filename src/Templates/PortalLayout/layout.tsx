@@ -6,6 +6,7 @@ import avatarPlaceholder from "@assets/avatar-placeholder.png";
 import MainTemplate from "~/Templates/MainTemplate";
 import { useUser } from "@clerk/nextjs";
 import type { Business } from "@prisma/client";
+import { useRouter } from "next/router";
 
 type Props = {
   children: JSX.Element;
@@ -30,10 +31,14 @@ type Props = {
         }[];
       }
   )[];
-} & ({ isCompany: true; business?: Business } | { isCompany: false });
+} & (
+  | { isCompany: true; business?: Business; post: boolean }
+  | { isCompany: false }
+);
 
 function RootLayout(props: Props) {
   const user = useUser();
+  const router = useRouter();
 
   return (
     <>
@@ -63,12 +68,27 @@ function RootLayout(props: Props) {
                   </Link>
                 </div>
               </div>
-              {props.isCompany && (
+              {props.isCompany ? (
                 <div className="line-clamp-1 rounded-none bg-dark text-center font-mono text-4xl font-semibold tracking-normal text-white">
                   {props.business?.name.toLocaleUpperCase() ?? ""}
                 </div>
+              ) : (
+                <div className="line-clamp-1 rounded-none bg-dark text-center font-mono text-4xl font-semibold tracking-normal text-white">
+                  {user.user?.firstName}&lsquo;s Portal
+                </div>
               )}
-              <Link href="/add-property" className="btn-primary">
+              <Link
+                href={
+                  props.isCompany
+                    ? `/company/${router.query.id?.toString() ?? ""}/post`
+                    : ""
+                }
+                hidden={props.isCompany && props.post}
+                locale={router.locale}
+                className={`btn-primary ${
+                  props.isCompany && props.post ? "hidden" : ""
+                }`}
+              >
                 <PencilIcon className="h-5 w-5" /> {props.type}
               </Link>
             </div>

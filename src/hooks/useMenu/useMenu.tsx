@@ -12,6 +12,7 @@ import useCompany from "~/hooks/company/useCompany";
 import { useTranslation } from "next-i18next";
 import StatisticDashboardTab from "~/Organisms/CompanySpecific/StatisticDashboardTab";
 import MyPlans from "~/Organisms/UserSpecific/MyPlans";
+import CalendarComponent from "~/Atoms/Calendar/Calendar";
 
 function useMenu() {
   const { t } = useTranslation("common");
@@ -132,20 +133,31 @@ function useMenu() {
       children: <StatisticDashboardTab business={userCompany} />,
     },
     {
-      title: company.t("menu-settings"),
-      icon: <Cog6ToothIcon className="h-5 w-5" />,
-      children: <StatisticDashboardTab business={userCompany} />,
-    },
-    {
       title: company.t("menu-reviews"),
       icon: <StarIcon className="h-5 w-5" />,
-      children: <StatisticDashboardTab business={userCompany} />,
+      children: <></>,
     },
-
     {
       title: company.t("menu-calendar"),
       icon: <CalendarIcon className="h-5 w-5" />,
-      children: <StatisticDashboardTab business={userCompany} />,
+      children: <CalendarComponent />,
+    },
+    {
+      title: company.t("menu-settings"),
+      icon: <Cog6ToothIcon className="h-5 w-5" />,
+      children: (
+        <UserProfile
+          appearance={{
+            elements: {
+              rootBox: "w-full bg-dark overflow-hidden",
+              pageScrollBox: "w-full ",
+              card: "w-full",
+              navbar: "hidden",
+              navbarMobileMenuButton: "hidden",
+            },
+          }}
+        />
+      ),
     },
   ];
   return { menus, companyDashboardMenu, userDashboardMenu, userCompany };

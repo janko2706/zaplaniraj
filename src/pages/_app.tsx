@@ -7,6 +7,7 @@ import "react-toastify/dist/ReactToastify.css";
 import { ToastContainer } from "react-toastify";
 import { appWithTranslation } from "next-i18next";
 import { ParallaxProvider } from "react-scroll-parallax";
+import "../Atoms/Calendar/Calendar.css";
 
 const MyApp: AppType = ({ Component, pageProps }) => {
   return (
