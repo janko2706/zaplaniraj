@@ -1,16 +1,9 @@
-"use client";
 import Image from "next/image";
-// Import Swiper React components
-import { Swiper, SwiperSlide } from "swiper/react";
-// Import Swiper styles
-import "swiper/css";
-import "swiper/css/navigation";
-import "swiper/css/pagination";
 import Link from "next/link";
+import { HeartIcon as HeartIconOutline } from "@heroicons/react/24/outline";
 import { useState } from "react";
-import { HeartIcon } from "@heroicons/react/24/solid";
+import { HeartIcon, MapPinIcon, StarIcon } from "@heroicons/react/20/solid";
 import { toast } from "react-toastify";
-import { Navigation, Pagination } from "swiper/modules";
 
 const notifyAdd = () => toast.success("Added to Wishlist.");
 const notifyRemove = () => toast.error("Removed From Wishlist.");
@@ -22,99 +15,80 @@ type CardProps = {
     popular: boolean;
     priceRange: number[];
     title: string;
-    images: string[];
+    img: string;
     type: string;
   };
 };
 const ListCard = ({ item }: CardProps) => {
   const [favourite, setFavourite] = useState(false);
-  const { id, address, popular, title, type, images, priceRange } = item;
+  const { id, address, popular, title, type, img, priceRange } = item;
+  const [isLoading, setIsLoading] = useState<boolean>(true);
   const handleFavorite = () => {
     setFavourite(!favourite);
     favourite ? notifyRemove() : notifyAdd();
   };
-  const [isLoading, setIsLoading] = useState<boolean>(true);
-  return (
-    <div key={id} className="group flex rounded-2xl border border-primary ">
-      <div className="group  relative rounded-2xl">
-        {images.length > 1 ? (
-          <Swiper
-            loop={true}
-            pagination={{
-              el: ".property-card-pagination",
-              clickable: true,
-            }}
-            slidesPerView={1}
-            spaceBetween={30}
-            navigation={{
-              nextEl: ".property-card-next",
-              prevEl: ".property-card-prev",
-            }}
-            centeredSlides={true}
-            modules={[Navigation, Pagination]}
-            className="w-full lg:max-w-[70%]"
-          >
-            {images.map((img: string, i: number) => (
-              <SwiperSlide key={i}>
-                <Image
-                  width={500}
-                  height={5600}
-                  src={img}
-                  alt="image"
-                  className={`m-auto max-h-72 rounded-2xl ${
-                    isLoading
-                      ? "scale-110 blur-2xl grayscale"
-                      : "scale-100 blur-0 grayscale-0"
-                  } object-cover transition-all duration-700 lg:object-contain`}
-                  onLoadingComplete={() => setIsLoading(false)}
-                />
-              </SwiperSlide>
-            ))}
-            <div className="swiper-pagination property-card-pagination"></div>
-            <div className="swiper-button-prev property-card-prev !opacity-0 duration-300 group-hover:!opacity-100"></div>
-            <div className="swiper-button-next property-card-next !opacity-0 duration-300 group-hover:!opacity-100"></div>
-          </Swiper>
-        ) : (
-          <div className="property-card__img">
-            <Image
-              width={400}
-              height={280}
-              src={images[0] ? images[0] : ""}
-              alt="image"
-              className="w-full rounded-2xl"
-            />
-          </div>
-        )}
 
-        {popular && (
-          <span className="absolute">
-            <span className="relative -left-4 bottom-5 z-10 inline-block rounded-t rounded-br bg-primary px-9 py-2.5 text-sm font-medium text-white before:absolute before:-bottom-2 before:left-0 before:h-2 before:w-2 before:rounded-bl-md before:bg-[#2628A6] ">
-              Available online booking
-            </span>
-          </span>
+  return (
+    <div
+      key={id}
+      className="relative mx-3 flex cursor-pointer flex-wrap rounded-2xl p-3 shadow-md shadow-dark transition-all duration-300 hover:shadow-xl hover:shadow-dark lg:m-0 lg:flex-nowrap"
+    >
+      <button
+        onClick={handleFavorite}
+        className="absolute  right-4 top-4 z-10 inline-block rounded-full bg-slate-100 p-2.5 text-primary transition-all duration-300 hover:shadow-lg "
+      >
+        {favourite ? (
+          <HeartIcon className="h-8 w-8 text-red-500" />
+        ) : (
+          <HeartIconOutline className="h-8 w-8 text-red-500" />
         )}
+      </button>
+      <div className=" relative flex w-full justify-center  rounded-2xl lg:w-fit lg:justify-normal">
+        {img ? (
+          <Image
+            width={300}
+            height={300}
+            src={img}
+            alt="image"
+            className={`rounded-2xl  lg:m-5 ${
+              isLoading
+                ? "scale-110 blur-2xl grayscale"
+                : "scale-100 blur-0 grayscale-0"
+            }  object-cover transition-all duration-700 `}
+            onLoadingComplete={() => setIsLoading(false)}
+          />
+        ) : null}
       </div>
-      <div className="col-span-12 md:col-span-7">
+      <div className="flex w-full flex-col justify-between lg:m-5">
         <div>
-          <div className="mb-3 mt-2 flex items-center gap-1 pl-4 pt-3">
-            <i className="las la-map-marker-alt text-lg text-[#9C742B]"></i>
-            <span className="inline-block">{address}</span>
-          </div>
           <Link
-            href="property-details-1"
-            className="pl-4 text-xl font-medium text-neutral-700"
+            href={`/post/${id}/details`}
+            className="pl-4 text-2xl font-medium text-neutral-700"
           >
             {title}
           </Link>
-        </div>
-        <div className="mx-3 md:mx-5">
-          <div className=" border-dash-long border-t"></div>
+          <div className="mb-3 mt-2 flex items-center gap-1 pl-4 pt-3">
+            <i className="las la-map-marker-alt text-lg text-[#9C742B]"></i>
+            <span className="inline-flex gap-3">
+              <MapPinIcon className="h-5 w-5" />
+              {address}
+            </span>
+          </div>
+          <div className="mx-3 md:mx-5">
+            <div className=" border-t"></div>
+          </div>
         </div>
         <div className="px-3 pb-5 pt-4 sm:px-4 md:px-5">
-          <div className="flex flex-wrap items-center justify-between gap-3">
+          <div className="flex flex-wrap items-center justify-start gap-5">
             <span className="text-xl font-medium text-primary">
               €{priceRange[0]} / €{priceRange[1]}
             </span>
+            {popular && (
+              <div className="relative z-10 inline-flex gap-4 rounded-md bg-primary px-9 py-2.5 text-sm font-medium text-white">
+                <StarIcon className="h-5 w-5" />
+                <div> Available online booking</div>
+              </div>
+            )}
             <Link href="/property-details-1" className="btn-outline ">
               Read More
             </Link>

@@ -37,12 +37,28 @@ function useMenu() {
           title: t("Category1"),
           submenu: [
             {
-              title: "Agent",
-              url: "/agent",
+              title: "Venues",
+              url: "/discover/wedding/venues",
             },
             {
-              title: "Agent Details List",
-              url: "/agent-details-list",
+              title: "Music",
+              url: "/discover/wedding/music",
+            },
+            {
+              title: "Catering",
+              url: "/discover/wedding/catering",
+            },
+            {
+              title: "Transport",
+              url: "/discover/wedding/transport",
+            },
+            {
+              title: "Flowers",
+              url: "/discover/wedding/flowers",
+            },
+            {
+              title: "Cakes",
+              url: "/discover/wedding/cakes",
             },
           ],
         },
@@ -91,7 +107,9 @@ function useMenu() {
     },
     {
       title: t("menu-dashboard"),
-      url: "/company/id/dashboard",
+      url: userCompany
+        ? `/company/${userCompany.id}/dashboard`
+        : `/user/${clerkUser.user?.id}/dashboard`,
     },
   ];
   const userDashboardMenu = [

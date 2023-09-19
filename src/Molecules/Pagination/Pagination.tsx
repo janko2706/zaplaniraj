@@ -4,7 +4,7 @@ import Link from "next/link";
 
 function Pagination() {
   return (
-    <div className="col-span-12">
+    <div className="col-span-12 pb-6">
       <nav>
         <ul className="flex justify-center gap-3">
           <li className="page-item">

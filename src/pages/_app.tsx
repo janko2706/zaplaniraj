@@ -11,6 +11,7 @@ import "../Atoms/Calendar/Calendar.css";
 // Import Swiper styles
 import "swiper/css/navigation";
 import "swiper/css";
+import "../pages/discover/Discover.css";
 
 const MyApp: AppType = ({ Component, pageProps }) => {
   return (

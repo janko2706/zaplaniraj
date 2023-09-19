@@ -39,7 +39,7 @@ const dropdownVariants = cva("cursor-pointer text-left", {
     size: {
       default: "w-full  md:w-[48%] xl:w-[50%]",
       small: "w-52",
-      thin: "    ",
+      full: "w-full",
     },
   },
   defaultVariants: {
@@ -66,9 +66,7 @@ const HeroDropdown = ({
         {({ open }) => (
           <div className="relative">
             <Listbox.Button className="relative flex w-full cursor-default items-center gap-3 rounded-3xl border bg-[var(--bg-1)] px-8 py-3 focus:shadow-xl sm:text-sm">
-              {selected?.icon ?? (
-                <MapPinIcon className="   h-5 w-5 text-black " />
-              )}
+              {selected?.icon ?? null}
               <span className="block truncate">
                 {selected ? selected.name : ""}
               </span>

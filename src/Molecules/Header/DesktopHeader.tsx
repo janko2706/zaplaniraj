@@ -16,6 +16,7 @@ type Props = {
     imageUrl: string | StaticImageData;
     isSingnedIn?: boolean;
   };
+  bgColor?: string;
   appLogo: StaticImageData;
   menus: (
     | {
@@ -37,7 +38,7 @@ type Props = {
       }
   )[];
 };
-const DesktopHeader = ({ user, appLogo, menus }: Props) => {
+const DesktopHeader = ({ user, appLogo, menus, bgColor }: Props) => {
   const [menuOpen, setMenuOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
 
@@ -54,9 +55,10 @@ const DesktopHeader = ({ user, appLogo, menus }: Props) => {
 
   return (
     <header
-      className={`sticky top-0 z-30 hidden h-[75px] border-y align-middle lg:block  ${
-        scrolled &&
-        "z-50 border-0 bg-white bg-opacity-70 shadow-md backdrop-blur "
+      className={`sticky top-0 z-30 hidden h-[75px] border-y align-middle lg:block ${
+        bgColor ?? "bg-white"
+      }  ${
+        scrolled && "z-50 border-0  bg-opacity-70 shadow-md backdrop-blur "
       } duration-300`}
     >
       <div className="container relative  flex h-full items-center justify-between  px-3 py-2 lg:px-0 lg:py-0">
@@ -160,6 +162,8 @@ const MenuItems: React.FC<MenuItemsProps> = ({ items, depthLevel }) => {
       document.removeEventListener("touchstart", handler);
     };
   }, [dropdown]);
+  const linkCLasses =
+    "flex items-center justify-between gap-1 rounded-xl p-2 hover:bg-primaryLight transition-all duration-300";
 
   return (
     <li
@@ -174,7 +178,7 @@ const MenuItems: React.FC<MenuItemsProps> = ({ items, depthLevel }) => {
             aria-haspopup="menu"
             aria-expanded={dropdown ? "true" : "false"}
             onClick={() => setDropdown((prev) => !prev)}
-            className="flex items-center justify-between gap-1"
+            className={linkCLasses}
           >
             {items.title}{" "}
             {depthLevel > 0 && <ChevronRightIcon height={20} width={20} />}
@@ -189,7 +193,9 @@ const MenuItems: React.FC<MenuItemsProps> = ({ items, depthLevel }) => {
           />
         </>
       ) : (
-        <Link href={items.url ?? ""}>{items.title}</Link>
+        <Link href={items.url ?? ""} className={linkCLasses}>
+          {items.title}
+        </Link>
       )}
     </li>
   );
