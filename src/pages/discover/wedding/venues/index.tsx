@@ -18,7 +18,7 @@ import Pagination from "~/Molecules/Pagination/Pagination";
 import MainTemplate from "~/Templates/MainTemplate";
 import useMenu from "~/hooks/useMenu/useMenu";
 import { LuFlower } from "react-icons/lu";
-import { AnimatePresence, motion } from "framer-motion";
+import { motion } from "framer-motion";
 
 const iconClasses = "h-5 w-5";
 

@@ -21,7 +21,7 @@ type CardProps = {
 };
 const ListCard = ({ item }: CardProps) => {
   const [favourite, setFavourite] = useState(false);
-  const { id, address, popular, title, type, img, priceRange } = item;
+  const { id, address, popular, title, img, priceRange } = item;
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const handleFavorite = () => {
     setFavourite(!favourite);
