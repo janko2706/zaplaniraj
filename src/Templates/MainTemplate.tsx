@@ -3,10 +3,12 @@ import useLandingPageTemplate from "./useMainTemplate";
 import DesktopHeader from "~/Molecules/Header/DesktopHeader";
 import MobileMenu from "~/Molecules/Header/MobileHeader";
 import Footer from "~/Atoms/Footer/Footer";
+import type { Business } from "@prisma/client";
 
 type Props = {
   children: JSX.Element;
   bgColorDesktop?: string;
+  userCompany: Business | undefined;
   menus: (
     | {
         title: string;
@@ -39,7 +41,7 @@ function MainTemplate(props: Props) {
           user={user}
           appLogo={AppLogo}
         />
-        <MobileMenu appLogo={AppLogo} />
+        <MobileMenu appLogo={AppLogo} userCompany={props.userCompany} />
 
         <main>{props.children}</main>
         <Footer />

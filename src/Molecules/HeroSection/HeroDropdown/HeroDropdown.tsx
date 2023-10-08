@@ -1,7 +1,7 @@
 import React, { type HTMLAttributes } from "react";
 import { Fragment } from "react";
 import { Listbox, Transition } from "@headlessui/react";
-import { ChevronDownIcon, MapPinIcon } from "@heroicons/react/20/solid";
+import { ChevronDownIcon } from "@heroicons/react/20/solid";
 import { type VariantProps, cva } from "class-variance-authority";
 import { cn } from "~/utils/component-reusability";
 

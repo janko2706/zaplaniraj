@@ -53,9 +53,9 @@ const reviews = { href: "#", average: 4, totalCount: 117 };
 function Index() {
   const [selectedColor, setSelectedColor] = useState(product.colors[0]);
   const [selectedSize, setSelectedSize] = useState(product.sizes[2]);
-  const { menus } = useMenu();
+  const { menus, userCompany } = useMenu();
   return (
-    <MainTemplate menus={menus}>
+    <MainTemplate menus={menus} userCompany={userCompany}>
       <div className="bg-white">
         <div className="pt-6">
           {/* Image gallery */}

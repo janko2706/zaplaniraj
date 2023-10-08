@@ -1,4 +1,4 @@
-import type { GetStaticProps, GetStaticPaths } from "next";
+import type { GetStaticProps } from "next";
 import { useTranslation } from "next-i18next";
 import { serverSideTranslations } from "next-i18next/serverSideTranslations";
 import React from "react";
@@ -29,29 +29,3 @@ export const getStaticProps: GetStaticProps = async ({ locale }) => ({
     ...(await serverSideTranslations(locale ?? "hr", ["common", "dashboard"])),
   },
 });
-
-export const getStaticPaths: GetStaticPaths = () => {
-  return {
-    paths: [
-      {
-        params: {
-          id: "id",
-        },
-        locale: "en-US",
-      },
-      {
-        params: {
-          id: "id",
-        },
-        locale: "hr",
-      },
-      {
-        params: {
-          id: "id",
-        },
-        locale: "de-DE",
-      },
-    ],
-    fallback: true,
-  };
-};

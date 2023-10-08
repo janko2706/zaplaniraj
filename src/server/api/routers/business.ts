@@ -2,7 +2,11 @@ import { TRPCError } from "@trpc/server";
 import { z } from "zod";
 import { Ratelimit } from "@upstash/ratelimit";
 import { Redis } from "@upstash/redis/nodejs";
-import { createTRPCRouter, privateProcedure } from "~/server/api/trpc";
+import {
+  createTRPCRouter,
+  privateProcedure,
+  publicProcedure,
+} from "~/server/api/trpc";
 
 const ratelimit = new Ratelimit({
   redis: Redis.fromEnv(),
@@ -37,4 +41,22 @@ export const businessRouter = createTRPCRouter({
         return business;
       }
     }),
+  getAllForPages: publicProcedure.query(async ({ ctx }) => {
+    const res = await ctx.prisma.user
+      .findMany({
+        where: {
+          isBussines: true,
+        },
+      })
+      .then((result) => {
+        return result.map((user) => {
+          return {
+            id: user.clerkId,
+          };
+        });
+      })
+      .catch((err) => console.log(err));
+
+    return res;
+  }),
 });

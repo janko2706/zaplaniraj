@@ -44,26 +44,12 @@ export const userRouter = createTRPCRouter({
       }
       if (input.onboardingLevel === "businessDetails") {
         if (input.typeOfBusinessId && input.businessName) {
-          const typeOfBusiness = await prisma.businessTypeCategory.findFirst({
-            where: {
-              id: input.typeOfBusinessId,
-            },
-          });
-          if (!typeOfBusiness) {
-            throw new TRPCError({
-              code: "INTERNAL_SERVER_ERROR",
-              message: "Business type doesn't exist",
-            });
-          }
-
           const newBusiness = await prisma.business.create({
             data: {
               name: input.businessName,
-              typeOfBusiness: { connect: typeOfBusiness },
-              options: { connect: { id: 1 } },
+              typeOfBusiness: { connect: { id: input.typeOfBusinessId } },
               freeTrial: false,
               user: { connect: { id: user.id } },
-              priceRange: 0,
             },
           });
           if (!newBusiness) {
@@ -111,12 +97,15 @@ export const userRouter = createTRPCRouter({
   }),
   getAllForPages: publicProcedure.query(async ({ ctx }) => {
     const res = await ctx.prisma.user
-      .findMany()
+      .findMany({
+        where: {
+          isBussines: false,
+        },
+      })
       .then((result) => {
         return result.map((user) => {
           return {
             id: user.clerkId,
-            isBusiness: user.isBussines,
           };
         });
       })

@@ -122,11 +122,9 @@ export default function ChooseCategory() {
                   onboardingLevel: "businessDetails",
                 });
 
-                await router
-                  .push("/onboarding/company/payment", undefined, {
-                    locale: router.locale,
-                  })
-                  .then(() => toast.success("Dobrodosli u Vas portal"));
+                await router.push("/onboarding/company/payment", undefined, {
+                  locale: router.locale,
+                });
               }
             })();
           }}

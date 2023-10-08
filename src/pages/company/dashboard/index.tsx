@@ -1,6 +1,6 @@
 import React from "react";
 
-import type { GetStaticPaths, GetStaticProps } from "next";
+import type {  GetStaticProps } from "next";
 import { serverSideTranslations } from "next-i18next/serverSideTranslations";
 import { useTranslation } from "next-i18next";
 import PortalTabs from "~/Organisms/PortalTabs/PortalTabs";
@@ -30,29 +30,3 @@ export const getStaticProps: GetStaticProps = async ({ locale }) => ({
     ...(await serverSideTranslations(locale ?? "hr", ["common", "dashboard"])),
   },
 });
-
-export const getStaticPaths: GetStaticPaths = () => {
-  return {
-    paths: [
-      {
-        params: {
-          id: "id",
-        },
-        locale: "en-US",
-      },
-      {
-        params: {
-          id: "id",
-        },
-        locale: "hr",
-      },
-      {
-        params: {
-          id: "id",
-        },
-        locale: "de-DE",
-      },
-    ],
-    fallback: true,
-  };
-};

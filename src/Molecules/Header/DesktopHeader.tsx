@@ -104,7 +104,7 @@ const DesktopHeader = ({ user, appLogo, menus, bgColor }: Props) => {
             <FaBars className="las la-bars text-2xl" />
           </button>
           <div className={`lg:block ${menuOpen ? "block" : "hidden"}`}>
-            <ul className="menus absolute left-0 flex w-full flex-col bg-white px-2 lg:static lg:top-full lg:w-auto lg:flex-row lg:bg-transparent lg:px-0">
+            <ul className="menus absolute left-0 flex w-full flex-row bg-white px-2 lg:static lg:top-full lg:w-auto lg:flex-row lg:bg-transparent lg:px-0">
               {menus.map((menu, index) => {
                 const depthLevel = 0;
                 return (

@@ -15,7 +15,7 @@ export default function Home() {
   const user = useUser();
   const router = useRouter();
   const { getUserOnboarding, doesUserExists } = useHome();
-  const { menus } = useMenu();
+  const { menus, userCompany } = useMenu();
 
   useEffect(() => {
     if (user.isSignedIn) {
@@ -52,7 +52,7 @@ export default function Home() {
 
   return (
     <>
-      <MainTemplate menus={menus}>
+      <MainTemplate menus={menus} userCompany={userCompany}>
         <>
           {/* HERO SECTION */}
           <div className="w-full bg-slate-100">

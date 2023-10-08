@@ -41,6 +41,13 @@ const config = {
       },
       {
         protocol: "https",
+        hostname: "firebasestorage.googleapis.com",
+        port: "",
+        pathname: "/**",
+      },
+
+      {
+        protocol: "https",
         hostname: "tailwindui.com",
         port: "",
         pathname: "/**",

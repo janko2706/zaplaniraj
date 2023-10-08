@@ -107,9 +107,7 @@ function useMenu() {
     },
     {
       title: t("menu-dashboard"),
-      url: userCompany
-        ? `/company/${userCompany.id}/dashboard`
-        : `/user/${clerkUser.user?.id}/dashboard`,
+      url: userCompany ? `/company/dashboard` : `/user/dashboard`,
     },
   ];
   const userDashboardMenu = [

@@ -19,6 +19,7 @@ import MainTemplate from "~/Templates/MainTemplate";
 import useMenu from "~/hooks/useMenu/useMenu";
 import { LuFlower } from "react-icons/lu";
 import { motion } from "framer-motion";
+import { useRouter } from "next/router";
 
 const iconClasses = "h-5 w-5";
 
@@ -83,6 +84,7 @@ const sortItems = [
 ];
 
 function Index() {
+  const navigate = useRouter();
   const [selectedCategory, setSelectedCategory] = useState<
     | {
         name: string;
@@ -98,11 +100,15 @@ function Index() {
       }
     | undefined
   >(sortItems[0]);
-  const { menus } = useMenu();
+  const { menus, userCompany } = useMenu();
   return (
-    <MainTemplate bgColorDesktop="bg-primaryLight" menus={menus}>
+    <MainTemplate
+      bgColorDesktop="bg-primaryLight"
+      menus={menus}
+      userCompany={userCompany}
+    >
       <>
-        <div className="fixed z-50 w-full rounded-lg bg-primaryLight shadow-md  lg:max-h-[20vmin]">
+        <div className="fixed z-20 w-full rounded-lg bg-primaryLight shadow-md  lg:max-h-[20vmin]">
           <h1 className="w-full text-center font-Alex-Brush text-6xl lg:text-8xl">
             Weddings
           </h1>
@@ -201,6 +207,11 @@ function Index() {
                       stiffness: 150,
                     },
                   },
+                }}
+                onClick={() => {
+                  void (async () => {
+                    await navigate.replace(`/post/id/details`);
+                  })();
                 }}
               >
                 <ListCard item={item} key={item.id} />

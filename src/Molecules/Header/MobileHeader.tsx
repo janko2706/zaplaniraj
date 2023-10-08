@@ -1,43 +1,38 @@
+import { SignInButton, SignOutButton, useUser } from "@clerk/nextjs";
+import { CakeIcon, UserIcon } from "@heroicons/react/20/solid";
 import {
-  Bars3Icon,
-  BuildingOffice2Icon,
-  HeartIcon,
-  HomeIcon,
-  XMarkIcon,
   ArrowRightOnRectangleIcon,
-  BellIcon,
+  Bars3Icon,
   BuildingStorefrontIcon,
   ClipboardDocumentListIcon,
   Cog6ToothIcon,
-  CurrencyDollarIcon,
-  StarIcon,
-  TicketIcon,
+  HomeIcon,
+  XMarkIcon,
 } from "@heroicons/react/24/outline";
-import Image from "next/image";
+import type { Business } from "@prisma/client";
 import type { StaticImageData } from "next/image";
+import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import React, {
-  useEffect,
-  useState,
-} from "react";
+import { useEffect, useState } from "react";
+import { CgRing } from "react-icons/cg";
+import { FaChurch } from "react-icons/fa";
+import { LuPartyPopper } from "react-icons/lu";
 type Props = {
   appLogo: StaticImageData;
-
+  userCompany: Business | undefined;
 };
 
-const MobileMenu = ({ appLogo }: Props) => {
+const MobileMenu = ({ appLogo, userCompany }: Props) => {
   const [isOpen, setIsOpen] = useState(false);
   const path = usePathname();
   const toggleOffCanvas = () => {
-
-      setIsOpen((prevState) => !prevState);
-
+    setIsOpen((prevState) => !prevState);
   };
   useEffect(() => {
-
     setIsOpen(false);
   }, [path]);
+  const user = useUser();
   return (
     <header className="fixed bottom-0 left-0 right-0 z-[52] bg-white p-2 shadow lg:hidden">
       <ul className=" flex items-center justify-around">
@@ -51,27 +46,18 @@ const MobileMenu = ({ appLogo }: Props) => {
             <HomeIcon className="h-5 w-5" />
             <span className="text-center text-xs">Home</span>
           </Link>
-        </li>{" "}
-        <li>
-          <Link
-            href="/company/id/dashboard"
-            className={`flex flex-col items-center gap-1 rounded-md px-3 py-2 ${
-              path == "/property-list" && "bg-primary text-white"
-            }`}
-          >
-            <BuildingOffice2Icon className="h-5 w-5" />
-            <span className="text-center text-xs">Pracenje</span>
-          </Link>
         </li>
         <li>
           <Link
-            href="/favorites"
+            href={`${userCompany ? `/company/dashboard` : `/user/dashboard`}`}
             className={`flex flex-col items-center gap-1 rounded-md px-3 py-2 ${
-              path == "/favorites" && "bg-primary text-white"
+              path ==
+                `${userCompany ? `/company/dashboard` : `/user/dashboard`}` &&
+              "bg-primary text-white"
             }`}
           >
-            <HeartIcon className="h-5 w-5" />
-            <span className="text-center text-xs">Favoriti</span>
+            <UserIcon className="h-5 w-5" />
+            <span className="text-center text-xs">Moj Portal</span>
           </Link>
         </li>
         <li>
@@ -80,15 +66,13 @@ const MobileMenu = ({ appLogo }: Props) => {
             className={`flex flex-col items-center gap-1 rounded-md px-3 py-2`}
           >
             <Bars3Icon className="h-5 w-5" />
-            <span className="text-center text-xs">Menu</span>
+            <span className="text-center text-xs">Meni</span>
           </button>
         </li>
       </ul>
       <div
         className={`fixed left-0 top-0 z-20 h-screen w-full transform bg-white shadow-lg transition-transform duration-300 ease-in-out ${
-          isOpen
-              ? "translate-x-0"
-              : "translate-x-full"
+          isOpen ? "translate-x-0" : "translate-x-full"
         }`}
       >
         <Image
@@ -116,18 +100,23 @@ const MobileMenu = ({ appLogo }: Props) => {
                   }`}
                 >
                   <BuildingStorefrontIcon className="h-5 w-5" />
-                  Dashboard
+                  Pocetna
                 </Link>
               </li>
               <li>
                 <Link
-                  href="/vendor-listings"
+                  href={`${
+                    userCompany ? `/company/dashboard` : `/user/dashboard`
+                  }`}
                   className={`flex items-center gap-2 rounded-md px-6 py-3 duration-300 ${
-                    path == "/vendor-listings" && "bg-primary text-white"
+                    path ==
+                      `${
+                        userCompany ? `/company/dashboard` : `/user/dashboard`
+                      }` && "bg-primary text-white"
                   }`}
                 >
                   <ClipboardDocumentListIcon className="h-5 w-5" />
-                  Listings
+                  Moj Portal
                 </Link>
               </li>
               <li>
@@ -137,8 +126,8 @@ const MobileMenu = ({ appLogo }: Props) => {
                     path == "/vendor-bookings" && "bg-primary text-white"
                   }`}
                 >
-                  <TicketIcon className="h-5 w-5" />
-                  Bookings
+                  <CgRing className="h-5 w-5" />
+                  Vjenjcanja
                 </Link>
               </li>
               <li>
@@ -148,8 +137,8 @@ const MobileMenu = ({ appLogo }: Props) => {
                     path == "/vendor-activities" && "bg-primary text-white"
                   }`}
                 >
-                  <BellIcon className="h-5 w-5" />
-                  Activities
+                  <CakeIcon className="h-5 w-5" />
+                  Rodendani
                 </Link>
               </li>
               <li>
@@ -159,8 +148,8 @@ const MobileMenu = ({ appLogo }: Props) => {
                     path == "/vendor-earnings" && "bg-primary text-white"
                   }`}
                 >
-                  <CurrencyDollarIcon className="h-5 w-5" />
-                  Earnings
+                  <FaChurch className="h-5 w-5" />
+                  Sakramenti
                 </Link>
               </li>
               <li>
@@ -170,10 +159,11 @@ const MobileMenu = ({ appLogo }: Props) => {
                     path == "/vendor-reviews" && "bg-primary text-white"
                   }`}
                 >
-                  <StarIcon className="h-5 w-5" />
-                  Reviews
+                  <LuPartyPopper className="h-5 w-5" />
+                  Slavlja
                 </Link>
               </li>
+
               <li>
                 <Link
                   href="/vendor-settings"
@@ -182,20 +172,28 @@ const MobileMenu = ({ appLogo }: Props) => {
                   }`}
                 >
                   <Cog6ToothIcon className="h-5 w-5" />
-                  Settings
+                  Postavke
                 </Link>
               </li>
             </ul>
           </div>
           <ul>
             <li>
-              <Link
-                href="/"
-                className={`flex items-center gap-2 rounded-md px-6 py-3 `}
-              >
-                <ArrowRightOnRectangleIcon className="h-5 w-5" />
-                Log out
-              </Link>
+              {!user.isSignedIn ? (
+                <SignInButton>
+                  <div className="flex items-center gap-2 rounded-md px-6 py-3">
+                    <UserIcon className="h-5 w-5" />
+                    Prijava
+                  </div>
+                </SignInButton>
+              ) : (
+                <SignOutButton>
+                  <div className="flex items-center gap-2 rounded-md px-6 py-3">
+                    <ArrowRightOnRectangleIcon className="h-5 w-5" />
+                    Odjava
+                  </div>
+                </SignOutButton>
+              )}
             </li>
           </ul>
         </nav>
@@ -205,5 +203,3 @@ const MobileMenu = ({ appLogo }: Props) => {
 };
 
 export default MobileMenu;
-
-

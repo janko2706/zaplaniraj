@@ -2,88 +2,86 @@
 // learn more about it in the docs: https://pris.ly/d/prisma-schema
 
 datasource db {
-  provider = "mysql"
-  url      = env("DATABASE_URL")
+  provider     = "mysql"
+  url          = env("DATABASE_URL")
   relationMode = "prisma"
 }
-
 
 generator client {
   provider = "prisma-client-js"
 }
 
-
-
 model User {
-    id        String   @id @default(cuid())
-    createdAt DateTime @default(now())
-    updatedAt DateTime @updatedAt
-    isBussines Boolean 
-    business Business? @relation(fields: [businessId], references: [id])
-    businessId String? @unique
-    onboarding  String
-    clerkId String @unique
-    @@index([clerkId])
+  id         String    @id @default(cuid())
+  createdAt  DateTime  @default(now())
+  updatedAt  DateTime  @updatedAt
+  isBussines Boolean
+  business   Business? @relation(fields: [businessId], references: [id])
+  businessId String?   @unique
+  onboarding String
+  clerkId    String    @unique
+
+  @@index([clerkId])
+  @@index([businessId])
 }
 
 model Business {
-    id        String   @id @default(cuid())
-    user User?
-    typeOfBusiness BusinessTypeCategory @relation(fields: [typeOfBusinessId], references: [id])
-    typeOfBusinessId Int @unique
+  id               String               @id @default(cuid())
+  user             User?
+  typeOfBusiness   BusinessTypeCategory @relation(fields: [typeOfBusinessId], references: [id])
+  typeOfBusinessId Int
+  name             String
+  stripeId         String?
+  hasPost          Boolean?             @default(false)
+  postIsLive       Boolean?             @default(false)
+  freeTrial        Boolean
+  companyPost      CompanyPost?         @relation(fields: [companyPostId], references: [id])
+  companyPostId    Int?                 @unique
 
-    name String
-    stripeId String?
-    hasPost Boolean @default(false)
-    postIsLive Boolean @default(false)
-    freeTrial Boolean
-    companyPost CompanyPost? @relation(fields: [companyPostId], references: [id]) 
-    companyPostId Int @unique
+  @@index([typeOfBusinessId])
 }
 
-
 model CompanyPost {
-  id        Int   @id @default(autoincrement())
-  title String
-  priceRangeMin Int?
-  priceRangeMax Int?
+  id                    Int             @id @default(autoincrement())
+  title                 String
+  priceRangeMin         Int?
+  priceRangeMax         Int?
   selectedCategoriesIds EventCategory[]
-  location String?
-  shortDescription String?
-  fullDescription String?
-  options Options? @relation(fields: [optionsId], references: [id])
-  optionsId Int @unique
-  business Business?
+  location              String?
+  shortDescription      String?
+  fullDescription       String?
+  options               Options[]
+  pictures              String?
+  isLive                Boolean         @default(false)
+  contactEmails         String?
+  contactPhones         String?
+  website               String?
+  business              Business?
 }
 
 model EventCategory {
-    id        Int   @id @default(autoincrement())
-    value String
-    label String
-    companyPost CompanyPost[]
+  id          Int           @id @default(autoincrement())
+  value       String
+  label       String
+  companyPost CompanyPost[]
 }
+
 model BusinessTypeCategory {
-    id        Int   @id @default(autoincrement())
-    value String
-    label String
-    businesses Business?
+  id         Int        @id @default(autoincrement())
+  value      String
+  label      String
+  businesses Business[]
 }
 
 model Socials {
-  id        Int   @id @default(autoincrement())
-  facebookLink Int?
+  id            Int     @id @default(autoincrement())
+  facebookLink  Int?
   instagramLink String?
 }
 
 model Options {
-  id        Int   @id @default(autoincrement())
-  companyPost CompanyPost?
-  decoration Boolean @default(false)
-  PhotoCorner Boolean @default(false)
-  maximumNumberOfPeople Int @default(0)
-  minimumNumberOfPeople Int @default(0)
-  BuketiIReveri Boolean @default(false)
-
+  id         Int           @id @default(autoincrement())
+  value      String
+  label      String
+  businesses CompanyPost[]
 }
-
-

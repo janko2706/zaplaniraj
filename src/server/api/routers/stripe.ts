@@ -43,7 +43,7 @@ export const stripeRouter = createTRPCRouter({
             quantity: 1,
           },
         ],
-        success_url: `${env.NEXT_PUBLIC_WEBSITE_URL}/company/${businessToUpdate.id}/dashboard`,
+        success_url: `${env.NEXT_PUBLIC_WEBSITE_URL}/company/dashboard`,
         cancel_url: `${env.NEXT_PUBLIC_WEBSITE_URL}/onboarding/company/payment?success=false`,
       });
 

@@ -1,5 +1,5 @@
 import dynamic from "next/dynamic";
-import { type FC, useState } from "react";
+import { useState } from "react";
 import { add, format } from "date-fns";
 
 const DynamicCalendar = dynamic(() => import("react-calendar"), { ssr: false });
@@ -9,7 +9,11 @@ type DateType = {
   dateTime: Date | null;
 };
 
-const CalendarComponent = () => {
+type Props = {
+  column?: boolean;
+};
+
+const CalendarComponent = ({ column }: Props) => {
   const [date, setDate] = useState<DateType>({
     dateTime: null,
     justDate: null,
@@ -33,7 +37,11 @@ const CalendarComponent = () => {
   const times = getTimes();
 
   return (
-    <div className="flex w-full">
+    <div
+      className={`flex w-full ${
+        column != undefined && column ? "flex-col" : ""
+      }`}
+    >
       <DynamicCalendar
         minDate={new Date()}
         className={`react-calendar`}
@@ -48,7 +56,7 @@ const CalendarComponent = () => {
                 key={`time-${idx}`}
                 className="w-fit cursor-pointer rounded-lg border border-dark p-4 transition-all duration-300 hover:bg-dark hover:text-white"
               >
-                {format(time, "kk:mm")} / SMITH JOHN - RODENDAN
+                {format(time, "kk:mm")}
               </div>
             );
           })}

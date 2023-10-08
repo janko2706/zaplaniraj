@@ -42,7 +42,10 @@ function RootLayout(props: Props) {
 
   return (
     <>
-      <MainTemplate menus={props.menus}>
+      <MainTemplate
+        menus={props.menus}
+        userCompany={props.isCompany ? props.business : undefined}
+      >
         <section className="bg-white">
           <div>
             <div className="flex flex-wrap items-center justify-between gap-5 bg-[var(--dark)] px-3 py-5 md:p-[30px] lg:p-[60px]">

@@ -20,7 +20,7 @@ function RangeSliderComponent({ value, handleChange, min, max }: Props) {
         step={1}
         defaultValue={value}
       />
-      <div className="flex justify-center gap-4 py-5">
+      <div className="flex select-none justify-center gap-4 py-5">
         <span>${value[0]}</span>
         <span>-</span>
         <span>${value[1]}</span>
