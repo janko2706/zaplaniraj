@@ -9,9 +9,20 @@ export const useCompanyPost = () => {
   const businessPost = api.businessPost.getPostByBusinessId.useQuery({
     businessId: userBusiness.data?.id ?? "",
   });
-  const categories = api.businessCategoryType.getAll.useQuery();
+  const eventCategories =
+    api.businessCategoryType.getAllEventCategories.useQuery();
 
   const { mutateAsync: createPost } =
     api.businessPost.createBuinessPost.useMutation();
-  return { businessPost, createPost, userBusiness, categories };
+  const { mutateAsync: deletePostImage } =
+    api.businessPost.deleteImageFromPost.useMutation();
+  const { mutateAsync: updatePost } = api.businessPost.updatePost.useMutation();
+  return {
+    businessPost,
+    createPost,
+    userBusiness,
+    eventCategories,
+    updatePost,
+    deletePostImage,
+  };
 };

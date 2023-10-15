@@ -69,7 +69,6 @@ const ReadySearchBox = ({ onSelectAddress, defaultValue }: Props) => {
               clearSuggestions()
               try {
                 const result = await getGeocode({address})
-                console.log(result)
                 const {lat, lng} = getLatLng(result[0])
                 onSelectAddress(address,lat, lng)
               } catch (error) {

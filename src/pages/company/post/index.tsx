@@ -11,13 +11,13 @@ function Index() {
   const { menus, userCompany } = useMenu();
   return (
     <RootLayout
-      post={true}
+      hasPost={false}
       business={userCompany}
       menus={menus}
       isCompany={true}
       type={userCompany?.hasPost ? t("edit-post") : t("new-post")}
     >
-      <CompanyPostView />
+      <CompanyPostView businessId={userCompany?.id ?? ""} />
     </RootLayout>
   );
 }

@@ -43,20 +43,67 @@ model Business {
 
 model CompanyPost {
   id                    Int             @id @default(autoincrement())
+  isLive                Boolean         @default(false)
   title                 String
   priceRangeMin         Int?
   priceRangeMax         Int?
+  companyDescription    String?
+  serviceDescription    String?
   selectedCategoriesIds EventCategory[]
+  pictures              String? @db.VarChar(3000)
   location              String?
-  shortDescription      String?
-  fullDescription       String?
-  options               Options[]
-  pictures              String?
-  isLive                Boolean         @default(false)
-  contactEmails         String?
+  lat Float?
+  lng Float?
+  maximumPeople         Int?
+  earlisetAvailable     DateTime?
+  userCanVisit          Boolean?
+  tags                  String?
+  parkingPlaces         Int?
+  offerPictures         String?
+  placeSize             String?
   contactPhones         String?
+  statistics            Statistic       @relation(fields: [statisticId], references: [id])
+  contactEmails         String?
+  reviews               Review[]
   website               String?
+  instagramLink         String?
+  facebookLink          String?
   business              Business?
+  statisticId           Int             @unique
+}
+
+model Statistic {
+  id                 Int  @id @default(autoincrement())
+  averageReviewGrade Int @default(5)
+  visitors           Int @default(0)
+  numberOfReviews    Int @default(0)
+  January            Int @default(0)
+  February           Int @default(0)
+  March              Int @default(0)
+  April              Int @default(0)
+  May                Int @default(0)
+  June               Int @default(0)
+  July               Int @default(0)
+  August             Int @default(0)
+  September          Int @default(0)
+  October            Int @default(0)
+  November           Int @default(0)
+  December           Int @default(0)
+
+  CompanyPost CompanyPost?
+}
+
+model Review {
+  id            Int          @id @default(autoincrement())
+  starts        Int
+  reviewText    String
+  userName      String
+  createdAt     DateTime     @default(now())
+  likes         Int
+  CompanyPost   CompanyPost? @relation(fields: [companyPostId], references: [id])
+  companyPostId Int?
+
+  @@index([companyPostId])
 }
 
 model EventCategory {
@@ -71,17 +118,4 @@ model BusinessTypeCategory {
   value      String
   label      String
   businesses Business[]
-}
-
-model Socials {
-  id            Int     @id @default(autoincrement())
-  facebookLink  Int?
-  instagramLink String?
-}
-
-model Options {
-  id         Int           @id @default(autoincrement())
-  value      String
-  label      String
-  businesses CompanyPost[]
 }

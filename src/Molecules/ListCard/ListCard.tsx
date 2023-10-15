@@ -2,7 +2,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { HeartIcon as HeartIconOutline } from "@heroicons/react/24/outline";
 import { useState } from "react";
-import { HeartIcon, MapPinIcon, StarIcon } from "@heroicons/react/20/solid";
+import { HeartIcon, MapPinIcon } from "@heroicons/react/20/solid";
 import { toast } from "react-toastify";
 
 const notifyAdd = () => toast.success("Added to Wishlist.");
@@ -10,18 +10,17 @@ const notifyRemove = () => toast.error("Removed From Wishlist.");
 
 type CardProps = {
   item: {
-    id: string;
-    address: string;
-    popular: boolean;
-    priceRange: number[];
+    id: number;
     title: string;
-    img: string;
+    address: string;
+    priceRange: (number | null)[];
     type: string;
+    img?: string | null;
   };
 };
 const ListCard = ({ item }: CardProps) => {
   const [favourite, setFavourite] = useState(false);
-  const { id, address, popular, title, img, priceRange } = item;
+  const { id, address, title, img, priceRange } = item;
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const handleFavorite = () => {
     setFavourite(!favourite);
@@ -83,12 +82,6 @@ const ListCard = ({ item }: CardProps) => {
             <span className="text-xl font-medium text-primary">
               €{priceRange[0]} / €{priceRange[1]}
             </span>
-            {popular && (
-              <div className="relative z-10 inline-flex gap-4 rounded-md bg-primary px-9 py-2.5 text-sm font-medium text-white">
-                <StarIcon className="h-5 w-5" />
-                <div> Available online booking</div>
-              </div>
-            )}
             <Link href="/property-details-1" className="btn-outline ">
               Read More
             </Link>

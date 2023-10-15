@@ -27,6 +27,7 @@ type Props = {
   setOpen: Dispatch<SetStateAction<boolean>>;
   previewPicture: string;
   name: string;
+  isCompanyPreview?: boolean;
 };
 
 export default function PreviewModal({
@@ -34,6 +35,7 @@ export default function PreviewModal({
   setOpen,
   previewPicture,
   name,
+  isCompanyPreview,
 }: Props) {
   return (
     <Transition.Root show={open} as={Fragment}>
@@ -62,13 +64,18 @@ export default function PreviewModal({
               leaveTo="opacity-0 translate-y-4 md:translate-y-0 md:scale-95"
             >
               <Dialog.Panel className="flex w-full transform text-left text-base transition md:my-8 md:max-w-2xl md:px-4 lg:max-w-4xl">
-                <div className="relative flex w-full items-center overflow-hidden bg-white px-4 pb-8 pt-14 shadow-2xl sm:px-6 sm:pt-8 md:p-6 lg:p-8">
+                <div className="relative flex w-full items-center overflow-hidden rounded-3xl bg-white px-4 pb-8 pt-14 shadow-2xl sm:px-6 sm:pt-8 md:p-6  lg:p-8">
+                  {isCompanyPreview && (
+                    <div className="absolute left-0 top-0 z-50  h-7 w-full   bg-red-500 text-center text-white">
+                      OSTALI PODACI CE KORISNIKU BITI VIDLJIVI KLIKOM NA
+                      &quot;POSJETI&quot;
+                    </div>
+                  )}
                   <button
                     type="button"
                     className="absolute right-4 top-4 text-gray-400 hover:text-gray-500 sm:right-6 sm:top-8 md:right-6 md:top-6 lg:right-8 lg:top-8"
                     onClick={() => setOpen(false)}
                   >
-                    <span className="sr-only">Close</span>
                     <XMarkIcon className="h-6 w-6" aria-hidden="true" />
                   </button>
 
@@ -181,7 +188,7 @@ export default function PreviewModal({
                         <form>
                           <button
                             type="submit"
-                            className="mt-6 flex w-full items-center justify-center rounded-md border border-transparent bg-indigo-600 px-8 py-3 text-base font-medium text-white hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
+                            className="mt-6 flex w-full items-center justify-center rounded-md border border-transparent bg-primary px-8 py-3 text-base font-medium text-white transition-all duration-300 hover:bg-indigo-900"
                           >
                             Posjeti
                           </button>

@@ -1,4 +1,3 @@
-"use client";
 import Image from "next/image";
 import { Swiper, SwiperSlide } from "swiper/react";
 import { Tooltip } from "react-tooltip";
@@ -9,6 +8,8 @@ import { Navigation } from "swiper/modules";
 import Link from "next/link";
 import { Tab } from "@headlessui/react";
 import { CheckIcon, StarIcon } from "@heroicons/react/20/solid";
+import { format } from "date-fns";
+import type { WholePostType } from "~/utils/types";
 import {
   ArrowsRightLeftIcon,
   CalendarDaysIcon,
@@ -28,15 +29,48 @@ import { FaFacebook, FaInstagram, FaLinkedin, FaParking } from "react-icons/fa";
 import CalendarComponent from "~/Atoms/Calendar/Calendar";
 import useMenu from "~/hooks/useMenu/useMenu";
 import { serverSideTranslations } from "next-i18next/serverSideTranslations";
-import type { GetStaticProps, GetStaticPaths } from "next";
+import type {
+  GetStaticProps,
+  GetStaticPaths,
+  InferGetStaticPropsType,
+} from "next";
 
-const Index = () => {
+type CustomDehydrateState = {
+  json: {
+    queries: {
+      state: {
+        data: WholePostType;
+      };
+    }[];
+  };
+};
+
+const Index = (props: InferGetStaticPropsType<typeof getStaticProps>) => {
+  // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+  const postData: CustomDehydrateState = props.trpcState;
+
+  const [post, setPost] = useState<WholePostType | undefined>();
+
+  useEffect(() => {
+    if (postData) {
+      setPost(postData.json.queries[0]?.state.data);
+    }
+  }, [postData]);
+
   const tooltipStyle = {
     backgroundColor: "#3539E9",
     color: "#fff",
     borderRadius: "10px",
   };
   const { userCompany, menus } = useMenu();
+  if (!post)
+    return (
+      <div className="flex h-screen w-full items-center justify-center ">
+        <LoadingSpinner spinnerHeight="h-14" spinnerWidth="w-14" />
+      </div>
+    );
+  const pictures = post.pictures?.split(",");
+  const offerPictures = post.offerPictures?.split(",");
   return (
     <MainTemplate menus={menus} userCompany={userCompany}>
       <>
@@ -61,50 +95,25 @@ const Index = () => {
                   className="swiper "
                 >
                   <div className="swiper-wrapper ">
-                    <SwiperSlide className="swiper-slide ">
-                      <div className="block">
-                        <Image
-                          width={500}
-                          height={600}
-                          src="https://picsum.photos/200/300"
-                          alt="image"
-                          className="rounded-2xl"
-                        />
-                      </div>
-                    </SwiperSlide>
-                    <SwiperSlide className="swiper-slide ">
-                      <div className="block">
-                        <Image
-                          width={500}
-                          height={600}
-                          src="https://picsum.photos/300/500"
-                          alt="image"
-                          className="rounded-2xl"
-                        />
-                      </div>
-                    </SwiperSlide>
-                    <SwiperSlide className="swiper-slide ">
-                      <div className="block">
-                        <Image
-                          width={500}
-                          height={600}
-                          src="https://picsum.photos/400/300"
-                          alt="image"
-                          className="rounded-2xl"
-                        />
-                      </div>
-                    </SwiperSlide>
-                    <SwiperSlide className="swiper-slide ">
-                      <div className="block">
-                        <Image
-                          width={500}
-                          height={600}
-                          src="https://picsum.photos/200/300"
-                          alt="image"
-                          className="rounded-2xl"
-                        />
-                      </div>
-                    </SwiperSlide>
+                    {pictures ? (
+                      pictures.map((item, idx) => {
+                        return (
+                          <SwiperSlide className="swiper-slide " key={idx}>
+                            <div className="block">
+                              <Image
+                                width={500}
+                                height={600}
+                                src={item}
+                                alt="image"
+                                className="rounded-2xl"
+                              />
+                            </div>
+                          </SwiperSlide>
+                        );
+                      })
+                    ) : (
+                      <></>
+                    )}
                   </div>
                   <button className="btn-prev absolute left-4 top-[45%] z-[1] flex h-8 w-8 items-center justify-center rounded-full bg-white duration-300 hover:bg-primary hover:text-white">
                     <ChevronLeftIcon className="h-5 w-5" />
@@ -125,7 +134,7 @@ const Index = () => {
                 <div className="section-space--sm">
                   <div className="mb-10 rounded-2xl bg-white p-3 sm:p-4 lg:p-6">
                     <div className="mb-8 flex flex-wrap items-center justify-between gap-3">
-                      <h2 className="h2 mb-0 mt-4"> Burj Al Arab </h2>
+                      <h2 className="h2 mb-0 mt-4"> {post.title} </h2>
                       <ul className="flex items-center gap-3">
                         <li>
                           <Link
@@ -157,23 +166,36 @@ const Index = () => {
                       <li>
                         <div className="flex items-center gap-2">
                           <MapPinIcon className="h-5 w-5 text-[var(--secondary-500)]" />
-                          <p className="mb-0"> 3890 Poplar Dr. </p>
+                          <p className="mb-0"> {post.location} </p>
                         </div>
                       </li>
-                      <li className="text-lg text-primary">•</li>
+                      {post.reviews.length ? (
+                        <>
+                          <li className="text-lg text-primary">•</li>
+                          <li>
+                            <div className="flex items-center gap-1">
+                              <StarIcon className="h-5 w-5 text-[var(--tertiary)]" />
+                              <p className="mb-0">
+                                {post.statistics.averageReviewGrade}
+                              </p>
+                            </div>
+                          </li>
+                        </>
+                      ) : (
+                        <></>
+                      )}
 
-                      <li>
-                        <div className="flex items-center gap-1">
-                          <StarIcon className="h-5 w-5 text-[var(--tertiary)]" />
-                          <p className="mb-0"> 4.5(66) </p>
-                        </div>
-                      </li>
                       <li className="text-lg text-primary">•</li>
                       <li>
                         <p className="mb-0 flex items-center gap-1">
                           <ClockIcon className="h-5 w-5 text-[var(--tertiary)]" />
-                          <span className="clr-neutral-500">Published:</span>
-                          Feb 9, 23
+                          <span className="clr-neutral-500">Dostupno od:</span>
+                          {post.earlisetAvailable
+                            ? format(
+                                new Date(post.earlisetAvailable),
+                                "dd / MM / yyy"
+                              )
+                            : ""}
                         </p>
                       </li>
                     </ul>
@@ -184,105 +206,96 @@ const Index = () => {
                           Ukljuceno -
                         </span>
                       </li>
-                      <li>
-                        <div
-                          data-tooltip-id="parking"
-                          className="grid h-10 w-10 place-content-center rounded-full bg-bg2 text-primary"
-                        >
-                          <FaParking
-                            width={28}
-                            height={28}
-                            className="  h-7 w-7"
-                          />
-                        </div>
-                      </li>
+                      {post.parkingPlaces ? (
+                        <li>
+                          <div
+                            data-tooltip-id="parking"
+                            className="flex h-10 w-fit items-center justify-center gap-2 rounded-full bg-bg2 px-2 text-primary"
+                          >
+                            {post.parkingPlaces} <span>-</span>
+                            <FaParking
+                              width={28}
+                              height={28}
+                              className="h-7 w-7"
+                            />
+                          </div>
+                        </li>
+                      ) : (
+                        <></>
+                      )}
                     </ul>
                     <Tooltip
                       id="parking"
                       style={tooltipStyle}
                       offset={7}
-                      content="Parking"
+                      content={`${post.title} ima ${
+                        post.parkingPlaces ? post.parkingPlaces : 0
+                      } mjesta za parking.`}
                     />
                   </div>
                   <div className="mb-10 rounded-2xl bg-white p-3 sm:p-4 lg:p-6">
-                    <h4 className="mb-5 text-2xl font-semibold">Description</h4>
+                    <h4 className="mb-5 text-2xl font-semibold">
+                      Opis poslovanja
+                    </h4>
                     <p className="clr-neutral-500 mb-5">
-                      The Burj Al Arab is a luxurious 7-star hotel located in
-                      Dubai, United Arab Emirates. It is known for its
-                      distinctive sail-shaped silhouette and its iconic status
-                      as one of the world&apos;s most luxurious hotels. The
-                      hotel offers a variety of amenities and services,
-                      including private butler service, luxurious suites, a spa,
-                      several restaurants and bars, and access to the
-                      hotel&apos;s private beach.
+                      {post.companyDescription}
                     </p>
                   </div>
                   <div className="mb-10 rounded-2xl bg-white p-3 sm:p-4 lg:p-6">
-                    <h4 className="mb-5 text-2xl font-semibold"> Services </h4>
-                    <div className="mb-10">
-                      <ul className="flex flex-wrap gap-4">
-                        <li>
-                          <div className="flex items-center gap-2">
-                            <div className="grid h-6 w-6 shrink-0 place-content-center rounded-full bg-[var(--primary-light)]">
-                              <i className="las la-check text-lg text-primary"></i>
-                            </div>
-                            <span className="inline-block">Dry cleaning</span>
-                          </div>
-                        </li>
-                      </ul>
+                    <h4 className="mb-5 text-2xl font-semibold">Opis usluge</h4>
+                    <p className="clr-neutral-500 mb-5">
+                      {post.serviceDescription}
+                    </p>
+                  </div>
+                  {offerPictures ? (
+                    <div className="mb-10 rounded-2xl bg-white p-3 sm:p-4 lg:p-6">
+                      <h4 className="mb-5 text-2xl font-semibold">
+                        Slike ponude
+                      </h4>
+                      <Swiper
+                        spaceBetween={16}
+                        centeredSlides
+                        centeredSlidesBounds
+                        breakpoints={{
+                          1000: {
+                            slidesPerView: 3,
+                          },
+                        }}
+                        navigation={{
+                          nextEl: ".btn-next",
+                          prevEl: ".btn-prev",
+                        }}
+                        modules={[Navigation]}
+                        className="swiper "
+                      >
+                        <div className="swiper-wrapper ">
+                          {offerPictures.map((item, idx) => {
+                            return (
+                              <SwiperSlide className="swiper-slide " key={idx}>
+                                <div className="block">
+                                  <Image
+                                    width={500}
+                                    height={600}
+                                    src={item}
+                                    alt="image"
+                                    className="rounded-2xl"
+                                  />
+                                </div>
+                              </SwiperSlide>
+                            );
+                          })}
+                        </div>
+                        <button className="btn-prev absolute left-4 top-[45%] z-[1] flex h-8 w-8 items-center justify-center rounded-full bg-white duration-300 hover:bg-primary hover:text-white">
+                          <ChevronLeftIcon className="h-5 w-5" />
+                        </button>
+                        <button className="btn-next absolute right-4 top-[45%] z-[1] flex h-8 w-8 items-center justify-center rounded-full bg-white duration-300 hover:bg-primary hover:text-white">
+                          <ChevronRightIcon className="h-5 w-5" />
+                        </button>
+                      </Swiper>
                     </div>
-                  </div>
-                  <div className="mb-10 rounded-2xl bg-white p-3 sm:p-4 lg:p-6">
-                    <h4 className="mb-5 text-2xl font-semibold">Advantages</h4>
-                    <ul className="mb-5 flex flex-col gap-4">
-                      <li>
-                        <div className="flex gap-4">
-                          <div className="grid h-6 w-6 shrink-0 place-content-center rounded-full bg-[var(--primary-light)]">
-                            <i className="las la-check text-lg text-primary"></i>
-                          </div>
-                          <span className="inline-block">
-                            World-class luxury: The hotel is known for its
-                            opulent design and over-the-top luxury.
-                          </span>
-                        </div>
-                      </li>
-                      <li>
-                        <div className="flex gap-4">
-                          <div className="grid h-6 w-6 shrink-0 place-content-center rounded-full bg-[var(--primary-light)]">
-                            <i className="las la-check text-lg text-primary"></i>
-                          </div>
-                          <span className="inline-block">
-                            Unmatched service: The hotel prides itself on its
-                            personalized service and attention to detail.
-                          </span>
-                        </div>
-                      </li>
-                      <li>
-                        <div className="flex gap-4">
-                          <div className="grid h-6 w-6 shrink-0 place-content-center rounded-full bg-[var(--primary-light)]">
-                            <i className="las la-check text-lg text-primary"></i>
-                          </div>
-                          <span className="inline-block">
-                            Exclusive amenities: Burj Al Arab offers a range of
-                            exclusive amenities, including a private beach, an
-                            outdoor pool, and a spa.
-                          </span>
-                        </div>
-                      </li>
-                      <li>
-                        <div className="flex gap-4">
-                          <div className="grid h-6 w-6 shrink-0 place-content-center rounded-full bg-[var(--primary-light)]">
-                            <i className="las la-check text-lg text-primary"></i>
-                          </div>
-                          <span className="inline-block">
-                            Incredible views: The hotel is located on a man-made
-                            island, which offers incredible views of the Dubai
-                            skyline and the Arabian Gulf.
-                          </span>
-                        </div>
-                      </li>
-                    </ul>
-                  </div>
+                  ) : (
+                    <></>
+                  )}
                   <div className="mb-10 rounded-2xl bg-white p-3 sm:p-4 lg:p-6">
                     <h4 className="mb-5 text-2xl font-semibold">
                       Hotel Policies
@@ -338,30 +351,39 @@ const Index = () => {
                     </ul>
                   </div>
 
-                  <div className="mb-10 rounded-2xl bg-white p-3 sm:p-4 lg:mb-14 lg:px-5 lg:py-8">
-                    <div className="mb-10 flex flex-wrap items-center justify-between gap-4">
-                      <div className="flex items-center gap-2">
-                        <StarIcon className="h-5 w-5 text-[var(--tertiary)]" />
-                        <h3 className="h3 mb-0"> 4.7 (21 reviews) </h3>
+                  {post.reviews && post.reviews.length ? (
+                    <div className="mb-10 rounded-2xl bg-white p-3 sm:p-4 lg:mb-14 lg:px-5 lg:py-8">
+                      <div className="mb-10 flex flex-wrap items-center justify-between gap-4">
+                        <div className="flex items-center gap-2">
+                          <StarIcon className="h-5 w-5 text-[var(--tertiary)]" />
+                          <h3 className="h3 mb-0">
+                            {post.statistics.averageReviewGrade} (
+                            {post.statistics.numberOfReviews} reviews)
+                          </h3>
+                        </div>
                       </div>
+                      {post.reviews.map((item, idx) => {
+                        return (
+                          <PostReview
+                            key={idx}
+                            reviewerName={item.userName}
+                            dateOfReview={item.createdAt}
+                            numberOfStars={item.starts}
+                            reviewText={item.reviewText}
+                            reviewLikes={item.likes}
+                          />
+                        );
+                      })}
+                      <Pagination />
                     </div>
-                    <PostReview
-                      reviewerName={"Kiss Laura"}
-                      reviewerImg={"https://picsum.photos/300/300"}
-                      dateOfReview={new Date()}
-                      numberOfStars={3}
-                      reviewText={
-                        "Lorem ipsum dolor sit, amet consectetur adipisicing elit. Nesciunt temporibus odit minima vero repudiandae aliquid aliquam? Consequatur voluptate sapiente distinctio."
-                      }
-                      reviewLikes={200}
-                    />
-                    <Pagination />
-                  </div>
+                  ) : (
+                    <></>
+                  )}
 
                   <div className="mb-10 lg:mb-14">
                     <div className="rounded-2xl bg-white px-5 py-8">
                       <h4 className="mb-0 text-2xl font-semibold">
-                        Write a review
+                        Ostavite recenziju
                       </h4>
                       <div className="my-6 border border-dashed"></div>
                       <p className="mb-3 text-xl font-medium">Rating</p>
@@ -380,12 +402,12 @@ const Index = () => {
                               htmlFor="review-name"
                               className="mb-3 block text-xl font-medium"
                             >
-                              Name *
+                              Ime *
                             </label>
                             <input
                               type="text"
                               className="border-neutral-40 w-full rounded-full border bg-[var(--bg-1)] px-5 py-3 focus:outline-none"
-                              placeholder="Enter Name.."
+                              placeholder="Unesite ime..."
                               id="review-name"
                             />
                           </div>
@@ -399,7 +421,7 @@ const Index = () => {
                             <input
                               type="text"
                               className="border-neutral-40 w-full rounded-full border bg-[var(--bg-1)] px-5 py-3 focus:outline-none"
-                              placeholder="Enter Email.."
+                              placeholder="Unesite email..."
                               id="review-email"
                             />
                           </div>
@@ -408,7 +430,7 @@ const Index = () => {
                               htmlFor="review-review"
                               className="mb-3 block text-xl font-medium"
                             >
-                              Review *
+                              Recenzija *
                             </label>
                             <textarea
                               id="review-review"
@@ -418,7 +440,7 @@ const Index = () => {
                           </div>
                           <div className="col-span-12">
                             <Link href="#" className="btn-primary">
-                              Submit Review
+                              Posalji recenziju
                             </Link>
                           </div>
                         </div>
@@ -431,14 +453,15 @@ const Index = () => {
               <div className="col-span-12 xl:col-span-4">
                 <div className="relative mb-6 pb-0">
                   <div className="rounded-2xl bg-white px-6 py-8">
-                    <p className="mb-3 text-lg font-medium"> Price </p>
+                    <p className="mb-3 text-lg font-medium"> Cijena </p>
                     <div className="mb-6 flex items-start gap-2">
                       <div className="flex items-center gap-3">
                         <i className="las la-tag text-2xl"></i>
-                        <p className="mb-0"> From </p>
-                        <h3 className="h3 mb-0"> $399 </h3>
+                        <p className="mb-0"> Od </p>
+                        <h3 className="h3 mb-0"> {post.priceRangeMin}€ </h3>
+                        <p className="mb-0"> Do </p>
+                        <h3 className="h3 mb-0"> {post.priceRangeMax}€ </h3>
                       </div>
-                      <i className="las la-info-circle text-2xl"></i>
                     </div>
 
                     <Tab.Group>
@@ -590,11 +613,39 @@ const Index = () => {
 
 export default Index;
 
-export const getStaticProps: GetStaticProps = async ({ locale }) => ({
-  props: {
-    ...(await serverSideTranslations(locale ?? "hr", ["common", "dashboard"])),
-  },
-});
+import { createServerSideHelpers } from "@trpc/react-query/server";
+import { appRouter } from "~/server/api/root";
+import superjson from "superjson";
+import { prisma } from "~/server/db";
+import { stripe } from "~/server/stripe/client";
+import { useEffect, useState } from "react";
+import LoadingSpinner from "~/Atoms/LoadingSpinner/LoadingSpinner";
+
+export const getStaticProps: GetStaticProps = async ({ locale, params }) => {
+  const helpers = createServerSideHelpers({
+    router: appRouter,
+    ctx: {
+      prisma: prisma,
+      userId: null,
+      stripe: stripe,
+    },
+    transformer: superjson,
+  });
+  const id = parseInt(params?.id as string, 10);
+  await helpers.businessPost.getPostById.prefetch({ postId: id });
+
+  return {
+    props: {
+      ...(await serverSideTranslations(locale ?? "hr", [
+        "common",
+        "dashboard",
+      ])),
+      trpcState: helpers.dehydrate(),
+      id,
+    },
+    revalidate: 1,
+  };
+};
 
 export const getStaticPaths: GetStaticPaths = async () => {
   // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
@@ -609,7 +660,6 @@ export const getStaticPaths: GetStaticPaths = async () => {
   ).then((res) => {
     return res.json();
   });
-  console.log("Result: ", result);
   if (!result?.result?.data) {
     return {
       paths: [],

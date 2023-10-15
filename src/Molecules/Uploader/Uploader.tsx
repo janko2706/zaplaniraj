@@ -14,9 +14,16 @@ import { toast } from "react-toastify";
 type Props = {
   imageUrls: string[];
   setImageUrls: React.Dispatch<React.SetStateAction<string[]>>;
+  maximumImages: number;
+  deleteImageInDB: (location: string) => Promise<boolean>;
 };
 
-const Uploader = ({ imageUrls, setImageUrls }: Props) => {
+const Uploader = ({
+  imageUrls,
+  setImageUrls,
+  maximumImages,
+  deleteImageInDB,
+}: Props) => {
   const [imageFile, setImageFile] = useState<File>();
   const [progressUpload, setProgressUpload] = useState(0);
   const user = useUser();
@@ -25,7 +32,12 @@ const Uploader = ({ imageUrls, setImageUrls }: Props) => {
     if (files.length && files[0] && files[0].size < 10000000) {
       setImageFile(files[0]);
     } else {
-      toast.error("File size to large");
+      toast.error("Slika je prevelika!");
+      return;
+    }
+    if (imageUrls.length === maximumImages) {
+      toast.error(`Maksimalno ${maximumImages} slika!`);
+      return;
     }
     if (files[0] && user.isSignedIn) {
       const name = files[0].name;
@@ -36,7 +48,7 @@ const Uploader = ({ imageUrls, setImageUrls }: Props) => {
         }
       });
       if (shouldAlert === 1) {
-        return;
+        toast.error("Slika vec postoji u oglasu!");
       }
       const storageRef = ref(storage, `${user.user.id}/${name}`);
       const uploadTask = uploadBytesResumable(storageRef, files[0]);
@@ -47,16 +59,7 @@ const Uploader = ({ imageUrls, setImageUrls }: Props) => {
           const progress =
             (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
 
-          setProgressUpload(progress); // to show progress upload
-          // Snapshot states
-          //  switch (snapshot.state) {
-          //    case "paused":
-          //      console.log("Upload is paused");
-          //      break;
-          //    case "running":
-          //      console.log("Upload is running");
-          //      break;
-          //  }
+          setProgressUpload(progress);
         },
         (error) => {
           console.error(error.message);
@@ -64,7 +67,6 @@ const Uploader = ({ imageUrls, setImageUrls }: Props) => {
         // eslint-disable-next-line @typescript-eslint/no-misused-promises
         async () => {
           await getDownloadURL(uploadTask.snapshot.ref).then((url) => {
-            //url is download url of file
             setImageUrls((prev) => [...prev, url]);
           });
         }
@@ -77,8 +79,18 @@ const Uploader = ({ imageUrls, setImageUrls }: Props) => {
   const deleteImage = async (location: string) => {
     const storageRef = ref(storage, location);
 
-    await deleteObject(storageRef);
-    setImageUrls((prev) => prev.filter((value) => value !== location));
+    const shouldUpdateFirebase = await deleteImageInDB(location);
+    if (shouldUpdateFirebase) {
+      try {
+        await deleteObject(storageRef);
+        setImageUrls((prev) => prev.filter((value) => value !== location));
+        toast.success("Slika je izbrisana.");
+      } catch (error) {
+        toast.error("Doslo je do pogreske, pokusajte ponovo kasnije.");
+      }
+    } else {
+      toast.error("Doslo je do pogreske, pokusajte ponovo kasnije.");
+    }
   };
 
   return (
@@ -99,16 +111,18 @@ const Uploader = ({ imageUrls, setImageUrls }: Props) => {
                   xmlns="http://www.w3.org/2000/svg"
                 >
                   <path
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                    stroke-width="2"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth="2"
                     d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"
                   ></path>
                 </svg>
                 <p className="mb-2 text-sm font-semibold text-gray-500">
                   Click to upload
                 </p>
-                <p className="text-xs text-gray-500 ">PNG, JPG (MAX. 10)</p>
+                <p className="text-xs text-gray-500 ">
+                  PNG, JPG (MAX. {maximumImages})
+                </p>
               </div>
               <input
                 id="dropzone-file"
@@ -153,7 +167,7 @@ const Uploader = ({ imageUrls, setImageUrls }: Props) => {
                 </div>
               </>
             )}
-            <div className="flex gap-5">
+            <div className="flex flex-col gap-5 lg:flex-row">
               {imageUrls.length > 0 &&
                 imageUrls.map((item, idx) => {
                   return (
@@ -162,14 +176,18 @@ const Uploader = ({ imageUrls, setImageUrls }: Props) => {
                         src={item}
                         alt={item}
                         className="h-full max-h-[200px] w-full object-cover"
-                        width={100}
-                        height={100}
+                        width={200}
+                        height={200}
                       />
-                      <XCircleIcon
-                        className="absolute right-0 top-0 h-6 w-6 text-red-400 bg-blend-difference hover:cursor-pointer hover:text-red-800"
+                      <button
+                        type="button"
+                        className="h-hit absolute right-0 top-0 m-2 flex w-fit gap-5  rounded-lg bg-red-400 px-3 text-white bg-blend-difference transition-all duration-300 hover:cursor-pointer hover:bg-white hover:text-red-800"
                         // eslint-disable-next-line @typescript-eslint/no-misused-promises
                         onClick={async () => deleteImage(item)}
-                      />
+                      >
+                        <span>Izbrisi sliku</span>
+                        <XCircleIcon className="h-6 w-5" />
+                      </button>
                     </div>
                   );
                 })}

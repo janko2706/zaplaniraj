@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { CheckIcon, PencilIcon } from "@heroicons/react/24/outline";
@@ -7,6 +7,11 @@ import MainTemplate from "~/Templates/MainTemplate";
 import { useUser } from "@clerk/nextjs";
 import type { Business } from "@prisma/client";
 import { useRouter } from "next/router";
+import type { WholePostType } from "~/utils/types";
+import { FaCircle } from "react-icons/fa";
+import Modal from "~/Atoms/Modal/Modal";
+import { useCompanyPost } from "~/Organisms/CompanySpecific/useCompanyPost";
+import { toast } from "react-toastify";
 
 type Props = {
   children: JSX.Element;
@@ -32,13 +37,77 @@ type Props = {
       }
   )[];
 } & (
-  | { isCompany: true; business?: Business; post: boolean }
+  | {
+      isCompany: true;
+      business?: Business;
+      hasPost: boolean;
+      post?: WholePostType;
+    }
   | { isCompany: false }
 );
 
 function RootLayout(props: Props) {
   const user = useUser();
   const router = useRouter();
+  const [liveModalOpen, setLiveModalOpen] = useState(false);
+  const [post, setPost] = useState<WholePostType>();
+  const { updatePost } = useCompanyPost();
+
+  const shouldHidePostLink = (): boolean => {
+    if (props.isCompany) {
+      if (props.hasPost === true) {
+        return false;
+      }
+      return true;
+    }
+    return true;
+  };
+  const isPostLiveText = (): string => {
+    if (props.isCompany && props.hasPost) {
+      if (post?.isLive === true) {
+        return "Oglas je objavljen";
+      } else {
+        return "Oglas nije objavljen!";
+      }
+    }
+    return "";
+  };
+  const isPostLiveColor = (): string => {
+    if (props.isCompany && props.hasPost) {
+      if (post?.isLive === true) {
+        return "text-green-400";
+      } else {
+        return "text-red-400";
+      }
+    }
+    return "";
+  };
+  useEffect(() => {
+    if (props.isCompany) {
+      setPost(props.post);
+    }
+  }, []);
+
+  const updatePostIsLive = async () => {
+    if (props.isCompany) {
+      try {
+        const result = await updatePost({
+          id: props.post?.id ?? 0,
+          isPostLive: !props.post?.isLive,
+        });
+        if (result) {
+          toast.success(
+            result.isLive ? "Oglas je objavljen." : "Oglas je stagniran."
+          );
+          setPost(result);
+        } else {
+          toast.error("Doslo je do pogreske, pokusajte ponovo kasnije.");
+        }
+      } catch (_error) {
+        toast.error("Doslo je do pogreske, pokusajte ponovo kasnije.");
+      }
+    }
+  };
 
   return (
     <>
@@ -80,24 +149,41 @@ function RootLayout(props: Props) {
                   {user.user?.firstName}&lsquo;s Portal
                 </div>
               )}
-              <Link
-                href={
-                  props.isCompany
-                    ? `/company/${router.query.id?.toString() ?? ""}/post`
-                    : ""
-                }
-                hidden={props.isCompany && props.post}
-                locale={router.locale}
-                className={`btn-primary ${
-                  props.isCompany && props.post ? "hidden" : ""
-                }`}
+              <div
+                className={`flex gap-4 ${
+                  shouldHidePostLink() ? "hidden" : ""
+                } `}
               >
-                <PencilIcon className="h-5 w-5" /> {props.type}
-              </Link>
+                <button
+                  type="button"
+                  className={"btn-primary-lg"}
+                  onClick={(e) => {
+                    e.preventDefault();
+                    setLiveModalOpen((prev) => !prev);
+                  }}
+                >
+                  <FaCircle className={`h-3 w-3 ${isPostLiveColor()}`} />
+                  {isPostLiveText()}
+                </button>
+
+                <Link
+                  href={props.isCompany ? `/company/post` : ""}
+                  locale={router.locale}
+                  className="btn-primary"
+                >
+                  <PencilIcon className="h-5 w-5" /> {props.type}
+                </Link>
+              </div>
             </div>
 
             <section>{props.children}</section>
           </div>
+          <Modal
+            buttonAction={async () => await updatePostIsLive()}
+            open={liveModalOpen}
+            setOpen={setLiveModalOpen}
+            isPostLive={isPostLiveColor() === "text-green-400"}
+          />
         </section>
       </MainTemplate>
     </>

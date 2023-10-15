@@ -11,5 +11,9 @@ export default function useCompany({ clerkId }: Props) {
 
   const userCompany = companyResult.data;
 
-  return { companyResult, userCompany };
+  const postResult = api.businessPost.getPostById.useQuery({
+    postId: userCompany?.companyPostId ?? 0,
+  });
+  const companyPost = postResult.data;
+  return { companyResult, userCompany, companyPost };
 }

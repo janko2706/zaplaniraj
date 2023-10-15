@@ -21,6 +21,7 @@ function Counter({ end, decimals }: Props) {
       redraw={false}
       duration={4}
       decimals={decimals}
+      start={end > 6000 ? end : 0}
     >
       {({ countUpRef }) => (
         <VisibilitySensor onChange={handleVisibilityChange} delayedCall>

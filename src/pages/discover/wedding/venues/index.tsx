@@ -9,7 +9,7 @@ import {
 import type { GetStaticProps } from "next";
 import { serverSideTranslations } from "next-i18next/serverSideTranslations";
 import Link from "next/link";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { FaBreadSlice, FaGuitar } from "react-icons/fa";
 import { AiFillCar } from "react-icons/ai";
 import { HeroDropdown } from "~/Molecules/HeroSection/HeroDropdown/HeroDropdown";
@@ -20,6 +20,7 @@ import useMenu from "~/hooks/useMenu/useMenu";
 import { LuFlower } from "react-icons/lu";
 import { motion } from "framer-motion";
 import { useRouter } from "next/router";
+import { api } from "~/utils/api";
 
 const iconClasses = "h-5 w-5";
 
@@ -85,6 +86,48 @@ const sortItems = [
 
 function Index() {
   const navigate = useRouter();
+  const postsResponse = api.businessPost.getPostByCategory.useQuery({
+    categoryLabel: "Wedding",
+    categoryValue: "Flowers",
+  });
+  //   {
+  //   id: "iuabsdgsdifugb",
+  //   title: "Dollar General - 5416 Rock Quarry Rd, Raleigh, NC 27610",
+  //   address: "8558 Green Rd.",
+  //   type: "Rent",
+  //   priceRange: [5000, 20000],
+  //   img: "https://picsum.photos/500/500",
+  // },
+  const [posts, setPosts] = useState<
+    | {
+        id: number;
+        title: string;
+        address: string;
+        priceRange: (number | null)[];
+        type: string;
+        img?: string | null;
+      }[]
+    | undefined
+  >([]);
+  useEffect(() => {
+    setPosts(
+      postsResponse.data?.map((item) => {
+        const imageArray =
+          item.pictures !== undefined && item.pictures !== null
+            ? item.pictures.split(",")
+            : "";
+        return {
+          id: item.id,
+          title: item.title,
+          type: item.serviceDescription ?? "",
+          address: item.location ?? "",
+          priceRange: [item.priceRangeMin, item.priceRangeMax],
+          img: imageArray ? imageArray[0] : "",
+        };
+      })
+    );
+  }, [postsResponse.data]);
+
   const [selectedCategory, setSelectedCategory] = useState<
     | {
         name: string;
@@ -193,30 +236,35 @@ function Index() {
             initial="hidden"
             animate="show"
           >
-            {featuredItems.Paris.map((item, index) => (
-              <motion.li
-                key={index}
-                variants={{
-                  hidden: { opacity: 0, x: 100 },
-                  show: {
-                    opacity: 1,
-                    x: 0,
-                    transition: {
-                      duration: 0.25,
-                      type: "spring",
-                      stiffness: 150,
+            {!posts ? (
+              <></>
+            ) : (
+              posts.map((item, index) => (
+                <motion.li
+                  key={index}
+                  variants={{
+                    hidden: { opacity: 0, x: 100 },
+                    show: {
+                      opacity: 1,
+                      x: 0,
+                      transition: {
+                        duration: 0.25,
+                        type: "spring",
+                        stiffness: 150,
+                      },
                     },
-                  },
-                }}
-                onClick={() => {
-                  void (async () => {
-                    await navigate.replace(`/post/id/details`);
-                  })();
-                }}
-              >
-                <ListCard item={item} key={item.id} />
-              </motion.li>
-            ))}
+                  }}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    void (async () => {
+                      await navigate.replace(`/post/${item.id}/details`);
+                    })();
+                  }}
+                >
+                  <ListCard item={item} key={item.id} />
+                </motion.li>
+              ))
+            )}
           </motion.ul>
           <Pagination />
         </div>
@@ -230,43 +278,6 @@ export const getStaticProps: GetStaticProps = async ({ locale }) => ({
     ...(await serverSideTranslations(locale ?? "hr", ["common", "dashboard"])),
   },
 });
-export const featuredItems = {
-  Paris: [
-    {
-      id: "iuabsdgsdifugb",
-      title: "Restoraunt Bridgeton",
-      address: "Jelenscak 6, Samobor 10430 Hrvatska",
-      type: "Rent",
-      priceRange: [5000, 20000],
-      popular: true,
-      img: "https://picsum.photos/500/500",
-    },
-    {
-      id: "iuabsdgsdifugb",
-      title: "Dollar General - 5416 Rock Quarry Rd, Raleigh, NC 27610",
-      address: "8558 Green Rd.",
-      type: "Rent",
-      priceRange: [5000, 20000],
-      popular: false,
-      img: "https://picsum.photos/500/500",
-    },
-    {
-      id: "iuabsdgsdifugb",
-      title: "Dollar General - 5416 Rock Quarry Rd, Raleigh, NC 27610",
-      address: "8558 Green Rd.",
-      type: "Rent",
-      priceRange: [5000, 20000],
-      popular: false,
-      img: "https://picsum.photos/500/500",
-    },
-    {
-      id: "iuabsdgsdifugb",
-      title: "Dollar General - 5416 Rock Quarry Rd, Raleigh, NC 27610",
-      address: "8558 Green Rd.",
-      type: "Rent",
-      priceRange: [5000, 20000],
-      popular: false,
-      img: "https://picsum.photos/500/500",
-    },
-  ],
-};
+// export const getStaticProps: GetStaticProps = async (context)=>{
+//   const ssg = create
+// }

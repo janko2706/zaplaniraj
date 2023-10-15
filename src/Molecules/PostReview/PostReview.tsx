@@ -1,12 +1,10 @@
 import React from "react";
-import Image from "next/image";
 import { StarIcon, HandThumbUpIcon } from "@heroicons/react/20/solid";
 import { StarIcon as StarOutline } from "@heroicons/react/24/outline";
 import { format } from "date-fns";
 
 type Props = {
   reviewerName: string;
-  reviewerImg: string;
   dateOfReview: Date;
   numberOfStars: number;
   reviewText: string;
@@ -15,7 +13,6 @@ type Props = {
 
 function PostReview({
   reviewerName,
-  reviewerImg,
   dateOfReview,
   numberOfStars,
   reviewLikes,
@@ -38,17 +35,8 @@ function PostReview({
     <div className="mb-8 rounded-2xl bg-[var(--bg-2)] p-3 sm:p-4 lg:p-6">
       <div className="flex flex-wrap items-center justify-between gap-4">
         <div className="flex items-center gap-5">
-          <div className="w-15 h-15 shrink-0 overflow-hidden rounded-full">
-            <Image
-              width={60}
-              height={60}
-              src={reviewerImg}
-              alt="image"
-              className=" object-fit-cover h-full w-full"
-            />
-          </div>
           <div className="flex-grow">
-            <h5 className="mb-1 font-semibold"> {reviewerName} </h5>
+            <h2 className="mb-1 text-xl font-semibold"> {reviewerName} </h2>
           </div>
         </div>
         <div className="text-sm-end">

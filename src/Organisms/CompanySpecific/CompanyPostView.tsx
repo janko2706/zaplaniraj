@@ -8,8 +8,9 @@ import {
   XCircleIcon,
 } from "@heroicons/react/20/solid";
 import { useRouter } from "next/router";
-import { useState } from "react";
-import Select from "react-select";
+import { type FormEvent, useState, useEffect } from "react";
+import CreatableSelect from "react-select/creatable";
+import Select, { type MultiValue } from "react-select";
 import { toast } from "react-toastify";
 import { Tooltip } from "react-tooltip";
 import Accordion from "~/Atoms/Accordion/Accordion";
@@ -17,6 +18,7 @@ import RangeSliderComponent from "~/Atoms/RangeSlider/RangeSlider";
 import Map from "~/Molecules/Map/Map";
 import { useCompanyPost } from "./useCompanyPost";
 import Uploader from "~/Molecules/Uploader/Uploader";
+import PreviewModal from "~/Molecules/PreviewModal/PreviewModal";
 
 const tooltipStyle = {
   backgroundColor: "#3539E9",
@@ -24,61 +26,147 @@ const tooltipStyle = {
   borderRadius: "10px",
 };
 
-const propertyAmenities = [
-  "Air Conditioning",
-  "Barbeque",
-  "Dryer",
-  "Gym",
-  "Laundry",
-  "Lawn",
-  "Microwave",
-  "Refrigerator",
-  "Swimming Pool",
-  "Window Coverings",
-  "Outdoor Shower",
-  "Washer",
-  "WiFi",
-  "Sauna",
-  "TV Cable",
-  "Internet",
-];
+type Props = {
+  businessId: string;
+};
 
-function CompanyPostView() {
-  const { businessPost, createPost, categories } = useCompanyPost();
+function CompanyPostView({ businessId }: Props) {
+  const {
+    businessPost,
+    createPost,
+    eventCategories,
+    updatePost,
+    deletePostImage,
+  } = useCompanyPost();
+  useEffect(() => {
+    if (businessPost.data) {
+      const post = businessPost.data;
+      setTitle(post.title);
+      setImageUrls(post?.pictures ? post.pictures.split(",") : []);
+      setMenuImageUrls(
+        post?.offerPictures ? post.offerPictures.split(",") : []
+      );
+      setCompanyDesc(post.companyDescription ?? "");
+      setServiceDesc(post.serviceDescription ?? "");
+      setLocation({ address: post.location ?? "", latitude: 0, langitude: 0 });
+      setEarlisetAvailable(new Date(post.earlisetAvailable ?? ""));
+      setUserCanVisit(post.userCanVisit ?? false);
+      setContactEmails(
+        post?.contactEmails ? post.contactEmails.split(",") : []
+      );
+      setContactEmailsNedded(
+        post?.contactEmails ? post.contactEmails.split(",") : []
+      );
+      setContactPhones(
+        post?.contactPhones ? post.contactPhones.split(",") : []
+      );
+      setContactPhonesNedded(
+        post?.contactPhones ? post.contactPhones.split(",") : []
+      );
+      setTags(post?.tags ? post.tags.split(",") : []);
+      setMaximumPeople(post.maximumPeople ?? 0);
+      setParkingPlaces(post.parkingPlaces ?? 0);
+      setPlaceSize(post.placeSize ?? "");
+      setWebsiteUrl(post.website ?? "");
+      setInstagramLink(post.instagramLink ?? "");
+      setFacebookLink(post.facebookLink ?? "");
+      setPriceRangeValues([
+        post.priceRangeMin ?? 1,
+        post.priceRangeMax ?? 10000,
+      ]);
+    }
+  }, [businessPost.data]);
   const [title, setTitle] = useState<string>("");
   const [imageUrls, setImageUrls] = useState<string[]>([]);
-  const [longDesc, setLongDesc] = useState<string>("");
-  const [shortDesc, setShortDesc] = useState<string>("");
+  const [menuImageUrls, setMenuImageUrls] = useState<string[]>([]);
+  const [companyDesc, setCompanyDesc] = useState<string>("");
+  const [serviceDesc, setServiceDesc] = useState<string>("");
+  const [location, setLocation] = useState<{
+    address: string;
+    latitude: number | null;
+    langitude: number | null;
+  }>();
+  const [previewOpen, setPreviewOpen] = useState<boolean>(false);
   const [contactPhones, setContactPhones] = useState<string[]>([]);
+  const [earlisetAvailable, setEarlisetAvailable] = useState<Date>();
+  const [userCanVisit, setUserCanVisit] = useState<boolean>();
   const [contactEmails, setContactEmails] = useState<string[]>([]);
   const [contactEmailsNedded, setContactEmailsNedded] = useState<string[]>([]);
   const [contactPhonesNedded, setContactPhonesNedded] = useState<string[]>([]);
+  const [tags, setTags] = useState<string[]>([]);
+  const [maximumPeople, setMaximumPeople] = useState<number>();
+  const [parkingPlaces, setParkingPlaces] = useState<number>();
+  const [placeSize, setPlaceSize] = useState<string>();
+  const [websiteUrl, setWebsiteUrl] = useState<string>();
+  const [instagramLink, setInstagramLink] = useState<string>();
+  const [facebookLink, setFacebookLink] = useState<string>();
   const [priceRangeValues, setPriceRangeValues] = useState<number[]>([
     1, 10000,
   ]);
+
+  const onPlacesSelect = (
+    address: string,
+    latitude: number | null,
+    langitude: number | null
+  ) => {
+    setLocation({ address, langitude, latitude });
+  };
   const [selectedCategoriesIds, setSelectedCategoriesIds] =
     useState<number[]>();
 
-  async function createPostAction() {
+  async function createPostAction(e: FormEvent<HTMLFormElement>) {
+    e.preventDefault();
     if (!selectedCategoriesIds || selectedCategoriesIds === undefined)
       return toast.error("Odaberite barem jednu kategoriju objave!");
-
-    return await createPost({
-      title,
-      businessId: "",
-      selectedCategoryIds: selectedCategoriesIds,
-      fullDescription: longDesc,
-      shortDescription: shortDesc,
-      priceRangeMin: priceRangeValues[0],
-      priceRangeMax: priceRangeValues[1],
-      pictures: imageUrls,
-    });
+    try {
+      const result = await createPost({
+        businessId: businessId,
+        title,
+        priceRangeMax: priceRangeValues[1],
+        priceRangeMin: priceRangeValues[0],
+        companyDescription: companyDesc,
+        serviceDescription: serviceDesc,
+        selectedCategoryIds: selectedCategoriesIds,
+        pictures: imageUrls,
+        location: location?.address,
+        lat: location?.latitude ?? 0,
+        lng: location?.langitude ?? 0,
+        maximumPeople,
+        earlisetAvailable,
+        userCanVisit,
+        tags,
+        parkingPlaces,
+        offerPictures: menuImageUrls,
+        placeSize,
+        contactEmails,
+        contactPhones,
+        website: websiteUrl,
+        instagramLink,
+        facebookLink,
+      });
+      if (result) {
+        setPreviewOpen(true);
+      }
+    } catch (error) {
+      toast.error("Doslo je do pogreske molimo pokusajte ponovo kasnije.");
+    }
   }
   const { back } = useRouter();
+  const deleteImageInDB = async (location: string) => {
+    if (businessPost.data) {
+      await deletePostImage({
+        id: businessPost.data.id,
+        imageToDelete: location,
+      });
+      return true;
+    }
+    return false;
+  };
 
   function onChangePriceSlider(e: number[]) {
     setPriceRangeValues(e);
   }
+
   return (
     <div className="bg-[var(--bg-2)] px-3 py-[30px] lg:py-[60px]">
       <button
@@ -110,6 +198,7 @@ function CompanyPostView() {
                   <p className="mb-4 mt-6 text-xl font-medium">Naziv:</p>
                   <input
                     type="text"
+                    value={title}
                     className="w-full rounded-md border p-2 text-base focus:outline-none"
                     placeholder="Naziv poslovanja"
                     onChange={(e) => setTitle(e.target.value)}
@@ -120,11 +209,11 @@ function CompanyPostView() {
                   <RangeSliderComponent
                     value={priceRangeValues}
                     handleChange={onChangePriceSlider}
-                    min={1}
-                    max={10000}
+                    min={priceRangeValues[0] ?? 1}
+                    max={priceRangeValues[1] ?? 10000}
                   />
                   <p className="mb-4 mt-6 flex items-center gap-3 text-xl font-medium">
-                    Detaljan opis :
+                    Osvrt o poslovanju :
                     <QuestionMarkCircleIcon
                       className="h-6 w-6 text-primary"
                       data-tooltip-id="long-desc"
@@ -134,16 +223,17 @@ function CompanyPostView() {
                     id="long-desc"
                     style={tooltipStyle}
                     offset={7}
-                    content="Predstaviti usluge te pogodnosti Vaseg poslovanja."
+                    content="Ukratko predstaviti Vase poslovanje."
                   />
                   <textarea
                     rows={5}
                     className="w-full rounded-md border p-2 focus:outline-none "
                     placeholder="Opis.."
-                    onChange={(e) => setLongDesc(e.target.value)}
+                    value={companyDesc}
+                    onChange={(e) => setCompanyDesc(e.target.value)}
                   ></textarea>
                   <p className="mb-4 mt-6 flex items-center gap-3 text-xl font-medium">
-                    Kratak opis :{" "}
+                    Osvrt o usluzi :
                     <QuestionMarkCircleIcon
                       className="h-6 w-6 text-primary"
                       data-tooltip-id="short-desc"
@@ -153,14 +243,15 @@ function CompanyPostView() {
                     id="short-desc"
                     style={tooltipStyle}
                     offset={7}
-                    content="Jednostavan opis kroz jednu do dvije recenice"
+                    content="Jednostavan opis usluge koju Vase poslovanje nudi."
                   />
-                  <input
-                    type="text"
-                    className="w-full rounded-md border p-2 text-base  focus:outline-none"
-                    placeholder="Opis..."
-                    onChange={(e) => setShortDesc(e.target.value)}
-                  />
+                  <textarea
+                    value={serviceDesc}
+                    rows={2}
+                    className="w-full rounded-md border p-2 focus:outline-none "
+                    placeholder="Opis.."
+                    onChange={(e) => setServiceDesc(e.target.value)}
+                  ></textarea>
                   <p className="mb-4 mt-6 flex gap-3 text-xl font-medium">
                     Kategorije :
                     <QuestionMarkCircleIcon
@@ -172,11 +263,11 @@ function CompanyPostView() {
                     id="categories"
                     style={tooltipStyle}
                     offset={7}
-                    content="Kategorije u koji ce se prikazivati vase poslovanje"
+                    content="Kategorije u kojima ce se prikazivati vase poslovanje"
                   />
                   <Select
                     id="category"
-                    options={categories.data}
+                    options={eventCategories.data}
                     className="w-full"
                     placeholder="odaberi..."
                     isMulti
@@ -221,7 +312,12 @@ function CompanyPostView() {
             >
               <div className="pt-6">
                 <div className="flex w-full items-center justify-center rounded-2xl border-dashed">
-                  <Uploader imageUrls={imageUrls} setImageUrls={setImageUrls} />
+                  <Uploader
+                    deleteImageInDB={deleteImageInDB}
+                    imageUrls={imageUrls}
+                    setImageUrls={setImageUrls}
+                    maximumImages={10}
+                  />
                 </div>
               </div>
             </Accordion>
@@ -244,7 +340,11 @@ function CompanyPostView() {
               <div className="pt-6">
                 <div className="mt-6">
                   <div className="h-fit">
-                    <Map />
+                    <Map
+                      onPlacesSelect={onPlacesSelect}
+                      defaultValue=""
+                      choosenAddress={location?.address}
+                    />
                   </div>
                 </div>
               </div>
@@ -255,7 +355,19 @@ function CompanyPostView() {
             <Accordion
               buttonContent={(open) => (
                 <div className="flex items-center justify-between rounded-2xl">
-                  <h3 className="h3">Property Details </h3>
+                  <div className="flex items-center gap-3">
+                    <h3 className="h3">Detalji </h3>
+                    <QuestionMarkCircleIcon
+                      className="h-6 w-6 text-primary"
+                      data-tooltip-id="details"
+                    />
+                    <Tooltip
+                      id="details"
+                      style={tooltipStyle}
+                      offset={7}
+                      content="Ukoliko se neki detalji ne odnose na Vase poslovanje, ostavite ih prazne."
+                    />
+                  </div>
                   <ChevronDownIcon
                     className={`h-5 w-5 duration-300 sm:h-6 sm:w-6 ${
                       open ? "rotate-180" : ""
@@ -266,146 +378,111 @@ function CompanyPostView() {
               initialOpen={false}
             >
               <div className="pt-6">
-                <p className="mb-4 text-xl font-medium"> Beds : </p>
-                <select className="w-full rounded-md border bg-transparent p-3 text-base focus:outline-none">
-                  <option>4</option>
-                  <option value="1">1</option>
-                  <option value="2">2</option>
-                  <option value="3">3</option>
-                </select>
-                <p className="mb-4 mt-6 text-xl font-medium">Bathrooms :</p>
-                <select className="w-full rounded-md border bg-transparent p-3 text-base focus:outline-none">
-                  <option>3</option>
-                  <option value="1">1</option>
-                  <option value="2">2</option>
-                  <option value="3">3</option>
-                </select>
-                <p className="mb-4 mt-6 text-xl font-medium">Garages :</p>
-                <select className="w-full rounded-md border bg-transparent p-3 text-base focus:outline-none">
-                  <option>1</option>
-                  <option value="1">1</option>
-                  <option value="2">2</option>
-                  <option value="3">3</option>
-                </select>
-                <p className="mb-4 mt-6 text-xl font-medium">Person :</p>
-                <select className="w-full rounded-md border bg-transparent p-3 text-base focus:outline-none">
-                  <option>8</option>
-                  <option value="1">1</option>
-                  <option value="2">2</option>
-                  <option value="3">3</option>
-                  <option value="3">4</option>
-                  <option value="3">5</option>
-                  <option value="3">6</option>
-                  <option value="3">7</option>
-                  <option value="3">8</option>
-                </select>
-                <p className="mb-4 mt-6 text-xl font-medium">Area (sq ft) :</p>
+                <p className="mb-4 text-xl font-medium">
+                  Maksimalan broj ljudi :
+                </p>
                 <input
                   type="text"
                   className="w-full rounded-md border p-2 text-base focus:outline-none"
-                  placeholder="0"
+                  placeholder="Broj ljudi..."
+                  value={maximumPeople ?? 0}
+                  onChange={(e) => {
+                    const num = parseInt(e.target.value, 10);
+                    if (e.target.value === "") {
+                      setMaximumPeople(undefined);
+                      return;
+                    }
+                    if (!Number.isNaN(num)) {
+                      setMaximumPeople(num);
+                    } else {
+                      toast.error("Potreban broj!");
+                    }
+                  }}
                 />
-                <p className="mb-4 mt-6 text-xl font-medium">Property ID :</p>
+                <p className="mb-4 mt-6 text-xl font-medium">
+                  Najranije slobodno :
+                </p>
                 <input
-                  type="text"
+                  type="date"
                   className="w-full rounded-md border p-2 text-base focus:outline-none"
-                  placeholder="Enter ID"
+                  min={new Date().toString()}
+                  onChange={(e) =>
+                    setEarlisetAvailable(new Date(e.target.value))
+                  }
                 />
-                <p className="mb-4 mt-6 text-xl font-medium">Type :</p>
-                <input
-                  type="text"
-                  className="w-full rounded-md border p-2 text-base focus:outline-none"
-                  placeholder="Enter type"
-                />
-                <p className="mb-4 mt-6 text-xl font-medium">Area :</p>
-                <input
-                  type="text"
-                  className="w-full rounded-md border p-2 text-base focus:outline-none"
-                  placeholder="Enter area"
-                />
-                <p className="mb-4 mt-6 text-xl font-medium">Bedrooms :</p>
-                <input
-                  type="text"
-                  className="w-full rounded-md border p-2 text-base focus:outline-none"
-                  placeholder="06"
-                />
-                <p className="mb-4 mt-6 text-xl font-medium">Parking :</p>
-                <input
-                  type="text"
-                  className="w-full rounded-md border p-2 text-base focus:outline-none"
-                  placeholder="3"
-                />
-                <p className="mb-4 mt-6 text-xl font-medium">Dimensions :</p>
-                <input
-                  type="text"
-                  className="w-full rounded-md border p-2 text-base focus:outline-none"
-                  placeholder="0"
-                />
-                <p className="mb-4 mt-6 text-xl font-medium">Year Build :</p>
-                <input
-                  type="text"
-                  className="w-full rounded-md border p-2 text-base focus:outline-none"
-                  placeholder="2023"
-                />
-              </div>
-            </Accordion>
-          </div>
-          {/* Category Specific details */}
-          <div className="mb-5 rounded-2xl bg-white p-4 sm:mb-8 sm:p-6 md:mb-12 md:p-10">
-            <Accordion
-              buttonContent={(open) => (
-                <div className="flex items-center justify-between rounded-2xl">
-                  <h3 className="h3">Amenities</h3>
-                  <ChevronDownIcon
-                    className={`h-5 w-5 duration-300 sm:h-6 sm:w-6 ${
-                      open ? "rotate-180" : ""
-                    }`}
+
+                <div className="mb-4  mt-6 flex items-center gap-5 text-xl font-medium">
+                  <label htmlFor="visit-checkbox" className=" text-gray-900">
+                    Mogucnost posjeta :
+                  </label>
+                  <input
+                    id="visit-checkbox"
+                    type="checkbox"
+                    checked={userCanVisit}
+                    className="h-4 w-4 rounded border-gray-700  text-blue-600 "
+                    onChange={(e) => setUserCanVisit(e.target.checked)}
                   />
                 </div>
-              )}
-              initialOpen={false}
-            >
-              <div className="pt-6">
-                <p className="text-xl font-medium"> Features : </p>
-                <ul className="columns-1 sm:columns-2 md:columns-3 lg:columns-4">
-                  {propertyAmenities.map((label, idx) => (
-                    <li key={idx} className="py-2">
-                      <div className="flex items-center">
-                        <input
-                          type="checkbox"
-                          id={label}
-                          name="A3-confirmation"
-                          value={label}
-                          className="absolute h-8 w-8 opacity-0"
-                        />
-                        <div className="mr-2 flex h-5 w-5 shrink-0 items-center justify-center rounded-full border border-gray-400 bg-white focus-within:border-[var(--primary)]">
-                          <svg
-                            className="pointer-events-none hidden h-[10px] w-[10px] fill-current text-primary"
-                            version="1.1"
-                            viewBox="0 0 17 12"
-                            xmlns="http://www.w3.org/2000/svg"
-                          >
-                            <g fill="none" fillRule="evenodd">
-                              <g
-                                transform="translate(-9 -11)"
-                                fill="#363AED"
-                                fillRule="nonzero"
-                              >
-                                <path d="m25.576 11.414c0.56558 0.55188 0.56558 1.4439 0 1.9961l-9.404 9.176c-0.28213 0.27529-0.65247 0.41385-1.0228 0.41385-0.37034 0-0.74068-0.13855-1.0228-0.41385l-4.7019-4.588c-0.56584-0.55188-0.56584-1.4442 0-1.9961 0.56558-0.55214 1.4798-0.55214 2.0456 0l3.679 3.5899 8.3812-8.1779c0.56558-0.55214 1.4798-0.55214 2.0456 0z" />
-                              </g>
-                            </g>
-                          </svg>
-                        </div>
-                        <label
-                          htmlFor={label}
-                          className="flex cursor-pointer select-none items-center gap-2"
-                        >
-                          {label}
-                        </label>
-                      </div>
-                    </li>
-                  ))}
-                </ul>
+                <p className="mb-4 mt-6 text-xl font-medium">
+                  Kljucne rijeci :
+                </p>
+                <CreatableSelect
+                  isMulti
+                  isClearable
+                  placeholder="Npr. romanticno, cvijece, zabavan prostor,..."
+                  onChange={(
+                    e: MultiValue<{ label: string; value: string }>
+                  ) => {
+                    const newTags = [
+                      ...e.map((item) => {
+                        return item.value;
+                      }),
+                    ];
+                    setTags([...newTags]);
+                  }}
+                />
+                <p className="mb-4 mt-6 text-xl font-medium">
+                  Parking mjesta :
+                </p>
+                <input
+                  type="number"
+                  value={parkingPlaces}
+                  className="w-full rounded-md border p-2 text-base focus:outline-none"
+                  placeholder="Npr. 3,20,50,..."
+                  onChange={(e) => {
+                    const num = parseInt(e.target.value, 10);
+                    if (e.target.value === "") {
+                      setParkingPlaces(undefined);
+                      return;
+                    }
+                    if (!Number.isNaN(num)) {
+                      setParkingPlaces(num);
+                    } else {
+                      toast.error("Potreban broj!");
+                    }
+                  }}
+                />
+                <p className="mb-4 mt-6 text-xl font-medium">
+                  Slike ponude (jelovnika, cvijeca,...) :
+                </p>
+                <div className="flex w-full items-center justify-center rounded-2xl border-dashed">
+                  <Uploader
+                    deleteImageInDB={deleteImageInDB}
+                    maximumImages={4}
+                    imageUrls={menuImageUrls}
+                    setImageUrls={setMenuImageUrls}
+                  />
+                </div>
+                <p className="mb-4 mt-6 text-xl font-medium">
+                  Velicina prostora :
+                </p>
+                <input
+                  type="text"
+                  value={placeSize}
+                  className="w-full rounded-md border p-2 text-base focus:outline-none"
+                  placeholder="Npr. 80m2, 100m2,..."
+                  onChange={(e) => setPlaceSize(e.target.value)}
+                />
               </div>
             </Accordion>
           </div>
@@ -414,7 +491,7 @@ function CompanyPostView() {
             <Accordion
               buttonContent={(open) => (
                 <div className="flex items-center justify-between rounded-2xl">
-                  <h3 className="h3">Contact Information </h3>
+                  <h3 className="h3">Kontakt </h3>
                   <ChevronDownIcon
                     className={`h-5 w-5 duration-300 sm:h-6 sm:w-6 ${
                       open ? "rotate-180" : ""
@@ -455,7 +532,7 @@ function CompanyPostView() {
                           }}
                         >
                           <XCircleIcon className="h-5 w-5 text-red-400" />
-                          remove
+                          makni
                         </button>
                       </div>
                     );
@@ -503,7 +580,7 @@ function CompanyPostView() {
                           }}
                         >
                           <XCircleIcon className="h-5 w-5 text-red-400" />
-                          remove
+                          makni
                         </button>
                       </div>
                     );
@@ -521,17 +598,41 @@ function CompanyPostView() {
                     <p>Dodaj email</p>
                   </div>
                 )}
-                <p className="mb-4 mt-6 text-xl font-medium">Website :</p>
+                <p className="mb-4 mt-6 text-xl font-medium">Web stranica :</p>
                 <input
                   type="url"
                   className="w-full rounded-md border p-2 text-base focus:outline-none"
-                  placeholder="Enter website"
+                  placeholder="Unesite url"
+                  value={websiteUrl}
+                  onChange={(e) => setWebsiteUrl(e.target.value)}
+                />
+                <p className="mb-4 mt-6 text-xl font-medium">Instagram :</p>
+                <input
+                  type="url"
+                  className="w-full rounded-md border p-2 text-base focus:outline-none"
+                  placeholder="Enter Instagram url"
+                  value={instagramLink}
+                  onChange={(e) => setInstagramLink(e.target.value)}
+                />
+                <p className="mb-4 mt-6 text-xl font-medium">Facebook :</p>
+                <input
+                  type="url"
+                  className="w-full rounded-md border p-2 text-base focus:outline-none"
+                  placeholder="Enter Facebook url"
+                  value={facebookLink}
+                  onChange={(e) => setFacebookLink(e.target.value)}
                 />
               </div>
             </Accordion>
           </div>
           {/* eslint-disable-next-line @typescript-eslint/no-misused-promises  */}
-          <form onSubmit={async () => await createPostAction()}>
+          {/* <form onSubmit={async (e) => await createPostAction(e)}> */}
+          <form
+            onSubmit={(e) => {
+              e.preventDefault();
+              setPreviewOpen(true);
+            }}
+          >
             <div className="py-6 md:py-10">
               <ul className="flex flex-col gap-4">
                 <li>
@@ -547,7 +648,7 @@ function CompanyPostView() {
                       htmlFor="terms-checkbox"
                       className="ml-2 text-sm font-medium text-gray-900"
                     >
-                      Terms & conditions
+                      Uvjeti koristenja
                     </label>
                   </div>
                 </li>
@@ -564,7 +665,7 @@ function CompanyPostView() {
                       htmlFor="privacy-checkbox"
                       className="ml-2 text-sm font-medium text-gray-900"
                     >
-                      Privacy
+                      Privatnost
                     </label>
                   </div>
                 </li>
@@ -572,11 +673,18 @@ function CompanyPostView() {
             </div>
 
             <button type="submit" className="btn-primary font-semibold">
-              Save & Preview
+              Spremi i pregled
             </button>
           </form>
         </div>
       </div>
+      <PreviewModal
+        isCompanyPreview={true}
+        open={previewOpen}
+        setOpen={setPreviewOpen}
+        previewPicture={imageUrls[0] ?? ""}
+        name={title}
+      />
     </div>
   );
 }

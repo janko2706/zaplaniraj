@@ -1,22 +1,25 @@
-import React, { useState } from "react";
+import React from "react";
 import SearchBox from "./SearchBox";
 
-const Map = () => {
-  const [chooseAddress, setChooseAddress] = useState<string>();
-  const onPlacesSelect = (
+type Props = {
+  onPlacesSelect: (
     address: string,
     latitude: number | null,
     langitude: number | null
-  ) => {
-    setChooseAddress(address);
-  };
+  ) => void;
+  defaultValue: string;
+  choosenAddress?: string
+
+};
+const Map = ({onPlacesSelect, defaultValue, choosenAddress}:Props) => {
+
   return (
     <div className="w-100 flex items-center gap-5">
-      <SearchBox onSelectAddress={onPlacesSelect} defaultValue="" />
-      {chooseAddress && (
+      <SearchBox onSelectAddress={onPlacesSelect} defaultValue={defaultValue} />
+      {choosenAddress && (
         <div>
-          <span className="text-lg font-semibold">Vasa adresa: </span>{" "}
-          {chooseAddress}
+          <span className="text-lg font-semibold">Vasa adresa: </span>
+          {choosenAddress}
         </div>
       )}
     </div>

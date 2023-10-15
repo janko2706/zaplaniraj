@@ -19,7 +19,7 @@ function useMenu() {
   const company = useTranslation("dashboard");
   const user = useTranslation("dashboard-user");
   const clerkUser = useUser();
-  const { userCompany } = useCompany({
+  const { userCompany, companyPost } = useCompany({
     clerkId: clerkUser.user?.id ?? "",
   });
 
@@ -146,7 +146,7 @@ function useMenu() {
     {
       title: company.t("menu-stats"),
       icon: <ChartBarIcon className="h-5 w-5" />,
-      children: <StatisticDashboardTab business={userCompany} />,
+      children: <StatisticDashboardTab businessPost={companyPost} />,
     },
     {
       title: company.t("menu-reviews"),
@@ -176,7 +176,13 @@ function useMenu() {
       ),
     },
   ];
-  return { menus, companyDashboardMenu, userDashboardMenu, userCompany };
+  return {
+    menus,
+    companyDashboardMenu,
+    userDashboardMenu,
+    userCompany,
+    companyPost,
+  };
 }
 
 export default useMenu;
