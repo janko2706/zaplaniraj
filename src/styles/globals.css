@@ -57,7 +57,10 @@
     @apply btn border border-[#7A8699] px-3 py-1 text-[#7A8699] duration-300 hover:bg-[#7A8699] hover:text-white;
   }
   .btn-primary {
-    @apply btn bg-primary px-6 py-3 text-white;
+    @apply btn bg-primary px-6 py-3 text-white opacity-80 shadow;
+  }
+  .btn-primary:hover {
+    @apply bg-blue-400 px-6 py-3 text-white opacity-100 shadow-2xl transition-all duration-300 ease-in-out;
   }
   .btn-tertiary {
     @apply btn bg-[var(--tertiary)] px-6 py-3 text-white;

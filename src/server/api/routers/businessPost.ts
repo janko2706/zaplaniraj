@@ -30,6 +30,9 @@ export const businessPostRouter = createTRPCRouter({
             id: input.businessId,
           },
         },
+        include: {
+          selectedCategoriesIds: true,
+        },
       });
 
       if (!post) {
@@ -122,29 +125,6 @@ export const businessPostRouter = createTRPCRouter({
             },
           },
           title: input.title,
-          priceRangeMax: input.priceRangeMax,
-          priceRangeMin: input.priceRangeMin,
-          companyDescription: input.companyDescription,
-          serviceDescription: input.serviceDescription,
-          selectedCategoriesIds: {
-            connect: input.selectedCategoryIds.map((id) => ({ id })),
-          },
-          pictures: input.pictures,
-          location: input.location,
-          lat: input.lat,
-          lng: input.lng,
-          maximumPeople: input.maximumPeople,
-          earlisetAvailable: input.earlisetAvailable,
-          userCanVisit: input.userCanVisit,
-          tags: input.tags,
-          parkingPlaces: input.parkingPlaces,
-          offerPictures: input.offerPictures,
-          placeSize: input.placeSize,
-          contactPhones: input.contactPhones,
-          contactEmails: input.contactEmails,
-          website: input.website,
-          instagramLink: input.instagramLink,
-          facebookLink: input.facebookLink,
           statistics: {
             connect: {
               id: newStatistics.id,
@@ -197,6 +177,12 @@ export const businessPostRouter = createTRPCRouter({
             },
           },
           statistics: true,
+          selectedCategoriesIds: true,
+          business: {
+            include: {
+              user: true,
+            },
+          },
         },
       });
       if (!post) {
@@ -225,6 +211,7 @@ export const businessPostRouter = createTRPCRouter({
         });
         const posts = await ctx.prisma.companyPost.findMany({
           where: {
+            isLive: true,
             selectedCategoriesIds: {
               some: {
                 id: event?.id,
@@ -245,27 +232,112 @@ export const businessPostRouter = createTRPCRouter({
       z.object({
         id: z.number(),
         isPostLive: z.boolean().optional(),
-        imageToDelete: z.string().optional(),
+        title: z.string().optional(),
+        priceRangeMin: z.number().optional().nullable(),
+        priceRangeMax: z.number().optional().nullable(),
+        companyDescription: z.string().optional().nullable(),
+        serviceDescription: z.string().optional().nullable(),
+        selectedCategoryIds: z.number().array().optional().nullable(),
+        pictures: z
+          .string()
+          .array()
+          .optional()
+          .nullable()
+          .transform((arr) => {
+            if (!arr) {
+              return "";
+            } else return arr.toString();
+          }),
+        location: z.string().optional().nullable(),
+        lat: z.number().optional().nullable(),
+        lng: z.number().optional().nullable(),
+        maximumPeople: z.number().optional().nullable(),
+        earlisetAvailable: z.string().optional().nullable(),
+        userCanVisit: z.boolean().optional().nullable(),
+        tags: z
+          .string()
+          .array()
+          .optional()
+          .nullable()
+          .transform((arr) => {
+            if (!arr) {
+              return "";
+            } else return arr.toString();
+          }),
+        parkingPlaces: z.number().optional().nullable(),
+        offerPictures: z
+          .string()
+          .array()
+          .optional()
+          .nullable()
+          .transform((arr) => {
+            if (!arr) {
+              return "";
+            } else return arr.toString();
+          }),
+        placeSize: z.string().optional().nullable(),
+        contactPhones: z
+          .string()
+          .array()
+          .optional()
+          .nullable()
+          .transform((arr) => {
+            if (!arr) {
+              return "";
+            } else return arr.toString();
+          }),
+        contactEmails: z
+          .string()
+          .array()
+          .optional()
+          .nullable()
+          .transform((arr) => {
+            if (!arr) {
+              return "";
+            } else return arr.toString();
+          }),
+
+        website: z.string().optional().nullable(),
+        instagramLink: z.string().optional().nullable(),
+        facebookLink: z.string().optional().nullable(),
       })
     )
     .mutation(async ({ input, ctx }) => {
       try {
-        const currentPost = await ctx.prisma.companyPost.findUnique({
-          where: {
-            id: input.id,
-          },
-        });
-        const currentPictureArray = currentPost?.pictures?.split(",");
-
-        const updateResult = await ctx.prisma.companyPost.update({
+        const updatedPost = await ctx.prisma.companyPost.update({
           where: {
             id: input.id,
           },
           data: {
+            title: input.title,
+            priceRangeMax: input.priceRangeMax,
+            priceRangeMin: input.priceRangeMin,
+            companyDescription: input.companyDescription,
+            serviceDescription: input.serviceDescription,
+            selectedCategoriesIds: {
+              connect: input.selectedCategoryIds?.map((id) => ({ id })),
+            },
+            pictures: input.pictures,
+            location: input.location,
+            lat: input.lat,
+            lng: input.lng,
+            maximumPeople: input.maximumPeople,
+            earlisetAvailable: input.earlisetAvailable,
+            userCanVisit: input.userCanVisit,
+            tags: input.tags,
+            parkingPlaces: input.parkingPlaces,
+            offerPictures: input.offerPictures,
+            placeSize: input.placeSize,
+            contactPhones: input.contactPhones,
+            contactEmails: input.contactEmails,
+            website: input.website,
+            instagramLink: input.instagramLink,
+            facebookLink: input.facebookLink,
             isLive: input.isPostLive,
           },
           include: {
             statistics: true,
+            selectedCategoriesIds: true,
             reviews: {
               where: {
                 companyPostId: input.id,
@@ -273,7 +345,7 @@ export const businessPostRouter = createTRPCRouter({
             },
           },
         });
-        return updateResult;
+        return updatedPost;
       } catch (error) {
         throw new TRPCError({
           code: "INTERNAL_SERVER_ERROR",
@@ -306,6 +378,10 @@ export const businessPostRouter = createTRPCRouter({
           ?.split(",")
           .filter((i) => i !== input.imageToDelete)
           .toString();
+        const newOfferPictureString = currentPost.offerPictures
+          ?.split(",")
+          .filter((i) => i !== input.imageToDelete)
+          .toString();
 
         await ctx.prisma.companyPost.update({
           where: {
@@ -313,6 +389,7 @@ export const businessPostRouter = createTRPCRouter({
           },
           data: {
             pictures: newPictureString,
+            offerPictures: newOfferPictureString,
           },
         });
         return 200;

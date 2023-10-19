@@ -10,23 +10,43 @@ import Image from "next/image";
 import { XCircleIcon } from "@heroicons/react/20/solid";
 import { useUser } from "@clerk/nextjs";
 import { toast } from "react-toastify";
+import { Tooltip } from "react-tooltip";
+
+const tooltipStyle = {
+  backgroundColor: "#e93535e1",
+  color: "#fff",
+  borderRadius: "10px",
+};
 
 type Props = {
-  imageUrls: string[];
-  setImageUrls: React.Dispatch<React.SetStateAction<string[]>>;
+  imageUrls: string[] | undefined;
   maximumImages: number;
+  addToPictures: (url: string) => void;
+  removeFromPictures: (location: string) => void;
+  id: string;
   deleteImageInDB: (location: string) => Promise<boolean>;
 };
 
 const Uploader = ({
   imageUrls,
-  setImageUrls,
   maximumImages,
   deleteImageInDB,
+  addToPictures,
+  removeFromPictures,
+  id,
 }: Props) => {
   const [imageFile, setImageFile] = useState<File>();
   const [progressUpload, setProgressUpload] = useState(0);
   const user = useUser();
+
+  function isValidHttpUrl(url: string) {
+    try {
+      const check = new URL(url);
+      return check.protocol === "http:" || check.protocol === "https:";
+    } catch (_) {
+      return false;
+    }
+  }
 
   const handleUploadFile = (files: FileList) => {
     if (files.length && files[0] && files[0].size < 10000000) {
@@ -35,11 +55,11 @@ const Uploader = ({
       toast.error("Slika je prevelika!");
       return;
     }
-    if (imageUrls.length === maximumImages) {
+    if (imageUrls && imageUrls.length === maximumImages) {
       toast.error(`Maksimalno ${maximumImages} slika!`);
       return;
     }
-    if (files[0] && user.isSignedIn) {
+    if (files[0] && user.isSignedIn && imageUrls) {
       const name = files[0].name;
       let shouldAlert = 0;
       imageUrls.map((item) => {
@@ -49,8 +69,12 @@ const Uploader = ({
       });
       if (shouldAlert === 1) {
         toast.error("Slika vec postoji u oglasu!");
+        return;
       }
-      const storageRef = ref(storage, `${user.user.id}/${name}`);
+      const storageRef = ref(
+        storage,
+        `${user.user.id}/${name.substring(0, 3)}`
+      );
       const uploadTask = uploadBytesResumable(storageRef, files[0]);
 
       uploadTask.on(
@@ -67,7 +91,7 @@ const Uploader = ({
         // eslint-disable-next-line @typescript-eslint/no-misused-promises
         async () => {
           await getDownloadURL(uploadTask.snapshot.ref).then((url) => {
-            setImageUrls((prev) => [...prev, url]);
+            addToPictures(url);
           });
         }
       );
@@ -83,7 +107,7 @@ const Uploader = ({
     if (shouldUpdateFirebase) {
       try {
         await deleteObject(storageRef);
-        setImageUrls((prev) => prev.filter((value) => value !== location));
+        removeFromPictures(location);
         toast.success("Slika je izbrisana.");
       } catch (error) {
         toast.error("Doslo je do pogreske, pokusajte ponovo kasnije.");
@@ -125,7 +149,7 @@ const Uploader = ({
                 </p>
               </div>
               <input
-                id="dropzone-file"
+                id={id}
                 accept="image/png,image/jpeg"
                 multiple
                 type="file"
@@ -167,27 +191,35 @@ const Uploader = ({
                 </div>
               </>
             )}
-            <div className="flex flex-col gap-5 lg:flex-row">
-              {imageUrls.length > 0 &&
+            <div className="flex flex-col flex-wrap gap-5 lg:flex-row">
+              {imageUrls &&
+                imageUrls.length > 0 &&
                 imageUrls.map((item, idx) => {
+                  if (!isValidHttpUrl(item)) return;
                   return (
                     <div className="relative" key={idx}>
                       <Image
                         src={item}
                         alt={item}
-                        className="h-full max-h-[200px] w-full object-cover"
-                        width={200}
-                        height={200}
+                        className="h-auto w-auto max-w-[300px] object-cover"
+                        width={300}
+                        height={300}
                       />
                       <button
                         type="button"
-                        className="h-hit absolute right-0 top-0 m-2 flex w-fit gap-5  rounded-lg bg-red-400 px-3 text-white bg-blend-difference transition-all duration-300 hover:cursor-pointer hover:bg-white hover:text-red-800"
+                        data-tooltip-id={`${item}-${idx}`}
+                        className="absolute right-0 top-0 m-2 flex h-fit w-fit gap-5  rounded-lg bg-red-400 px-3 text-white bg-blend-difference transition-all duration-300 hover:cursor-pointer hover:bg-white hover:text-red-800"
                         // eslint-disable-next-line @typescript-eslint/no-misused-promises
                         onClick={async () => deleteImage(item)}
                       >
-                        <span>Izbrisi sliku</span>
                         <XCircleIcon className="h-6 w-5" />
                       </button>
+                      <Tooltip
+                        id={`${item}-${idx}`}
+                        style={tooltipStyle}
+                        offset={7}
+                        content="Izbrisi sliku"
+                      />
                     </div>
                   );
                 })}

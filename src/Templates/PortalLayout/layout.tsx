@@ -156,7 +156,7 @@ function RootLayout(props: Props) {
               >
                 <button
                   type="button"
-                  className={"btn-primary-lg"}
+                  className={"btn-primary"}
                   onClick={(e) => {
                     e.preventDefault();
                     setLiveModalOpen((prev) => !prev);

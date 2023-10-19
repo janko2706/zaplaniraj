@@ -7,11 +7,10 @@ import "swiper/css/navigation";
 import { Navigation } from "swiper/modules";
 import Link from "next/link";
 import { Tab } from "@headlessui/react";
-import { CheckIcon, StarIcon } from "@heroicons/react/20/solid";
+import { PlusCircleIcon, StarIcon } from "@heroicons/react/20/solid";
 import { format } from "date-fns";
 import type { WholePostType } from "~/utils/types";
 import {
-  ArrowsRightLeftIcon,
   CalendarDaysIcon,
   ChatBubbleLeftEllipsisIcon,
   ChevronLeftIcon,
@@ -25,7 +24,7 @@ import classNames from "~/utils/classNames";
 import MainTemplate from "~/Templates/MainTemplate";
 import PostReview from "~/Molecules/PostReview/PostReview";
 import Pagination from "~/Molecules/Pagination/Pagination";
-import { FaFacebook, FaInstagram, FaLinkedin, FaParking } from "react-icons/fa";
+import { FaFacebook, FaGlobe, FaInstagram, FaParking } from "react-icons/fa";
 import CalendarComponent from "~/Atoms/Calendar/Calendar";
 import useMenu from "~/hooks/useMenu/useMenu";
 import { serverSideTranslations } from "next-i18next/serverSideTranslations";
@@ -49,13 +48,26 @@ const Index = (props: InferGetStaticPropsType<typeof getStaticProps>) => {
   // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
   const postData: CustomDehydrateState = props.trpcState;
 
+  const { updateStatistics } = useStatistics();
+
   const [post, setPost] = useState<WholePostType | undefined>();
+  const { isSignedIn, user } = useUser();
 
   useEffect(() => {
     if (postData) {
       setPost(postData.json.queries[0]?.state.data);
     }
   }, [postData]);
+  useEffect(() => {
+    if (isSignedIn) {
+      const month = format(new Date(), "LLLL");
+      const category = "Weddings";
+      const fetchData = async () => {
+        await updateStatistics({ id: post?.statisticId ?? 0, month, category });
+      };
+      fetchData().catch((e) => console.error(e));
+    }
+  }, [isSignedIn, updateStatistics, post?.statisticId]);
 
   const tooltipStyle = {
     backgroundColor: "#3539E9",
@@ -97,6 +109,7 @@ const Index = (props: InferGetStaticPropsType<typeof getStaticProps>) => {
                   <div className="swiper-wrapper ">
                     {pictures ? (
                       pictures.map((item, idx) => {
+                        if (item === "") return;
                         return (
                           <SwiperSlide className="swiper-slide " key={idx}>
                             <div className="block">
@@ -140,6 +153,7 @@ const Index = (props: InferGetStaticPropsType<typeof getStaticProps>) => {
                           <Link
                             href="#"
                             className="link grid h-8 w-8 place-content-center rounded-full bg-[var(--primary-light)] text-primary hover:bg-primary hover:text-white"
+                            data-tooltip-id="like-post"
                           >
                             <HeartIcon className="h-5 w-5" />
                           </Link>
@@ -147,20 +161,41 @@ const Index = (props: InferGetStaticPropsType<typeof getStaticProps>) => {
                         <li>
                           <Link
                             href="#"
+                            data-tooltip-id="add-to-project"
                             className="link grid h-8 w-8 place-content-center rounded-full bg-[var(--primary-light)] text-primary hover:bg-primary hover:text-white"
                           >
-                            <ArrowsRightLeftIcon className="h-5 w-5" />
+                            <PlusCircleIcon className="h-5 w-5" />
                           </Link>
                         </li>
+
                         <li>
                           <Link
                             href="#"
                             className="link grid h-8 w-8 place-content-center rounded-full bg-[var(--primary-light)] text-primary hover:bg-primary hover:text-white"
+                            data-tooltip-id="share-post"
                           >
                             <ShareIcon className="h-5 w-5" />
                           </Link>
                         </li>
                       </ul>
+                      <Tooltip
+                        id={"add-to-project"}
+                        style={tooltipStyle}
+                        offset={7}
+                        content="Dodaj u plan"
+                      />
+                      <Tooltip
+                        id={"share-post"}
+                        style={tooltipStyle}
+                        offset={7}
+                        content="Podijeli oglas"
+                      />
+                      <Tooltip
+                        id={"like-post"}
+                        style={tooltipStyle}
+                        offset={7}
+                        content="Dodaj u favorite"
+                      />
                     </div>
                     <ul className="gap-md-0 flex flex-wrap items-center justify-between gap-4">
                       <li>
@@ -247,7 +282,7 @@ const Index = (props: InferGetStaticPropsType<typeof getStaticProps>) => {
                       {post.serviceDescription}
                     </p>
                   </div>
-                  {offerPictures ? (
+                  {offerPictures && offerPictures[0] !== "" ? (
                     <div className="mb-10 rounded-2xl bg-white p-3 sm:p-4 lg:p-6">
                       <h4 className="mb-5 text-2xl font-semibold">
                         Slike ponude
@@ -270,6 +305,7 @@ const Index = (props: InferGetStaticPropsType<typeof getStaticProps>) => {
                       >
                         <div className="swiper-wrapper ">
                           {offerPictures.map((item, idx) => {
+                            if (item === "") return;
                             return (
                               <SwiperSlide className="swiper-slide " key={idx}>
                                 <div className="block">
@@ -374,7 +410,7 @@ const Index = (props: InferGetStaticPropsType<typeof getStaticProps>) => {
                           />
                         );
                       })}
-                      <Pagination />
+                      <Pagination count={20} currentPage={1} />
                     </div>
                   ) : (
                     <></>
@@ -407,7 +443,10 @@ const Index = (props: InferGetStaticPropsType<typeof getStaticProps>) => {
                             <input
                               type="text"
                               className="border-neutral-40 w-full rounded-full border bg-[var(--bg-1)] px-5 py-3 focus:outline-none"
-                              placeholder="Unesite ime..."
+                              defaultValue={
+                                user ? user.fullName ?? undefined : undefined
+                              }
+                              placeholder={"Unesite ime..."}
                               id="review-name"
                             />
                           </div>
@@ -421,7 +460,13 @@ const Index = (props: InferGetStaticPropsType<typeof getStaticProps>) => {
                             <input
                               type="text"
                               className="border-neutral-40 w-full rounded-full border bg-[var(--bg-1)] px-5 py-3 focus:outline-none"
-                              placeholder="Unesite email..."
+                              defaultValue={
+                                user
+                                  ? user.emailAddresses[0]?.emailAddress ??
+                                    undefined
+                                  : undefined
+                              }
+                              placeholder={"Unesite email..."}
                               id="review-email"
                             />
                           </div>
@@ -436,12 +481,17 @@ const Index = (props: InferGetStaticPropsType<typeof getStaticProps>) => {
                               id="review-review"
                               rows={5}
                               className="w-full rounded-2xl border bg-[var(--bg-1)] px-5 py-3 focus:outline-none"
+                              placeholder="Vase misljene o poslovanju..."
                             ></textarea>
                           </div>
                           <div className="col-span-12">
-                            <Link href="#" className="btn-primary">
+                            <button
+                              type="submit"
+                              onClick={(e) => e.preventDefault()}
+                              className="btn-primary"
+                            >
                               Posalji recenziju
-                            </Link>
+                            </button>
                           </div>
                         </div>
                       </form>
@@ -525,62 +575,78 @@ const Index = (props: InferGetStaticPropsType<typeof getStaticProps>) => {
                   </div>
                 </div>
                 <div className="rounded-2xl bg-white px-6 py-8">
-                  <div className="relative mx-auto mb-10 grid h-32 w-32 place-content-center rounded-full border border-[var(--primary)] bg-white p-4">
-                    <Image
-                      width={96}
-                      height={96}
-                      src="https://picsum.photos/200/300"
-                      alt="image"
-                      className="rounded-full"
-                    />
-                    <div className="white absolute bottom-0 right-0 grid h-8 w-8 place-content-center rounded-full border-2 bg-primary text-white">
-                      <CheckIcon className="h-5 w-5" />
-                    </div>
-                  </div>
-                  <h4 className="mb-4 text-center text-2xl font-semibold">
-                    Savannah Nguyen
-                  </h4>
-                  <ul className="mb-7 flex flex-wrap items-center justify-center gap-3">
-                    <li>
-                      <div className="flex items-center gap-1">
-                        <i className="las la-star text-[var(--tertiary)]"></i>
-                        <p className="mb-0"> 4.7 </p>
-                        <StarIcon className="h-5 w-5 text-[var(--tertiary)]" />
-                      </div>
-                    </li>
-                  </ul>
+                  <h2 className="mb-4 text-center text-4xl font-semibold">
+                    {post.business?.name ?? ""}
+                  </h2>
+                  {post.statistics.averageReviewGrade ? (
+                    <ul className="mb-7 flex flex-wrap items-center justify-center gap-3">
+                      <li>
+                        <div className="flex items-center gap-1">
+                          <i className="las la-star text-[var(--tertiary)]"></i>
+                          <p className="mb-0">
+                            {post.statistics.averageReviewGrade}
+                          </p>
+                          <StarIcon className="h-5 w-5 text-[var(--tertiary)]" />
+                        </div>
+                      </li>
+                    </ul>
+                  ) : (
+                    <></>
+                  )}
                   <ul className="flex flex-wrap justify-center gap-3">
-                    <li>
-                      <Link
-                        href="#"
-                        className="link grid h-9 w-9 place-content-center rounded-full bg-[var(--primary-light)] text-primary duration-300 hover:bg-primary hover:text-white"
-                      >
-                        <FaFacebook className=" text-xl" />
-                      </Link>
-                    </li>
-                    <li>
-                      <Link
-                        href="#"
-                        className="link grid h-9 w-9 place-content-center rounded-full bg-[var(--primary-light)] text-primary duration-300 hover:bg-primary hover:text-white"
-                      >
-                        <FaInstagram className="lab la-instagram text-xl" />
-                      </Link>
-                    </li>
-                    <li>
-                      <Link
-                        href="#"
-                        className="link grid h-9 w-9 place-content-center rounded-full bg-[var(--primary-light)] text-primary duration-300 hover:bg-primary hover:text-white"
-                      >
-                        <FaLinkedin className="lab la-linkedin-in text-xl" />
-                      </Link>
-                    </li>
+                    {post.website ? (
+                      <li>
+                        <Link
+                          href={post.website}
+                          target="_blank"
+                          className="link grid h-9 w-9 place-content-center rounded-full bg-[var(--primary-light)] text-primary duration-300 hover:bg-primary hover:text-white"
+                        >
+                          <FaGlobe className=" text-xl" />
+                        </Link>
+                      </li>
+                    ) : (
+                      <></>
+                    )}
+                    {post.facebookLink ? (
+                      <li>
+                        <Link
+                          href={post.facebookLink}
+                          target="_blank"
+                          className="link grid h-9 w-9 place-content-center rounded-full bg-[var(--primary-light)] text-primary duration-300 hover:bg-primary hover:text-white"
+                        >
+                          <FaFacebook className=" text-xl" />
+                        </Link>
+                      </li>
+                    ) : (
+                      <></>
+                    )}
+                    {post.instagramLink ? (
+                      <li>
+                        <Link
+                          href={post.instagramLink}
+                          target="_blank"
+                          className="link grid h-9 w-9 place-content-center rounded-full bg-[var(--primary-light)] text-primary duration-300 hover:bg-primary hover:text-white"
+                        >
+                          <FaInstagram className="lab la-instagram text-xl" />
+                        </Link>
+                      </li>
+                    ) : (
+                      <></>
+                    )}
                   </ul>
                   <div className="my-7 border border-dashed"></div>
                   <ul className="max-text-30 mx-auto mb-10 flex flex-col gap-4">
                     <li>
                       <div className="flex items-center gap-2">
                         <CalendarDaysIcon className="h-5 w-5 text-primary" />
-                        <p className="mb-0"> Joined in June 2018 </p>
+                        <p className="mb-0">
+                          {" "}
+                          Joined in{" "}
+                          {format(
+                            new Date(post.business?.user?.createdAt ?? ""),
+                            "LLLL yyyy"
+                          )}{" "}
+                        </p>
                       </div>
                     </li>
                     <li>
@@ -596,11 +662,6 @@ const Index = (props: InferGetStaticPropsType<typeof getStaticProps>) => {
                       </div>
                     </li>
                   </ul>
-                  <div className="text-center">
-                    <Link href="#" className="btn-outline  font-semibold">
-                      See Host Profile
-                    </Link>
-                  </div>
                 </div>
               </div>
             </div>
@@ -620,6 +681,8 @@ import { prisma } from "~/server/db";
 import { stripe } from "~/server/stripe/client";
 import { useEffect, useState } from "react";
 import LoadingSpinner from "~/Atoms/LoadingSpinner/LoadingSpinner";
+import { useUser } from "@clerk/nextjs";
+import useStatistics from "~/Organisms/CompanySpecific/useStatistics";
 
 export const getStaticProps: GetStaticProps = async ({ locale, params }) => {
   const helpers = createServerSideHelpers({

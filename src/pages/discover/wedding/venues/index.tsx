@@ -1,6 +1,4 @@
 import {
-  ListBulletIcon,
-  MapPinIcon,
   BuildingOfficeIcon,
   AdjustmentsHorizontalIcon,
   FunnelIcon,
@@ -8,7 +6,6 @@ import {
 } from "@heroicons/react/20/solid";
 import type { GetStaticProps } from "next";
 import { serverSideTranslations } from "next-i18next/serverSideTranslations";
-import Link from "next/link";
 import React, { useEffect, useState } from "react";
 import { FaBreadSlice, FaGuitar } from "react-icons/fa";
 import { AiFillCar } from "react-icons/ai";
@@ -90,14 +87,6 @@ function Index() {
     categoryLabel: "Wedding",
     categoryValue: "Flowers",
   });
-  //   {
-  //   id: "iuabsdgsdifugb",
-  //   title: "Dollar General - 5416 Rock Quarry Rd, Raleigh, NC 27610",
-  //   address: "8558 Green Rd.",
-  //   type: "Rent",
-  //   priceRange: [5000, 20000],
-  //   img: "https://picsum.photos/500/500",
-  // },
   const [posts, setPosts] = useState<
     | {
         id: number;
@@ -153,7 +142,7 @@ function Index() {
       <>
         <div className="fixed z-20 w-full rounded-lg bg-primaryLight shadow-md  lg:max-h-[20vmin]">
           <h1 className="w-full text-center font-Alex-Brush text-6xl lg:text-8xl">
-            Weddings
+            Vjencanja
           </h1>
           <div className="flex justify-center">
             <HeroDropdown
@@ -185,28 +174,7 @@ function Index() {
                 <div className=" ">HELLOW WORLD</div>
               </Accordion> */}
             </div>
-            <div>
-              <ul className=" hidden justify-center gap-4 lg:flex">
-                <li>
-                  <Link
-                    href="property-list"
-                    className={`link clr-neutral-500 flex items-center gap-2 hover:text-primary `}
-                  >
-                    <ListBulletIcon className="h-5 w-5" />
-                    <span className="inline-block font-medium">List</span>
-                  </Link>
-                </li>
-                <li>
-                  <Link
-                    href="property-map"
-                    className={`link clr-neutral-500 flex items-center gap-2 hover:text-primary`}
-                  >
-                    <MapPinIcon className="h-5 w-5" />
-                    <span className="inline-block font-medium">Map</span>
-                  </Link>
-                </li>
-              </ul>
-            </div>
+
             <div className="w-fit ">
               <HeroDropdown
                 size={"small"}
@@ -266,7 +234,7 @@ function Index() {
               ))
             )}
           </motion.ul>
-          <Pagination />
+          <Pagination count={20} currentPage={1} />
         </div>
       </>
     </MainTemplate>
@@ -278,6 +246,3 @@ export const getStaticProps: GetStaticProps = async ({ locale }) => ({
     ...(await serverSideTranslations(locale ?? "hr", ["common", "dashboard"])),
   },
 });
-// export const getStaticProps: GetStaticProps = async (context)=>{
-//   const ssg = create
-// }

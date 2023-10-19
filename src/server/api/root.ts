@@ -4,6 +4,7 @@ import { stripeRouter } from "./routers/stripe";
 import { businessRouter } from "./routers/business";
 import { businessTypeCategoryRouter } from "./routers/businessTypeCategory";
 import { businessPostRouter } from "./routers/businessPost";
+import { statisticsRouter } from "./routers/statistics";
 
 export const appRouter = createTRPCRouter({
   user: userRouter,
@@ -11,6 +12,7 @@ export const appRouter = createTRPCRouter({
   bussines: businessRouter,
   businessCategoryType: businessTypeCategoryRouter,
   businessPost: businessPostRouter,
+  statistics: statisticsRouter,
 });
 
 export type AppRouter = typeof appRouter;

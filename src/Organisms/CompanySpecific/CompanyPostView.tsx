@@ -1,5 +1,3 @@
-"use client";
-
 import {
   ArrowLeftIcon,
   ChevronDownIcon,
@@ -8,7 +6,7 @@ import {
   XCircleIcon,
 } from "@heroicons/react/20/solid";
 import { useRouter } from "next/router";
-import { type FormEvent, useState, useEffect } from "react";
+import { type FormEvent, useState, useId } from "react";
 import CreatableSelect from "react-select/creatable";
 import Select, { type MultiValue } from "react-select";
 import { toast } from "react-toastify";
@@ -19,6 +17,9 @@ import Map from "~/Molecules/Map/Map";
 import { useCompanyPost } from "./useCompanyPost";
 import Uploader from "~/Molecules/Uploader/Uploader";
 import PreviewModal from "~/Molecules/PreviewModal/PreviewModal";
+import { format } from "date-fns";
+import { type CompanyPostWihtoutDate } from "~/utils/types";
+import LoadingSpinner from "~/Atoms/LoadingSpinner/LoadingSpinner";
 
 const tooltipStyle = {
   backgroundColor: "#3539E9",
@@ -27,124 +28,101 @@ const tooltipStyle = {
 };
 
 type Props = {
-  businessId: string;
+  companyPost: CompanyPostWihtoutDate;
 };
 
-function CompanyPostView({ businessId }: Props) {
-  const {
-    businessPost,
-    createPost,
-    eventCategories,
-    updatePost,
-    deletePostImage,
-  } = useCompanyPost();
-  useEffect(() => {
-    if (businessPost.data) {
-      const post = businessPost.data;
-      setTitle(post.title);
-      setImageUrls(post?.pictures ? post.pictures.split(",") : []);
-      setMenuImageUrls(
-        post?.offerPictures ? post.offerPictures.split(",") : []
-      );
-      setCompanyDesc(post.companyDescription ?? "");
-      setServiceDesc(post.serviceDescription ?? "");
-      setLocation({ address: post.location ?? "", latitude: 0, langitude: 0 });
-      setEarlisetAvailable(new Date(post.earlisetAvailable ?? ""));
-      setUserCanVisit(post.userCanVisit ?? false);
-      setContactEmails(
-        post?.contactEmails ? post.contactEmails.split(",") : []
-      );
-      setContactEmailsNedded(
-        post?.contactEmails ? post.contactEmails.split(",") : []
-      );
-      setContactPhones(
-        post?.contactPhones ? post.contactPhones.split(",") : []
-      );
-      setContactPhonesNedded(
-        post?.contactPhones ? post.contactPhones.split(",") : []
-      );
-      setTags(post?.tags ? post.tags.split(",") : []);
-      setMaximumPeople(post.maximumPeople ?? 0);
-      setParkingPlaces(post.parkingPlaces ?? 0);
-      setPlaceSize(post.placeSize ?? "");
-      setWebsiteUrl(post.website ?? "");
-      setInstagramLink(post.instagramLink ?? "");
-      setFacebookLink(post.facebookLink ?? "");
-      setPriceRangeValues([
-        post.priceRangeMin ?? 1,
-        post.priceRangeMax ?? 10000,
-      ]);
-    }
-  }, [businessPost.data]);
-  const [title, setTitle] = useState<string>("");
-  const [imageUrls, setImageUrls] = useState<string[]>([]);
-  const [menuImageUrls, setMenuImageUrls] = useState<string[]>([]);
-  const [companyDesc, setCompanyDesc] = useState<string>("");
-  const [serviceDesc, setServiceDesc] = useState<string>("");
-  const [location, setLocation] = useState<{
-    address: string;
-    latitude: number | null;
-    langitude: number | null;
-  }>();
-  const [previewOpen, setPreviewOpen] = useState<boolean>(false);
-  const [contactPhones, setContactPhones] = useState<string[]>([]);
-  const [earlisetAvailable, setEarlisetAvailable] = useState<Date>();
-  const [userCanVisit, setUserCanVisit] = useState<boolean>();
-  const [contactEmails, setContactEmails] = useState<string[]>([]);
-  const [contactEmailsNedded, setContactEmailsNedded] = useState<string[]>([]);
-  const [contactPhonesNedded, setContactPhonesNedded] = useState<string[]>([]);
-  const [tags, setTags] = useState<string[]>([]);
-  const [maximumPeople, setMaximumPeople] = useState<number>();
-  const [parkingPlaces, setParkingPlaces] = useState<number>();
-  const [placeSize, setPlaceSize] = useState<string>();
-  const [websiteUrl, setWebsiteUrl] = useState<string>();
-  const [instagramLink, setInstagramLink] = useState<string>();
-  const [facebookLink, setFacebookLink] = useState<string>();
-  const [priceRangeValues, setPriceRangeValues] = useState<number[]>([
-    1, 10000,
-  ]);
+function CompanyPostView({ companyPost }: Props) {
+  const { eventCategories, updatePost, deletePostImage, isUpdatePostLoading } =
+    useCompanyPost();
 
+  const [currentPost, setCurrentPost] =
+    useState<CompanyPostWihtoutDate>(companyPost);
+
+  const [previewOpen, setPreviewOpen] = useState<boolean>(false);
+  const [contactPhones, setContactPhones] = useState<string[]>(
+    currentPost.contactPhones?.split(",") ?? []
+  );
+  const [contactEmails, setContactEmails] = useState<string[]>(
+    currentPost.contactEmails?.split(",") ?? []
+  );
+  const [contactEmailsNedded, setContactEmailsNedded] = useState<string[]>(
+    currentPost.contactEmails?.split(",") ?? []
+  );
+  const [contactPhonesNedded, setContactPhonesNedded] = useState<string[]>(
+    currentPost.contactPhones?.split(",") ?? []
+  );
+
+  const addToPictures = (url: string) => {
+    setCurrentPost((prev) => ({
+      ...prev,
+      pictures: prev.pictures ? prev.pictures + "," + url : url,
+    }));
+  };
+  const removeFromPictures = (location: string) => {
+    setCurrentPost((prev) => ({
+      ...prev,
+      pictures: prev.pictures
+        ? prev.pictures
+            .split(",")
+            .filter((i) => i !== location)
+            .toString()
+        : "",
+    }));
+  };
+  const addToOfferPictures = (url: string) => {
+    setCurrentPost((prev) => ({
+      ...prev,
+      offerPictures: prev.offerPictures ? prev.offerPictures + "," + url : url,
+    }));
+  };
+  const removeFromOfferPictures = (location: string) => {
+    setCurrentPost((prev) => ({
+      ...prev,
+      offerPictures: prev.offerPictures
+        ? prev.offerPictures
+            .split(",")
+            .filter((i) => i !== location)
+            .toString()
+        : "",
+    }));
+  };
+
+  const tagSelectId = useId();
+  const categorySelectId = useId();
   const onPlacesSelect = (
     address: string,
     latitude: number | null,
     langitude: number | null
   ) => {
-    setLocation({ address, langitude, latitude });
+    setCurrentPost((prev) => ({
+      ...prev,
+      location: address,
+      lat: latitude,
+      lng: langitude,
+    }));
   };
-  const [selectedCategoriesIds, setSelectedCategoriesIds] =
-    useState<number[]>();
 
-  async function createPostAction(e: FormEvent<HTMLFormElement>) {
+  async function postAction(e: FormEvent<HTMLFormElement>) {
     e.preventDefault();
-    if (!selectedCategoriesIds || selectedCategoriesIds === undefined)
-      return toast.error("Odaberite barem jednu kategoriju objave!");
+
     try {
-      const result = await createPost({
-        businessId: businessId,
-        title,
-        priceRangeMax: priceRangeValues[1],
-        priceRangeMin: priceRangeValues[0],
-        companyDescription: companyDesc,
-        serviceDescription: serviceDesc,
-        selectedCategoryIds: selectedCategoriesIds,
-        pictures: imageUrls,
-        location: location?.address,
-        lat: location?.latitude ?? 0,
-        lng: location?.langitude ?? 0,
-        maximumPeople,
-        earlisetAvailable,
-        userCanVisit,
-        tags,
-        parkingPlaces,
-        offerPictures: menuImageUrls,
-        placeSize,
-        contactEmails,
-        contactPhones,
-        website: websiteUrl,
-        instagramLink,
-        facebookLink,
+      const result = await updatePost({
+        ...currentPost,
+        pictures: currentPost.pictures?.split(","),
+        offerPictures: currentPost.offerPictures?.split(","),
+        tags: currentPost.tags?.split(","),
+        contactPhones: contactPhones,
+        contactEmails: contactEmails,
+        earlisetAvailable: currentPost.earlisetAvailable,
+        selectedCategoryIds: currentPost.selectedCategoriesIds.map(
+          (item) => item.id
+        ),
       });
       if (result) {
+        setCurrentPost({
+          ...result,
+        });
+        toast.success("Promjene spremljene");
         setPreviewOpen(true);
       }
     } catch (error) {
@@ -153,18 +131,27 @@ function CompanyPostView({ businessId }: Props) {
   }
   const { back } = useRouter();
   const deleteImageInDB = async (location: string) => {
-    if (businessPost.data) {
-      await deletePostImage({
-        id: businessPost.data.id,
-        imageToDelete: location,
-      });
+    if (currentPost.pictures) {
+      const pictures = currentPost.pictures?.split(",") ?? [];
+      if (pictures.includes(location)) {
+        await deletePostImage({
+          id: currentPost.id,
+          imageToDelete: location,
+        });
+      }
       return true;
     }
     return false;
   };
 
   function onChangePriceSlider(e: number[]) {
-    setPriceRangeValues(e);
+    const min = e[0] ? e[0] : 1;
+    const max = e[1] ? e[1] : 10000;
+    setCurrentPost((prev) => ({
+      ...prev,
+      priceRangeMin: min,
+      priceRangeMax: max,
+    }));
   }
 
   return (
@@ -176,6 +163,14 @@ function CompanyPostView({ businessId }: Props) {
       >
         <ArrowLeftIcon className="h-8 w-8 text-gray-500 group-hover:text-gray-800 group-active:scale-90" />
       </button>
+      {isUpdatePostLoading && (
+        <div className="absolute left-0 top-0 z-50 h-full w-full bg-gray-300 opacity-50">
+          <div className="z-[51] flex h-full w-full items-center justify-center align-middle">
+            <LoadingSpinner spinnerHeight="h-20" spinnerWidth="w-20" />
+          </div>
+        </div>
+      )}
+
       <div className="container">
         <div className="xxl:w-[66.66%] mx-auto w-full xl:w-[83.33%]">
           {/* General */}
@@ -198,19 +193,27 @@ function CompanyPostView({ businessId }: Props) {
                   <p className="mb-4 mt-6 text-xl font-medium">Naziv:</p>
                   <input
                     type="text"
-                    value={title}
+                    defaultValue={currentPost?.title}
                     className="w-full rounded-md border p-2 text-base focus:outline-none"
                     placeholder="Naziv poslovanja"
-                    onChange={(e) => setTitle(e.target.value)}
+                    onChange={(e) =>
+                      setCurrentPost((prev) => ({
+                        ...prev,
+                        title: e.target.value,
+                      }))
+                    }
                   />
                   <p className="mb-4 mt-6 text-xl font-medium">
                     Prosjecna cijena:
                   </p>
                   <RangeSliderComponent
-                    value={priceRangeValues}
+                    value={[
+                      currentPost.priceRangeMin ?? 1,
+                      currentPost.priceRangeMax ?? 1000,
+                    ]}
                     handleChange={onChangePriceSlider}
-                    min={priceRangeValues[0] ?? 1}
-                    max={priceRangeValues[1] ?? 10000}
+                    min={1}
+                    max={10000}
                   />
                   <p className="mb-4 mt-6 flex items-center gap-3 text-xl font-medium">
                     Osvrt o poslovanju :
@@ -229,8 +232,13 @@ function CompanyPostView({ businessId }: Props) {
                     rows={5}
                     className="w-full rounded-md border p-2 focus:outline-none "
                     placeholder="Opis.."
-                    value={companyDesc}
-                    onChange={(e) => setCompanyDesc(e.target.value)}
+                    value={currentPost.companyDescription ?? ""}
+                    onChange={(e) =>
+                      setCurrentPost((prev) => ({
+                        ...prev,
+                        companyDescription: e.target.value,
+                      }))
+                    }
                   ></textarea>
                   <p className="mb-4 mt-6 flex items-center gap-3 text-xl font-medium">
                     Osvrt o usluzi :
@@ -246,11 +254,16 @@ function CompanyPostView({ businessId }: Props) {
                     content="Jednostavan opis usluge koju Vase poslovanje nudi."
                   />
                   <textarea
-                    value={serviceDesc}
+                    value={currentPost.serviceDescription ?? ""}
                     rows={2}
                     className="w-full rounded-md border p-2 focus:outline-none "
                     placeholder="Opis.."
-                    onChange={(e) => setServiceDesc(e.target.value)}
+                    onChange={(e) =>
+                      setCurrentPost((prev) => ({
+                        ...prev,
+                        serviceDescription: e.target.value,
+                      }))
+                    }
                   ></textarea>
                   <p className="mb-4 mt-6 flex gap-3 text-xl font-medium">
                     Kategorije :
@@ -266,29 +279,24 @@ function CompanyPostView({ businessId }: Props) {
                     content="Kategorije u kojima ce se prikazivati vase poslovanje"
                   />
                   <Select
-                    id="category"
-                    options={eventCategories.data}
+                    id={categorySelectId}
+                    instanceId={categorySelectId}
+                    options={eventCategories.data?.map((item) => {
+                      return {
+                        ...item,
+                        label: `${item.value} (${item.label})`,
+                      };
+                    })}
+                    defaultValue={currentPost.selectedCategoriesIds}
+                    value={currentPost.selectedCategoriesIds}
                     className="w-full"
                     placeholder="odaberi..."
                     isMulti
                     onChange={(value) => {
-                      if (value && value.length > 0) {
-                        setSelectedCategoriesIds((prev) => {
-                          if (!prev) {
-                            return [
-                              ...value.map((item) => {
-                                return item.id;
-                              }),
-                            ];
-                          } else
-                            return [
-                              ...prev,
-                              ...value.map((item) => {
-                                return item.id;
-                              }),
-                            ];
-                        });
-                      }
+                      setCurrentPost((prev) => ({
+                        ...prev,
+                        selectedCategoriesIds: value.map((item) => item),
+                      }));
                     }}
                   />
                 </div>
@@ -311,14 +319,32 @@ function CompanyPostView({ businessId }: Props) {
               initialOpen={false}
             >
               <div className="pt-6">
+                <p className="mb-4 mt-6 text-xl font-medium">
+                  Slike koju predstavljaju Vase poslovanje :
+                </p>
                 <div className="flex w-full items-center justify-center rounded-2xl border-dashed">
                   <Uploader
+                    id="dropzone-images"
+                    addToPictures={addToPictures}
+                    removeFromPictures={removeFromPictures}
                     deleteImageInDB={deleteImageInDB}
-                    imageUrls={imageUrls}
-                    setImageUrls={setImageUrls}
+                    imageUrls={currentPost.pictures?.split(",")}
                     maximumImages={10}
                   />
                 </div>
+              </div>
+              <p className="mb-4 mt-6 text-xl font-medium">
+                Slike ponude (jelovnika, cjenika, itd...) :
+              </p>
+              <div className="flex w-full items-center justify-center rounded-2xl border-dashed">
+                <Uploader
+                  id="dropzone-offer"
+                  addToPictures={addToOfferPictures}
+                  removeFromPictures={removeFromOfferPictures}
+                  deleteImageInDB={deleteImageInDB}
+                  maximumImages={4}
+                  imageUrls={currentPost.offerPictures?.split(",") ?? []}
+                />
               </div>
             </Accordion>
           </div>
@@ -343,7 +369,7 @@ function CompanyPostView({ businessId }: Props) {
                     <Map
                       onPlacesSelect={onPlacesSelect}
                       defaultValue=""
-                      choosenAddress={location?.address}
+                      choosenAddress={currentPost.location ?? ""}
                     />
                   </div>
                 </div>
@@ -385,15 +411,18 @@ function CompanyPostView({ businessId }: Props) {
                   type="text"
                   className="w-full rounded-md border p-2 text-base focus:outline-none"
                   placeholder="Broj ljudi..."
-                  value={maximumPeople ?? 0}
+                  value={currentPost.maximumPeople ?? 0}
                   onChange={(e) => {
                     const num = parseInt(e.target.value, 10);
                     if (e.target.value === "") {
-                      setMaximumPeople(undefined);
+                      setCurrentPost((prev) => ({ ...prev, maximumPeople: 0 }));
                       return;
                     }
                     if (!Number.isNaN(num)) {
-                      setMaximumPeople(num);
+                      setCurrentPost((prev) => ({
+                        ...prev,
+                        maximumPeople: num,
+                      }));
                     } else {
                       toast.error("Potreban broj!");
                     }
@@ -405,10 +434,16 @@ function CompanyPostView({ businessId }: Props) {
                 <input
                   type="date"
                   className="w-full rounded-md border p-2 text-base focus:outline-none"
-                  min={new Date().toString()}
-                  onChange={(e) =>
-                    setEarlisetAvailable(new Date(e.target.value))
+                  value={
+                    currentPost.earlisetAvailable ?? new Date().toDateString()
                   }
+                  onChange={(e) => {
+                    if (!e.target.value) return;
+                    setCurrentPost((prev) => ({
+                      ...prev,
+                      earlisetAvailable: e.target.value,
+                    }));
+                  }}
                 />
 
                 <div className="mb-4  mt-6 flex items-center gap-5 text-xl font-medium">
@@ -418,18 +453,30 @@ function CompanyPostView({ businessId }: Props) {
                   <input
                     id="visit-checkbox"
                     type="checkbox"
-                    checked={userCanVisit}
+                    checked={currentPost.userCanVisit ?? false}
                     className="h-4 w-4 rounded border-gray-700  text-blue-600 "
-                    onChange={(e) => setUserCanVisit(e.target.checked)}
+                    onChange={(e) =>
+                      setCurrentPost((prev) => ({
+                        ...prev,
+                        userCanVisit: e.target.checked,
+                      }))
+                    }
                   />
                 </div>
                 <p className="mb-4 mt-6 text-xl font-medium">
                   Kljucne rijeci :
                 </p>
                 <CreatableSelect
+                  id={tagSelectId}
+                  instanceId={tagSelectId}
                   isMulti
                   isClearable
-                  placeholder="Npr. romanticno, cvijece, zabavan prostor,..."
+                  value={
+                    currentPost.tags
+                      ?.split(",")
+                      .map((item) => ({ label: item, value: item })) ?? []
+                  }
+                  placeholder="Npr. romanticno, cvijece, zabavan prostor, itd..."
                   onChange={(
                     e: MultiValue<{ label: string; value: string }>
                   ) => {
@@ -438,7 +485,10 @@ function CompanyPostView({ businessId }: Props) {
                         return item.value;
                       }),
                     ];
-                    setTags([...newTags]);
+                    setCurrentPost((prev) => ({
+                      ...prev,
+                      tags: newTags.toString(),
+                    }));
                   }}
                 />
                 <p className="mb-4 mt-6 text-xl font-medium">
@@ -446,42 +496,43 @@ function CompanyPostView({ businessId }: Props) {
                 </p>
                 <input
                   type="number"
-                  value={parkingPlaces}
+                  value={currentPost.parkingPlaces ?? 0}
                   className="w-full rounded-md border p-2 text-base focus:outline-none"
                   placeholder="Npr. 3,20,50,..."
                   onChange={(e) => {
                     const num = parseInt(e.target.value, 10);
                     if (e.target.value === "") {
-                      setParkingPlaces(undefined);
+                      setCurrentPost((prev) => ({
+                        ...prev,
+                        parkingPlaces: 0,
+                      }));
                       return;
                     }
                     if (!Number.isNaN(num)) {
-                      setParkingPlaces(num);
+                      setCurrentPost((prev) => ({
+                        ...prev,
+                        parkingPlaces: num,
+                      }));
                     } else {
                       toast.error("Potreban broj!");
                     }
                   }}
                 />
-                <p className="mb-4 mt-6 text-xl font-medium">
-                  Slike ponude (jelovnika, cvijeca,...) :
-                </p>
-                <div className="flex w-full items-center justify-center rounded-2xl border-dashed">
-                  <Uploader
-                    deleteImageInDB={deleteImageInDB}
-                    maximumImages={4}
-                    imageUrls={menuImageUrls}
-                    setImageUrls={setMenuImageUrls}
-                  />
-                </div>
+
                 <p className="mb-4 mt-6 text-xl font-medium">
                   Velicina prostora :
                 </p>
                 <input
                   type="text"
-                  value={placeSize}
+                  value={currentPost.placeSize ?? ""}
                   className="w-full rounded-md border p-2 text-base focus:outline-none"
                   placeholder="Npr. 80m2, 100m2,..."
-                  onChange={(e) => setPlaceSize(e.target.value)}
+                  onChange={(e) =>
+                    setCurrentPost((prev) => ({
+                      ...prev,
+                      placeSize: e.target.value,
+                    }))
+                  }
                 />
               </div>
             </Accordion>
@@ -603,33 +654,47 @@ function CompanyPostView({ businessId }: Props) {
                   type="url"
                   className="w-full rounded-md border p-2 text-base focus:outline-none"
                   placeholder="Unesite url"
-                  value={websiteUrl}
-                  onChange={(e) => setWebsiteUrl(e.target.value)}
+                  value={currentPost.website ?? ""}
+                  onChange={(e) =>
+                    setCurrentPost((prev) => ({
+                      ...prev,
+                      website: e.target.value,
+                    }))
+                  }
                 />
                 <p className="mb-4 mt-6 text-xl font-medium">Instagram :</p>
                 <input
                   type="url"
                   className="w-full rounded-md border p-2 text-base focus:outline-none"
                   placeholder="Enter Instagram url"
-                  value={instagramLink}
-                  onChange={(e) => setInstagramLink(e.target.value)}
+                  value={currentPost.instagramLink ?? ""}
+                  onChange={(e) =>
+                    setCurrentPost((prev) => ({
+                      ...prev,
+                      instagramLink: e.target.value,
+                    }))
+                  }
                 />
                 <p className="mb-4 mt-6 text-xl font-medium">Facebook :</p>
                 <input
                   type="url"
                   className="w-full rounded-md border p-2 text-base focus:outline-none"
                   placeholder="Enter Facebook url"
-                  value={facebookLink}
-                  onChange={(e) => setFacebookLink(e.target.value)}
+                  value={currentPost.facebookLink ?? ""}
+                  onChange={(e) =>
+                    setCurrentPost((prev) => ({
+                      ...prev,
+                      facebookLink: e.target.value,
+                    }))
+                  }
                 />
               </div>
             </Accordion>
           </div>
-          {/* eslint-disable-next-line @typescript-eslint/no-misused-promises  */}
-          {/* <form onSubmit={async (e) => await createPostAction(e)}> */}
           <form
-            onSubmit={(e) => {
-              e.preventDefault();
+            // eslint-disable-next-line @typescript-eslint/no-misused-promises
+            onSubmit={async (e) => {
+              await postAction(e);
               setPreviewOpen(true);
             }}
           >
@@ -673,7 +738,7 @@ function CompanyPostView({ businessId }: Props) {
             </div>
 
             <button type="submit" className="btn-primary font-semibold">
-              Spremi i pregled
+              Spremi i pregledaj
             </button>
           </form>
         </div>
@@ -682,8 +747,10 @@ function CompanyPostView({ businessId }: Props) {
         isCompanyPreview={true}
         open={previewOpen}
         setOpen={setPreviewOpen}
-        previewPicture={imageUrls[0] ?? ""}
-        name={title}
+        previewPicture={
+          currentPost.pictures ? currentPost.pictures.split(",")[0] ?? "" : ""
+        }
+        name={currentPost.title}
       />
     </div>
   );

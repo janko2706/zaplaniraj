@@ -124,7 +124,7 @@ function StatisticDashboardTab({ businessPost }: Props) {
             <h2 className="h2">
               <Counter
                 end={businessPost?.statistics.visitors ?? 0}
-                decimals={1}
+                decimals={0}
               />
             </h2>
             <p>Posjetitelji</p>

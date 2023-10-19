@@ -55,11 +55,11 @@ model CompanyPost {
   lat Float?
   lng Float?
   maximumPeople         Int?
-  earlisetAvailable     DateTime?
+  earlisetAvailable     String?
   userCanVisit          Boolean?
   tags                  String?
   parkingPlaces         Int?
-  offerPictures         String?
+  offerPictures         String?@db.VarChar(3000)
   placeSize             String?
   contactPhones         String?
   statistics            Statistic       @relation(fields: [statisticId], references: [id])
@@ -89,6 +89,11 @@ model Statistic {
   October            Int @default(0)
   November           Int @default(0)
   December           Int @default(0)
+  Weddings          Int @default(0)
+  Birthdays            Int @default(0)
+  Sacraments           Int @default(0)
+  Celebrations           Int @default(0)
+  Business           Int @default(0)
 
   CompanyPost CompanyPost?
 }

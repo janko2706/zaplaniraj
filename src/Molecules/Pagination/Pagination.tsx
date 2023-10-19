@@ -1,51 +1,63 @@
 import React from "react";
 import { ChevronLeftIcon, ChevronRightIcon } from "@heroicons/react/24/outline";
-import Link from "next/link";
 
-function Pagination() {
+type Props = {
+  count: number;
+  currentPage: number;
+  onClickLeft?: () => void;
+  onClickRight?: () => void;
+  onClickPage?: (pageClicked: number) => void;
+};
+
+function Pagination({
+  count,
+  currentPage,
+  onClickLeft,
+  onClickRight,
+  onClickPage,
+}: Props) {
+  const pagesNedded = Math.round(count / 5);
+  const arr = new Array(pagesNedded).fill(0);
+
   return (
     <div className="col-span-12 pb-6">
       <nav>
         <ul className="flex justify-center gap-3">
-          <li className="page-item">
-            <Link
-              className="page-link lh-1 grid h-10 w-10 place-content-center rounded-full border border-[var(--primary)] p-0 text-primary"
-              href="#"
+          <li>
+            <button
+              type="button"
+              onClick={onClickLeft}
+              className=" lh-1 grid h-10 w-10 place-content-center rounded-full border border-[var(--primary)] p-0 text-primary hover:bg-primary hover:text-white"
             >
               <ChevronLeftIcon className="h-5 w-5" />
-            </Link>
+            </button>
           </li>
-          <li className="page-item">
-            <Link
-              className="page-link lh-1 grid h-10 w-10 place-content-center rounded-full border border-[var(--primary)] bg-primary p-0 text-white"
-              href="#"
-            >
-              1
-            </Link>
-          </li>
-          <li className="page-item">
-            <Link
-              className="page-link lh-1 grid h-10 w-10 place-content-center rounded-full border border-[var(--primary)] p-0 text-primary"
-              href="#"
-            >
-              2
-            </Link>
-          </li>
-          <li className="page-item">
-            <Link
-              className="page-link lh-1 grid h-10 w-10 place-content-center rounded-full border border-[var(--primary)] p-0 text-primary"
-              href="#"
-            >
-              3
-            </Link>
-          </li>
-          <li className="page-item">
-            <Link
-              className="page-link lh-1 grid h-10 w-10 place-content-center rounded-full border border-[var(--primary)] p-0 text-primary"
-              href="#"
+          {arr.map((_i, idx) => {
+            const currentPageNumber = idx + 1;
+            return (
+              <li key={idx}>
+                <button
+                  className={` lh-1 grid h-10 w-10 place-content-center rounded-full border border-[var(--primary)] hover:bg-primary hover:text-white ${
+                    currentPageNumber === currentPage
+                      ? "bg-primary text-white"
+                      : "bg-white text-primary"
+                  } p-0 `}
+                  type="button"
+                  onClick={() => onClickPage && onClickPage(currentPageNumber)}
+                >
+                  {currentPageNumber}
+                </button>
+              </li>
+            );
+          })}
+          <li>
+            <button
+              type="button"
+              className=" lh-1 grid h-10 w-10 place-content-center rounded-full border border-[var(--primary)] p-0 text-primary hover:bg-primary hover:text-white"
+              onClick={onClickRight}
             >
               <ChevronRightIcon className="h-5 w-5" />
-            </Link>
+            </button>
           </li>
         </ul>
       </nav>

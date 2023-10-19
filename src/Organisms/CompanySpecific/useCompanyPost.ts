@@ -16,7 +16,8 @@ export const useCompanyPost = () => {
     api.businessPost.createBuinessPost.useMutation();
   const { mutateAsync: deletePostImage } =
     api.businessPost.deleteImageFromPost.useMutation();
-  const { mutateAsync: updatePost } = api.businessPost.updatePost.useMutation();
+  const { mutateAsync: updatePost, isLoading: isUpdatePostLoading } =
+    api.businessPost.updatePost.useMutation();
   return {
     businessPost,
     createPost,
@@ -24,5 +25,6 @@ export const useCompanyPost = () => {
     eventCategories,
     updatePost,
     deletePostImage,
+    isUpdatePostLoading,
   };
 };
