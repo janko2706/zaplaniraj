@@ -62,12 +62,12 @@ const Index = (props: InferGetStaticPropsType<typeof getStaticProps>) => {
     if (isSignedIn) {
       const month = format(new Date(), "LLLL");
       const category = "Weddings";
-      const fetchData = async () => {
+      if (!post?.statisticId) return;
+      void (async () => {
         await updateStatistics({ id: post?.statisticId ?? 0, month, category });
-      };
-      fetchData().catch((e) => console.error(e));
+      })();
     }
-  }, [isSignedIn, updateStatistics, post?.statisticId]);
+  }, [isSignedIn, updateStatistics, post]);
 
   const tooltipStyle = {
     backgroundColor: "#3539E9",

@@ -3,6 +3,7 @@ import { api } from "~/utils/api";
 
 export const useCompanyPost = () => {
   const user = useUser();
+  const getPostsByCategory = api.businessPost.getPostByCategory;
   const userBusiness = api.bussines.getById.useQuery({
     clerkId: user.user ? user.user.id : "",
   });
@@ -26,5 +27,6 @@ export const useCompanyPost = () => {
     updatePost,
     deletePostImage,
     isUpdatePostLoading,
+    getPostsByCategory,
   };
 };

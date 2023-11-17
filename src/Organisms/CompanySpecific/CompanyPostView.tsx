@@ -17,7 +17,6 @@ import Map from "~/Molecules/Map/Map";
 import { useCompanyPost } from "./useCompanyPost";
 import Uploader from "~/Molecules/Uploader/Uploader";
 import PreviewModal from "~/Molecules/PreviewModal/PreviewModal";
-import { format } from "date-fns";
 import { type CompanyPostWihtoutDate } from "~/utils/types";
 import LoadingSpinner from "~/Atoms/LoadingSpinner/LoadingSpinner";
 
@@ -34,6 +33,7 @@ type Props = {
 function CompanyPostView({ companyPost }: Props) {
   const { eventCategories, updatePost, deletePostImage, isUpdatePostLoading } =
     useCompanyPost();
+  console.log(eventCategories);
 
   const [currentPost, setCurrentPost] =
     useState<CompanyPostWihtoutDate>(companyPost);
@@ -284,7 +284,7 @@ function CompanyPostView({ companyPost }: Props) {
                     options={eventCategories.data?.map((item) => {
                       return {
                         ...item,
-                        label: `${item.value} (${item.label})`,
+                        label: `${item.value}`,
                       };
                     })}
                     defaultValue={currentPost.selectedCategoriesIds}

@@ -197,27 +197,32 @@ export const businessPostRouter = createTRPCRouter({
   getPostByCategory: publicProcedure
     .input(
       z.object({
-        categoryValue: z.string(),
         categoryLabel: z.string(),
+        businessTypeLabel: z.string(),
+        skip: z.number(),
       })
     )
     .query(async ({ input, ctx }) => {
       try {
-        const event = await ctx.prisma.eventCategory.findFirst({
-          where: {
-            label: input.categoryLabel,
-            value: input.categoryValue,
-          },
-        });
         const posts = await ctx.prisma.companyPost.findMany({
           where: {
             isLive: true,
             selectedCategoriesIds: {
               some: {
-                id: event?.id,
+                label: input.categoryLabel,
+                value: input.categoryLabel,
               },
             },
+            // TODO uncomment to get only results with companies
+            // business: {
+            //   typeOfBusiness: {
+            //     label: input.businessTypeLabel,
+            //     value: input.businessTypeLabel,
+            //   },
+            // },
           },
+          take: 10,
+          skip: input.skip,
         });
         return posts;
       } catch (error) {

@@ -17,7 +17,8 @@ import useMenu from "~/hooks/useMenu/useMenu";
 import { LuFlower } from "react-icons/lu";
 import { motion } from "framer-motion";
 import { useRouter } from "next/router";
-import { api } from "~/utils/api";
+import { useCompanyPost } from "~/Organisms/CompanySpecific/useCompanyPost";
+import LoadingSpinner from "~/Atoms/LoadingSpinner/LoadingSpinner";
 
 const iconClasses = "h-5 w-5";
 
@@ -83,10 +84,21 @@ const sortItems = [
 
 function Index() {
   const navigate = useRouter();
-  const postsResponse = api.businessPost.getPostByCategory.useQuery({
-    categoryLabel: "Wedding",
-    categoryValue: "Flowers",
+  const { getPostsByCategory } = useCompanyPost();
+  const { category } = navigate.query;
+
+  const [skip, setSkip] = useState(0);
+  const [currentPage, setCurrentPage] = useState(1);
+  const { data, refetch, isLoading } = getPostsByCategory.useQuery({
+    categoryLabel: "Vjenčanja",
+    businessTypeLabel: category as string,
+    skip,
   });
+  useEffect(() => {
+    void (async () => await refetch())();
+    window.scrollTo({ top: 0, left: 0, behavior: "smooth" });
+  }, [category, skip, refetch]);
+
   const [posts, setPosts] = useState<
     | {
         id: number;
@@ -99,8 +111,9 @@ function Index() {
     | undefined
   >([]);
   useEffect(() => {
+    if (!data) return;
     setPosts(
-      postsResponse.data?.map((item) => {
+      data.map((item) => {
         const imageArray =
           item.pictures !== undefined && item.pictures !== null
             ? item.pictures.split(",")
@@ -115,7 +128,7 @@ function Index() {
         };
       })
     );
-  }, [postsResponse.data]);
+  }, [data]);
 
   const [selectedCategory, setSelectedCategory] = useState<
     | {
@@ -187,54 +200,74 @@ function Index() {
         </div>
 
         <div className="discover-padding container">
-          <motion.ul
-            className="flex w-full flex-col gap-9 pb-10"
-            variants={{
-              hidden: {
-                opacity: 1,
-              },
-              show: {
-                opacity: 1,
-                transition: {
-                  when: "beforeChildren",
-                  staggerChildren: 0.2,
-                },
-              },
-            }}
-            initial="hidden"
-            animate="show"
-          >
-            {!posts ? (
-              <></>
-            ) : (
-              posts.map((item, index) => (
-                <motion.li
-                  key={index}
-                  variants={{
-                    hidden: { opacity: 0, x: 100 },
-                    show: {
-                      opacity: 1,
-                      x: 0,
-                      transition: {
-                        duration: 0.25,
-                        type: "spring",
-                        stiffness: 150,
-                      },
+          {!isLoading ? (
+            <>
+              <motion.ul
+                className="flex w-full flex-col gap-9 pb-10"
+                variants={{
+                  hidden: {
+                    opacity: 1,
+                  },
+                  show: {
+                    opacity: 1,
+                    transition: {
+                      when: "beforeChildren",
+                      staggerChildren: 0.2,
                     },
-                  }}
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    void (async () => {
-                      await navigate.replace(`/post/${item.id}/details`);
-                    })();
-                  }}
-                >
-                  <ListCard item={item} key={item.id} />
-                </motion.li>
-              ))
-            )}
-          </motion.ul>
-          <Pagination count={20} currentPage={1} />
+                  },
+                }}
+                initial="hidden"
+                animate="show"
+              >
+                {!posts ? (
+                  <></>
+                ) : (
+                  posts.map((item, index) => (
+                    <motion.li
+                      key={index}
+                      variants={{
+                        hidden: { opacity: 0, x: 100 },
+                        show: {
+                          opacity: 1,
+                          x: 0,
+                          transition: {
+                            duration: 0.25,
+                            type: "spring",
+                            stiffness: 150,
+                          },
+                        },
+                      }}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        void (async () => {
+                          await navigate.replace(`/post/${item.id}/details`);
+                        })();
+                      }}
+                    >
+                      <ListCard item={item} key={item.id} />
+                    </motion.li>
+                  ))
+                )}
+              </motion.ul>
+              <Pagination
+                onClickLeft={() => {
+                  if (currentPage === 1) return;
+                  setSkip((prev) => prev - 10);
+                  setCurrentPage((prev) => prev - 1);
+                }}
+                onClickRight={() => {
+                  setSkip((prev) => prev + 10);
+                  setCurrentPage((prev) => prev + 1);
+                }}
+                count={posts?.length ?? 1}
+                currentPage={currentPage}
+              />
+            </>
+          ) : (
+            <div className="my-10 flex w-full justify-center">
+              <LoadingSpinner spinnerHeight="h-20" spinnerWidth="w-20" />
+            </div>
+          )}
         </div>
       </>
     </MainTemplate>

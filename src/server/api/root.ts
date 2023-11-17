@@ -5,6 +5,7 @@ import { businessRouter } from "./routers/business";
 import { businessTypeCategoryRouter } from "./routers/businessTypeCategory";
 import { businessPostRouter } from "./routers/businessPost";
 import { statisticsRouter } from "./routers/statistics";
+import { openaiRouter } from "./routers/openai";
 
 export const appRouter = createTRPCRouter({
   user: userRouter,
@@ -13,6 +14,7 @@ export const appRouter = createTRPCRouter({
   businessCategoryType: businessTypeCategoryRouter,
   businessPost: businessPostRouter,
   statistics: statisticsRouter,
+  openapi: openaiRouter,
 });
 
 export type AppRouter = typeof appRouter;

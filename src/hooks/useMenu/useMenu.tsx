@@ -38,27 +38,27 @@ function useMenu() {
           submenu: [
             {
               title: "Venues",
-              url: "/discover/wedding/venues",
+              url: "/discover/wedding?category=Venue",
             },
             {
               title: "Music",
-              url: "/discover/wedding/music",
+              url: "/discover/wedding/music?category=Music",
             },
             {
               title: "Catering",
-              url: "/discover/wedding/catering",
+              url: "/discover/wedding/catering?category=Catering",
             },
             {
               title: "Transport",
-              url: "/discover/wedding/transport",
+              url: "/discover/wedding/transport?category=Transport",
             },
             {
               title: "Flowers",
-              url: "/discover/wedding/flowers",
+              url: "/discover/wedding/flowers?category=Flowers",
             },
             {
               title: "Cakes",
-              url: "/discover/wedding/cakes",
+              url: "/discover/wedding/cakes?category=Cakes",
             },
           ],
         },

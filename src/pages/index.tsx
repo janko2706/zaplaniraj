@@ -10,7 +10,6 @@ import { serverSideTranslations } from "next-i18next/serverSideTranslations";
 import { useHome } from "~/hooks/home/useHome";
 import { useUser } from "@clerk/nextjs";
 import useMenu from "~/hooks/useMenu/useMenu";
-
 export default function Home() {
   const user = useUser();
   const router = useRouter();
@@ -48,23 +47,23 @@ export default function Home() {
         }
       }
     }
-  }, [getUserOnboarding.data, user.isSignedIn, router]);
+  }, [getUserOnboarding.data, user.isSignedIn, router, doesUserExists.data]);
 
   return (
     <>
       <MainTemplate menus={menus} userCompany={userCompany}>
         <>
           {/* HERO SECTION */}
-          <div className="w-full bg-slate-100">
+          <div className=" h-screen w-full bg-slate-100">
             <HeroSection />
-          </div>
-          {/* CATEGORIES SECTION */}
 
-          <IndexCategorySection />
+            {/* CATEGORIES SECTION */}
+            <IndexCategorySection />
+          </div>
           {/* FEATURED WEDDING VENUES */}
           <RecommendedIndex />
           {/* BUSINESS ASSOCIATES LINK */}
-          <div className="w-full bg-slate-100">
+          <div className=" w-full bg-slate-100">
             <ContentMarginsTemplate>
               <div
                 style={{ alignItems: "center" }}

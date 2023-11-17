@@ -40,7 +40,7 @@ const categoryData = [
 
 function IndexCategorySection() {
   return (
-    <section className="relative bg-white px-3 py-[60px] lg:py-[120px]">
+    <section className="relative h-full bg-white px-3 py-[60px] lg:py-[120px]">
       <div className="container">
         <div className="mx-auto flex max-w-[570px] flex-col items-center text-center">
           <h2 className="h2 mt-1 pb-8 pt-2 text-neutral-600 lg:pb-14">

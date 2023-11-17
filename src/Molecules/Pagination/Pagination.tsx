@@ -17,7 +17,7 @@ function Pagination({
   onClickPage,
 }: Props) {
   const pagesNedded = Math.round(count / 5);
-  const arr = new Array(pagesNedded).fill(0);
+  const arr = new Array(pagesNedded === 0 ? 1 : pagesNedded).fill(0);
 
   return (
     <div className="col-span-12 pb-6">

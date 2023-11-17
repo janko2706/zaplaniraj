@@ -6,7 +6,7 @@ import { createTRPCRouter, publicProcedure } from "~/server/api/trpc";
 
 const ratelimit = new Ratelimit({
   redis: Redis.fromEnv(),
-  limiter: Ratelimit.slidingWindow(1, "60 m"),
+  limiter: Ratelimit.slidingWindow(60, "1 m"),
   analytics: true,
 });
 

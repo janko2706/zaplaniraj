@@ -12,18 +12,51 @@ generator client {
 }
 
 model User {
-  id         String    @id @default(cuid())
-  createdAt  DateTime  @default(now())
-  updatedAt  DateTime  @updatedAt
+  id         String     @id @default(cuid())
+  createdAt  DateTime   @default(now())
+  updatedAt  DateTime   @updatedAt
   isBussines Boolean
-  business   Business? @relation(fields: [businessId], references: [id])
-  businessId String?   @unique
+  business   Business?  @relation(fields: [businessId], references: [id], onDelete: Cascade)
+  businessId String?    @unique
   onboarding String
-  clerkId    String    @unique
+  clerkId    String     @unique
+  userPlans  UserPlan[]
 
   @@index([clerkId])
   @@index([businessId])
 }
+
+model UserPlan {
+  id               String        @id @default(cuid())
+  createdAt        DateTime      @default(now())
+  updatedAt        DateTime      @updatedAt
+  businessesInPlan CompanyPost[]
+  name String
+  color            String
+  tasks            PlanTask[]
+  budget           Int
+  user             User         @relation(fields: [userId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  userId           String 
+  progress PlanProgress @default(INPROGRESS)
+  @@index([userId])
+}
+enum PlanProgress {
+  INPROGRESS
+  COMPLETED
+}
+model PlanTask {
+  id            Int          @id @default(autoincrement())
+  content       String
+  UserPlan      UserPlan?    @relation(fields: [userPlanId], references: [id])
+  userPlanId    String?
+  forWhat       CompanyPost? @relation(fields: [companyPostId], references: [id])
+  companyPostId Int?
+
+  @@index([companyPostId])
+  @@index([userPlanId])
+}
+
+
 
 model Business {
   id               String               @id @default(cuid())
@@ -50,16 +83,16 @@ model CompanyPost {
   companyDescription    String?
   serviceDescription    String?
   selectedCategoriesIds EventCategory[]
-  pictures              String? @db.VarChar(3000)
+  pictures              String?         @db.VarChar(3000)
   location              String?
-  lat Float?
-  lng Float?
+  lat                   Float?
+  lng                   Float?
   maximumPeople         Int?
   earlisetAvailable     String?
   userCanVisit          Boolean?
   tags                  String?
   parkingPlaces         Int?
-  offerPictures         String?@db.VarChar(3000)
+  offerPictures         String?         @db.VarChar(3000)
   placeSize             String?
   contactPhones         String?
   statistics            Statistic       @relation(fields: [statisticId], references: [id])
@@ -70,10 +103,15 @@ model CompanyPost {
   facebookLink          String?
   business              Business?
   statisticId           Int             @unique
+  UserPlan              UserPlan?       @relation(fields: [userPlanId], references: [id])
+  userPlanId            String?
+  PlanTask              PlanTask[]
+
+  @@index([userPlanId])
 }
 
 model Statistic {
-  id                 Int  @id @default(autoincrement())
+  id                 Int @id @default(autoincrement())
   averageReviewGrade Int @default(5)
   visitors           Int @default(0)
   numberOfReviews    Int @default(0)
@@ -89,10 +127,10 @@ model Statistic {
   October            Int @default(0)
   November           Int @default(0)
   December           Int @default(0)
-  Weddings          Int @default(0)
-  Birthdays            Int @default(0)
-  Sacraments           Int @default(0)
-  Celebrations           Int @default(0)
+  Weddings           Int @default(0)
+  Birthdays          Int @default(0)
+  Sacraments         Int @default(0)
+  Celebrations       Int @default(0)
   Business           Int @default(0)
 
   CompanyPost CompanyPost?
