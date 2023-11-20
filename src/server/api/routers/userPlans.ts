@@ -3,63 +3,57 @@ import { z } from "zod";
 import { createTRPCRouter, privateProcedure } from "~/server/api/trpc";
 
 const PlanProgress = ["INPROGRESS", "COMPLETED"] as const;
+const PlanCategory = [
+  "WEDDING",
+  "SACRAMENT",
+  "BIRTHDAY",
+  "CELEBRATION",
+] as const;
 
 export const userPlansRouter = createTRPCRouter({
-  getUserPlans: privateProcedure
-    .input(
-      z.object({
-        query: z.string().optional(),
-      })
-    )
-    .query(async ({ ctx }) => {
-      const userPlans = await ctx.prisma.user
-        .findFirst({
-          where: {
+  getUserPlans: privateProcedure.query(async ({ ctx }) => {
+    const userPlans = await ctx.prisma.userPlan
+      .findMany({
+        where: {
+          user: {
             clerkId: ctx.userId,
           },
-          select: {
-            userPlans: {
-              include: {
-                businessesInPlan: true,
-              },
-            },
-          },
-        })
-        .catch(() => {
-          throw new TRPCError({
-            message: "Error while searching for user plans",
-            code: "INTERNAL_SERVER_ERROR",
-          });
+        },
+      })
+      .catch(() => {
+        throw new TRPCError({
+          message: "Error while searching for user plans",
+          code: "INTERNAL_SERVER_ERROR",
         });
+      });
 
-      if (!userPlans) return { message: "User doesnt have any plans yet" };
+    if (!userPlans) {
+      throw new TRPCError({
+        message:
+          "Something went wrong while searching for user plans. Wanted [], got undefined",
+        code: "NOT_FOUND",
+      });
+    }
 
-      return userPlans;
-    }),
+    return userPlans;
+  }),
   createUserPlans: privateProcedure
     .input(
       z.object({
-        color: z.string().optional(),
         name: z.string(),
-        budget: z.number(),
-        companyPostId: z.string().optional(),
+        planCategory: z.enum(PlanCategory),
       })
     )
     .mutation(async ({ input, ctx }) => {
-      const createdPlan = await ctx.prisma.user
-        .update({
-          where: {
-            clerkId: ctx.userId,
-          },
+      const newPlan = await ctx.prisma.userPlan
+        .create({
           data: {
-            userPlans: {
-              create: [
-                {
-                  color: input.color ?? "blue-400",
-                  budget: input.budget,
-                  name: input.name,
-                },
-              ],
+            name: input.name,
+            category: input.planCategory,
+            user: {
+              connect: {
+                clerkId: ctx.userId,
+              },
             },
           },
         })
@@ -70,9 +64,30 @@ export const userPlansRouter = createTRPCRouter({
           });
         });
 
-      return createdPlan.id;
+      return newPlan.id;
     }),
 
+  deleteUserPlan: privateProcedure
+    .input(
+      z.object({
+        planId: z.string(),
+      })
+    )
+    .mutation(async ({ input, ctx }) => {
+      const deletePlan = await ctx.prisma.userPlan
+        .delete({
+          where: {
+            id: input.planId,
+          },
+        })
+        .catch(() => {
+          throw new TRPCError({
+            message: "Error while deleting plan",
+            code: "INTERNAL_SERVER_ERROR",
+          });
+        });
+      return deletePlan;
+    }),
   updateUserPlan: privateProcedure
     .input(
       z.object({

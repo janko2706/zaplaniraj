@@ -119,7 +119,8 @@ function useMenu() {
     {
       title: user.t("menu-favorites"),
       icon: <HeartIcon className="h-5 w-5 text-red-500" />,
-      children: <MyPlans />,
+      // FAVORITES TAB
+      children: <></>,
     },
     {
       title: user.t("menu-settings"),

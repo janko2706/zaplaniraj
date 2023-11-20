@@ -95,7 +95,7 @@ const HeroDropdown = ({
                     key={categoryIdx}
                     onClick={category.onClick}
                     className={({ active }) =>
-                      `relative cursor-default select-none py-2 pl-4 pr-4 ${
+                      `relative  cursor-default select-none py-2 pl-4 pr-4 ${
                         active ? "bg-gray-200 text-gray-700" : "text-gray-700"
                       }`
                     }

@@ -7,7 +7,6 @@ export default authMiddleware({
     "/api/trpc/user.getAllForPages",
     "/api/trpc/bussines.getById",
     "/api/trpc/user.doesUserExist,bussines.getById",
-    "/api/testing",
   ],
 });
 

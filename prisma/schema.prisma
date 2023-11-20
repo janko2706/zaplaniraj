@@ -30,20 +30,32 @@ model UserPlan {
   id               String        @id @default(cuid())
   createdAt        DateTime      @default(now())
   updatedAt        DateTime      @updatedAt
+  category         PlanCategory  @default(CELEBRATION)
   businessesInPlan CompanyPost[]
-  name String
-  color            String
+  name             String
+  color            String        @default("primary")
+  eventDate        String?
   tasks            PlanTask[]
-  budget           Int
-  user             User         @relation(fields: [userId], references: [id], onDelete: NoAction, onUpdate: NoAction)
-  userId           String 
-  progress PlanProgress @default(INPROGRESS)
+  budget           Int           @default(0)
+  user             User          @relation(fields: [userId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  userId           String
+  progress         PlanProgress  @default(INPROGRESS)
+
   @@index([userId])
 }
+
+enum PlanCategory {
+  WEDDING
+  SACRAMENT
+  BIRTHDAY
+  CELEBRATION
+}
+
 enum PlanProgress {
   INPROGRESS
   COMPLETED
 }
+
 model PlanTask {
   id            Int          @id @default(autoincrement())
   content       String
@@ -51,12 +63,11 @@ model PlanTask {
   userPlanId    String?
   forWhat       CompanyPost? @relation(fields: [companyPostId], references: [id])
   companyPostId Int?
+  status        PlanProgress @default(INPROGRESS)
 
   @@index([companyPostId])
   @@index([userPlanId])
 }
-
-
 
 model Business {
   id               String               @id @default(cuid())

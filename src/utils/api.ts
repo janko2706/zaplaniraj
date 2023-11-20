@@ -23,8 +23,10 @@ export const api = createTRPCNext<AppRouter>({
       queryClientConfig: {
         defaultOptions: {
           queries: {
-            refetchIntervalInBackground: false,
-            refetchOnMount: false,
+            staleTime: 0,
+            retryOnMount: true,
+            refetchIntervalInBackground: true,
+            refetchOnMount: true,
             refetchOnWindowFocus: false,
             retry: false,
           },

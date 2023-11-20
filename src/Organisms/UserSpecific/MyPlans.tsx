@@ -1,68 +1,59 @@
-import React from "react";
+import React, { useState } from "react";
 import { CgRing } from "react-icons/cg";
 import { FaBirthdayCake, FaChurch } from "react-icons/fa";
 import { LuPartyPopper } from "react-icons/lu";
-import moment from "moment";
 import { CheckBadgeIcon } from "@heroicons/react/24/outline";
 import Spotlight from "~/Molecules/SpotlightCard/Spotlight";
 import SpotlightCard from "~/Molecules/SpotlightCard/SpotlightCard";
-import { type NextRouter, useRouter } from "next/router";
+import { useRouter } from "next/router";
 import { Tab } from "@headlessui/react";
-import Link from "next/link";
-import { ChevronDoubleRightIcon } from "@heroicons/react/20/solid";
+
+import {
+  ChevronDoubleRightIcon,
+  PlusCircleIcon,
+} from "@heroicons/react/20/solid";
 import classNames from "~/utils/classNames";
+import { api } from "~/utils/api";
+import Button from "~/Atoms/Button/Button";
+import PlanCard from "~/Molecules/PlanCard/PlanCard";
 
 function MyPlans() {
   const iconClasses = "h-7 w-7";
+  const [openCreateModal, setOpenCreateModal] = useState<boolean>(false);
   const router = useRouter();
-  const plansInProgress: {
-    id: string;
-    name: string;
-    icon: JSX.Element;
-    date: Date;
-  }[] = [
-    {
-      id: "fiouasgodiuzbcas2344df",
-      name: "My wedding",
-      icon: <CgRing className={`${iconClasses}`} />,
-      date: new Date("2024/01/01"),
-    },
-    {
-      id: "fio2432354uasgodiuzbcasdf",
 
-      name: "Rodendan Matija",
-      icon: <FaBirthdayCake className={`${iconClasses}`} />,
-      date: new Date(2024, 12, 1),
+  const ctx = api.useContext();
+  const { mutate: deleteUserPlan } = api.userPlans.deleteUserPlan.useMutation({
+    onSuccess: async () => {
+      await ctx.userPlans.getUserPlans.invalidate();
+      console.log("Invalidated data test ");
+      // toast.success("Plan je izbrisan!");
     },
-    {
-      id: "fiouasgodiuz5554325bcasdf",
+  });
+  const deletePlan = (id: string) => {
+    deleteUserPlan({
+      planId: id,
+    });
+  };
 
-      name: "Krizma John",
-      icon: <FaChurch className={`${iconClasses}`} />,
-      date: new Date(2024, 12, 1),
-    },
-    {
-      id: "fiouasg2345odiuzbcasdf",
+  const getPlanIcon = (category: string) => {
+    switch (category) {
+      case "BIRTHDAY":
+        return <FaBirthdayCake className={`${iconClasses}`} />;
 
-      name: "Party Party!!",
-      icon: <LuPartyPopper className={`${iconClasses}`} />,
-      date: new Date(2024, 12, 1),
-    },
-  ];
-  const plansCompleted: {
-    id: string;
-    name: string;
-    icon: JSX.Element;
-    date: Date;
-  }[] = [
-    {
-      id: "fiouasg2345odiuzbcasdf",
+      case "WEDDING":
+        return <CgRing className={`${iconClasses}`} />;
 
-      name: "Party Party!!",
-      icon: <LuPartyPopper className={`${iconClasses}`} />,
-      date: new Date(2024, 12, 1),
-    },
-  ];
+      case "CELEBRATION":
+        return <LuPartyPopper className={`${iconClasses}`} />;
+
+      case "SACRAMENT":
+        return <FaChurch className={`${iconClasses}`} />;
+      default:
+        return <LuPartyPopper className={`${iconClasses}`} />;
+    }
+  };
+  const { data } = api.userPlans.getUserPlans.useQuery();
 
   return (
     <section className="  h-full w-full  px-5 py-5 ">
@@ -80,7 +71,10 @@ function MyPlans() {
                   }
                 >
                   <ChevronDoubleRightIcon className="h-5 w-5" />
-                  <span className="inline-block"> In Progress (1)</span>
+                  <span className="inline-block">
+                    In Progress ({" "}
+                    {data?.filter((i) => i.progress === "INPROGRESS").length})
+                  </span>
                 </Tab>
                 <Tab
                   className={({ selected }) =>
@@ -91,7 +85,11 @@ function MyPlans() {
                   }
                 >
                   <CheckBadgeIcon className="h-5 w-5" />
-                  <span className="inline-block"> Completed (4)</span>
+                  <span className="inline-block">
+                    {" "}
+                    Completed (
+                    {data?.filter((i) => i.progress === "COMPLETED").length})
+                  </span>
                 </Tab>
               </Tab.List>
               <Tab.Panels>
@@ -100,40 +98,67 @@ function MyPlans() {
                   id="inprogress"
                 >
                   <Spotlight className="group mx-0 flex h-full w-full flex-col gap-5 overflow-y-auto  ">
-                    {plansInProgress.map((item, idx) => {
+                    {data?.map((item, idx) => {
+                      const icon = getPlanIcon(item.category);
                       return (
                         <SpotlightCard key={idx}>
-                          <Card
+                          <PlanCard
+                            deletePlan={deletePlan}
                             router={router}
                             name={item.name}
-                            icon={item.icon}
-                            date={item.date}
+                            icon={icon}
+                            date={new Date(item.eventDate ?? "")}
                             id={item.id}
                           />
                         </SpotlightCard>
                       );
                     })}
                   </Spotlight>
+                  <div className="mt-10 flex justify-center">
+                    <Button
+                      onClick={() => setOpenCreateModal(true)}
+                      type="button"
+                      text={"Napravi novi plan"}
+                      className="flex h-fit w-fit items-center justify-center gap-3 rounded-xl border border-primary p-3 text-primary transition-all duration-300 ease-in-out hover:bg-primary hover:text-white"
+                    >
+                      <PlusCircleIcon className="h-10 w-10 " />
+                    </Button>
+                  </div>
                 </Tab.Panel>
                 <Tab.Panel className="tab-pane fade" id="completed">
                   <Spotlight className="group mx-0 flex h-full w-full flex-col gap-5 overflow-y-auto  ">
-                    {plansCompleted.map((item, idx) => {
-                      return (
-                        <SpotlightCard key={idx}>
-                          <Card
-                            router={router}
-                            name={item.name}
-                            icon={item.icon}
-                            date={item.date}
-                            id={item.id}
-                          />
-                        </SpotlightCard>
-                      );
-                    })}
+                    {data?.filter((i) => i.progress === "COMPLETED")?.length ? (
+                      data
+                        .filter((i) => i.progress === "COMPLETED")
+                        .map((item, idx) => {
+                          const icon = getPlanIcon(item.category);
+                          return (
+                            <SpotlightCard key={idx}>
+                              <PlanCard
+                                deletePlan={deletePlan}
+                                router={router}
+                                name={item.name}
+                                icon={icon}
+                                date={new Date(item.eventDate ?? "")}
+                                id={item.id}
+                              />
+                            </SpotlightCard>
+                          );
+                        })
+                    ) : (
+                      <div className="mt-10 flex justify-center text-lg">
+                        No completed plans yet...
+                      </div>
+                    )}
                   </Spotlight>
                 </Tab.Panel>
               </Tab.Panels>
             </Tab.Group>
+            <CreatePlanModal
+              api={api}
+              open={openCreateModal}
+              setOpen={setOpenCreateModal}
+            />
           </div>
         </li>
       </ul>
@@ -143,61 +168,166 @@ function MyPlans() {
 
 export default MyPlans;
 
-type PropsCard = {
-  router: NextRouter;
-  id: string;
-  name: string;
-  icon: JSX.Element;
-  date: Date;
+import { type Dispatch, Fragment, type SetStateAction } from "react";
+import { Dialog, Transition } from "@headlessui/react";
+import { XMarkIcon } from "@heroicons/react/24/outline";
+import { HeroDropdown } from "~/Molecules/HeroSection/HeroDropdown/HeroDropdown";
+import LoadingSpinner from "~/Atoms/LoadingSpinner/LoadingSpinner";
+import { toast } from "react-toastify";
+
+type Props = {
+  open: boolean;
+  setOpen: Dispatch<SetStateAction<boolean>>;
+  api: typeof api;
 };
 
-const Card = ({ name, icon, date, id, router }: PropsCard) => {
-  const endDate = moment(date),
-    todayDate = moment();
+function CreatePlanModal({ open, setOpen, api }: Props) {
+  const iconClasses = "h-7 w-7";
+  const categories = [
+    {
+      name: "Vjenjcanje",
+      icon: <CgRing className={iconClasses} />,
+    },
+    {
+      name: "Rodendan",
+      icon: <FaBirthdayCake className={iconClasses} />,
+    },
+    {
+      name: "Sakrament",
+      icon: <FaChurch className={iconClasses} />,
+    },
+    {
+      name: "Slavlje",
+      icon: <LuPartyPopper className={iconClasses} />,
+    },
+  ];
+  const PlanCategory = [
+    "WEDDING",
+    "SACRAMENT",
+    "BIRTHDAY",
+    "CELEBRATION",
+  ] as const;
+  const getEnumForCategory = (category: string) => {
+    switch (category) {
+      case "Vjenjcanje":
+        return PlanCategory[0];
+      case "Rodendan":
+        return PlanCategory[2];
+      case "Sakrament":
+        return PlanCategory[1];
+      case "Slavlje":
+        return PlanCategory[3];
 
-  const daysDifference = moment(endDate).diff(todayDate, "days");
+      default:
+        return PlanCategory[0];
+    }
+  };
+  const [loading, setLoading] = useState(false);
+  const [name, setName] = useState<string>("");
+  const ctx = api.useContext();
+  const { mutateAsync: createPlan } = api.userPlans.createUserPlans.useMutation(
+    {
+      onSuccess: async () => {
+        await ctx.userPlans.getUserPlans.invalidate();
+        setLoading(false);
+        setOpen(false);
+        toast.success("Plan napravljen!");
+      },
+    }
+  );
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    setLoading(true);
+
+    await createPlan({
+      name,
+      planCategory: getEnumForCategory(selectedCategory?.name ?? ""),
+    });
+  };
+  const [selectedCategory, setSelectedCategory] = useState(categories[0]);
 
   return (
-    <>
-      <div
-        className="cursor-pointer"
-        onClick={(evnt) => {
-          evnt.stopPropagation();
-          evnt.preventDefault();
-          void (async () => await router.replace(`/plan/${id}`))();
-        }}
-      >
-        <div className="group flex  overflow-hidden rounded-2xl bg-gradient-to-r from-primary via-purple-500 to-dark p-[0.17em] ">
-          <div className=" visible absolute  -bottom-40 -top-40 left-10 right-10 animate-spin-slow bg-gradient-to-r from-transparent via-white/90 to-transparent"></div>
-          <div className=" flex  w-full flex-wrap  items-center justify-between rounded-2xl bg-white p-8">
-            <div className="z-50 flex flex-wrap items-center gap-4 space-y-4">
-              <div className="grid h-12 w-12 shrink-0 place-content-center rounded-full shadow-xl">
-                <div className="grid h-10 w-10 place-content-center rounded-full bg-[var(--primary-light)] text-primary">
-                  {icon}
-                </div>
-              </div>
-              <div className="flex-grow">
-                <h5 className="mb-1 font-medium">{name}</h5>
-                <ul className=" flex flex-wrap items-center">
-                  <li>
-                    <span className="inline-block text-sm">
-                      <span className="inline-block text-neutral-500">
-                        {daysDifference} days remaining
-                      </span>
-                    </span>
-                  </li>
-                </ul>
-              </div>
-            </div>
-            <Link
-              href="#"
-              className="btn-outline z-50 shrink-0 font-semibold text-primary"
+    <Transition.Root show={open} as={Fragment}>
+      <Dialog as="div" className="relative z-50" onClose={setOpen}>
+        <Transition.Child
+          as={Fragment}
+          enter="ease-out duration-300"
+          enterFrom="opacity-0"
+          enterTo="opacity-100"
+          leave="ease-in duration-200"
+          leaveFrom="opacity-100"
+          leaveTo="opacity-0"
+        >
+          <div className="fixed inset-0 hidden bg-gray-500 bg-opacity-75 transition-opacity md:block" />
+        </Transition.Child>
+
+        <div className="fixed inset-0 z-10 mb-12 overflow-y-auto lg:mb-0">
+          <div className="flex min-h-full items-stretch justify-center text-center md:items-center md:px-2 lg:px-4">
+            <Transition.Child
+              as={Fragment}
+              enter="ease-out duration-300"
+              enterFrom="opacity-0 translate-y-4 md:translate-y-0 md:scale-95"
+              enterTo="opacity-100 translate-y-0 md:scale-100"
+              leave="ease-in duration-200"
+              leaveFrom="opacity-100 translate-y-0 md:scale-100"
+              leaveTo="opacity-0 translate-y-4 md:translate-y-0 md:scale-95"
             >
-              Manage Plan
-            </Link>
+              <Dialog.Panel className="relative flex w-full transform text-left text-base transition md:my-8 md:max-w-xl md:px-4 lg:max-w-xl">
+                <div className="relative flex w-full items-center  rounded-3xl bg-white px-4 pb-8 pt-10 shadow-2xl sm:px-6 sm:pt-8 md:p-6  lg:p-8 ">
+                  <button
+                    type="button"
+                    className="absolute right-4 top-4 text-gray-400 hover:text-gray-500 sm:right-6 sm:top-8 md:right-6 md:top-6 lg:right-8 lg:top-12"
+                    onClick={() => setOpen(false)}
+                  >
+                    <XMarkIcon className="h-8 w-8" aria-hidden="true" />
+                  </button>
+                  {loading ? (
+                    <div className="absolute left-1/3 top-1/3">
+                      <LoadingSpinner
+                        spinnerHeight="h-12"
+                        spinnerWidth="w-12"
+                      />
+                    </div>
+                  ) : (
+                    <></>
+                  )}
+
+                  <div className=" flex h-full w-full items-center justify-center gap-x-6 gap-y-8 sm:grid-cols-12 lg:gap-x-8">
+                    <form
+                      className={`${
+                        loading ? "opacity-10" : "opacity-100"
+                      } flex flex-col gap-5 transition-all duration-300`}
+                      // eslint-disable-next-line @typescript-eslint/no-misused-promises
+                      onSubmit={handleSubmit}
+                    >
+                      <p>Ime plana:</p>
+                      <input
+                        type="text"
+                        placeholder="Moj rodendan..."
+                        className="w-full rounded-full border bg-[var(--bg-1)] px-3 py-2 focus:outline-none md:px-4 md:py-3"
+                        value={name}
+                        onChange={(e) => setName(e.target.value)}
+                        required
+                      />
+                      <p>Kategorija: </p>
+                      <HeroDropdown
+                        size={"full"}
+                        options={categories}
+                        selected={selectedCategory}
+                        setSelected={setSelectedCategory}
+                      />
+                      <Button
+                        text="Spremi"
+                        className="flex h-fit w-full items-center justify-center gap-3 rounded-xl border border-primary p-3 text-primary transition-all duration-300 ease-in-out hover:bg-primary hover:text-white"
+                      />
+                    </form>
+                  </div>
+                </div>
+              </Dialog.Panel>
+            </Transition.Child>
           </div>
         </div>
-      </div>
-    </>
+      </Dialog>
+    </Transition.Root>
   );
-};
+}
