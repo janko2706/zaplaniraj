@@ -2,7 +2,7 @@ import { Fragment, type SetStateAction, useRef } from "react";
 import { Dialog, Transition } from "@headlessui/react";
 
 type Props = {
-  onConfirm: () => void;
+  onConfirm: () => Promise<void>;
   title: string;
   subText: string;
   confirmButtonText: string;
@@ -71,8 +71,9 @@ export default function SmallModal({
                   <button
                     type="button"
                     className="inline-flex w-full justify-center rounded-md bg-red-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-red-500 sm:ml-3 sm:w-auto"
-                    onClick={() => {
-                      onConfirm();
+                    // eslint-disable-next-line @typescript-eslint/no-misused-promises
+                    onClick={async () => {
+                      await onConfirm();
                       setOpen(false);
                     }}
                     ref={cancelButtonRef}

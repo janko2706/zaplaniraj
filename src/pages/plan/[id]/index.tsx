@@ -1,383 +1,345 @@
 import type { GetStaticPaths, GetStaticProps } from "next";
 import { serverSideTranslations } from "next-i18next/serverSideTranslations";
 import MainTemplate from "~/Templates/MainTemplate";
-import React, { useState } from "react";
-import { StarIcon } from "@heroicons/react/20/solid";
+import React, { useEffect, useState } from "react";
+import {
+  BuildingOfficeIcon,
+  CakeIcon,
+  PlusIcon,
+} from "@heroicons/react/20/solid";
 import { RadioGroup } from "@headlessui/react";
 import classNames from "~/utils/classNames";
-import Image from "next/image";
 import useMenu from "~/hooks/useMenu/useMenu";
+import Head from "next/head";
+import Dnd from "~/Organisms/DnD/Dnd";
+import { api } from "~/utils/api";
+import { useRouter } from "next/router";
+import { AiFillCar } from "react-icons/ai";
+import { FaGuitar, FaBreadSlice } from "react-icons/fa";
+import { LuFlower } from "react-icons/lu";
+import ListCardSimple from "~/Molecules/ListCardSimple/ListCardSimple";
+import type { PostForUserPlan } from "~/utils/types";
+
+const ColorsForPlans = [
+  { name: "White", className: "bg-white", selectedClass: "ring-slate-500" },
+  {
+    name: "Yellow",
+    className: "bg-yellow-100",
+    selectedClass: "ring-slate-500",
+  },
+  {
+    name: "Orange",
+    className: "bg-orange-100",
+    selectedClass: "ring-slate-500",
+  },
+  { name: "Slate", className: "bg-slate-200", selectedClass: "ring-slate-500" },
+  { name: "Red", className: "bg-red-200", selectedClass: "ring-slate-500" },
+  { name: "Blue", className: "bg-blue-200", selectedClass: "ring-slate-500" },
+];
 
 const product = {
   name: "My wedding",
   price: "$192",
   href: "#",
-  images: [
-    {
-      src: "https://tailwindui.com/img/ecommerce-images/product-page-02-secondary-product-shot.jpg",
-      alt: "Two each of gray, white, and black shirts laying flat.",
-    },
-    {
-      src: "https://tailwindui.com/img/ecommerce-images/product-page-02-tertiary-product-shot-01.jpg",
-      alt: "Model wearing plain black basic tee.",
-    },
-    {
-      src: "https://tailwindui.com/img/ecommerce-images/product-page-02-tertiary-product-shot-02.jpg",
-      alt: "Model wearing plain gray basic tee.",
-    },
-    {
-      src: "https://tailwindui.com/img/ecommerce-images/product-page-02-featured-product-shot.jpg",
-      alt: "Model wearing plain white basic tee.",
-    },
-  ],
+
   colors: [
     { name: "White", className: "bg-white", selectedClass: "ring-gray-400" },
     { name: "Gray", className: "bg-gray-200", selectedClass: "ring-gray-400" },
     { name: "Black", className: "bg-gray-900", selectedClass: "ring-gray-900" },
   ],
-  sizes: [
-    { name: "XXS", inStock: false },
-    { name: "XS", inStock: true },
-    { name: "S", inStock: true },
-    { name: "M", inStock: true },
-    { name: "L", inStock: true },
-    { name: "XL", inStock: true },
-    { name: "2XL", inStock: true },
-    { name: "3XL", inStock: true },
-  ],
-  details:
-    'The 6-Pack includes two black, two white, and two heather gray Basic Tees. Sign up for our subscription service and be the first to get new, exciting colors, like our upcoming "Charcoal Gray" limited release.',
 };
-const reviews = { href: "#", average: 4, totalCount: 117 };
 
-function Index() {
+const Index = () => {
+  const iconClasses = "h-16 w-16";
+
+  const { query } = useRouter();
+  const [background, setBackground] = useState("bg-white");
   const [selectedColor, setSelectedColor] = useState(product.colors[0]);
-  const [selectedSize, setSelectedSize] = useState(product.sizes[2]);
+  const [tasks, setTasks] = useState<
+    { id: number; content: string; isCompleted: boolean }[]
+  >([]);
   const { menus, userCompany } = useMenu();
+  const { data, isLoading } = api.userPlans.getById.useQuery({
+    planId: (query.id as string) ?? "",
+  });
+  const [businessPosts, setBusinessPosts] = useState<PostForUserPlan[]>([]);
+  const { mutateAsync: disconnectPostFromPlan } =
+    api.userPlans.disconnectPlanWithPost.useMutation();
+
+  useEffect(() => {
+    setTasks(
+      data?.tasks.map((item) => {
+        return {
+          id: item.id,
+          content: item.content,
+          isCompleted: item.status === "COMPLETED" ? true : false,
+        };
+      }) ?? []
+    );
+    setBusinessPosts(data?.businessesInPlan ?? []);
+    console.log(data?.businessesInPlan);
+  }, [data]);
+  const statusClasses =
+    "h-full  cursor-pointer shadow shadow-xl  border rounded-xl hover:bg-slate-200 transition-all duration-500 ease-in-out bg-white bg-opacity-75";
+
+  const statusChildClasses =
+    "flex h-full w-full flex-col items-center justify-center  rounded text-slate-400  ";
+  const statusClassesWithItems =
+    "h-full shadow shadow-xl  border rounded-xl hover:bg-slate-200 transition-all duration-500 ease-in-out bg-white bg-opacity-50 items-start overflow-scroll max-h-96";
+
+  const statusChildClassesWithItems =
+    "flex h-full w-full flex-col items-center justify-center  rounded text-slate-400  ";
+
   return (
-    <MainTemplate menus={menus} userCompany={userCompany}>
-      <div className="bg-white">
-        <div className="pt-6">
-          {/* Image gallery */}
-          <div className="mx-auto mt-6 max-w-2xl sm:px-6 lg:grid lg:max-w-7xl lg:grid-cols-3 lg:gap-x-8 lg:px-8">
-            <div className="aspect-h-4 aspect-w-3 hidden overflow-hidden rounded-lg lg:block">
-              <Image
-                width={2000}
-                height={2000}
-                src={"https://picsum.photos/200/300"}
-                alt="testing"
-                className="h-full w-full object-cover object-center"
-              />
-            </div>
-            <div className="hidden lg:grid lg:grid-cols-1 lg:gap-y-8">
-              <div className="aspect-h-2 aspect-w-3 overflow-hidden rounded-lg">
-                <div className="h-full w-full border border-primary"></div>
-                <Image
-                  width={2000}
-                  height={2000}
-                  src={"https://picsum.photos/200/300"}
-                  alt={"testing shit"}
-                  className="h-full w-full object-cover object-center"
-                />
-              </div>
-              <div className="aspect-h-2 aspect-w-3 overflow-hidden rounded-lg">
-                <Image
-                  width={2000}
-                  height={2000}
-                  src={"https://picsum.photos/200/300"}
-                  alt={"testing shit"}
-                  className="h-full w-full object-cover object-center"
-                />
-              </div>
-            </div>
-            <div className="aspect-h-5 aspect-w-4 lg:aspect-h-4 lg:aspect-w-3 sm:overflow-hidden sm:rounded-lg">
-              <Image
-                width={2000}
-                height={2000}
-                src={"https://picsum.photos/200/300"}
-                alt={"testing shit"}
-                className="h-full w-full object-cover object-center"
-              />
-            </div>
-          </div>
-
-          {/* Product info */}
-          <div className="mx-auto max-w-2xl px-4 pb-16 pt-10 sm:px-6 lg:grid lg:max-w-7xl lg:grid-cols-3 lg:grid-rows-[auto,auto,1fr] lg:gap-x-8 lg:px-8 lg:pb-24 lg:pt-16">
-            <div className="lg:col-span-2 lg:border-r lg:border-gray-200 lg:pr-8">
-              <h1 className="text-2xl font-bold tracking-tight text-gray-900 sm:text-3xl">
-                {product.name}
+    <>
+      <Head>
+        <title>Moj plan</title>
+      </Head>
+      <main>
+        <MainTemplate menus={menus} userCompany={userCompany}>
+          <div className={`${background} transition-all duration-500 ease-in`}>
+            {/* TODO UPGRADE SECTION FOR THIS PAGE:*UPDATED FROM WEDDING DISCOVERY* */}
+            {/* <div className="fixed z-20 w-full rounded-lg bg-primaryLight shadow-md  lg:max-h-[20vmin]">
+              <h1 className="w-full text-center font-Alex-Brush text-6xl lg:text-8xl">
+                Vase {data?.category.toLocaleLowerCase()}
               </h1>
-            </div>
-
-            {/* Options */}
-            <div className="mt-4 lg:row-span-3 lg:mt-0">
-              <h2 className="sr-only">Product information</h2>
-              <p className="text-3xl tracking-tight text-gray-900">
-                {product.price}
-              </p>
-
-              {/* Reviews */}
-              <div className="mt-6">
-                <h3 className="sr-only">Reviews</h3>
-                <div className="flex items-center">
-                  <div className="flex items-center">
-                    {[0, 1, 2, 3, 4].map((rating) => (
-                      <StarIcon
-                        key={rating}
-                        className={classNames(
-                          reviews.average > rating
-                            ? "text-gray-900"
-                            : "text-gray-200",
-                          "h-5 w-5 flex-shrink-0"
-                        )}
-                        aria-hidden="true"
-                      />
-                    ))}
-                  </div>
-                  <p className="sr-only">{reviews.average} out of 5 stars</p>
-                  <a
-                    href={reviews.href}
-                    className="ml-3 text-sm font-medium text-indigo-600 hover:text-indigo-500"
-                  >
-                    {reviews.totalCount} reviews
-                  </a>
-                </div>
-              </div>
-
-              <form className="mt-10">
-                {/* Colors */}
-                <div>
-                  <h3 className="text-sm font-medium text-gray-900">Color</h3>
-
-                  <RadioGroup
-                    value={selectedColor}
-                    onChange={setSelectedColor}
-                    className="mt-4"
-                  >
-                    <RadioGroup.Label className="sr-only">
-                      Choose a color
-                    </RadioGroup.Label>
-                    <div className="flex items-center space-x-3">
-                      {product.colors.map((color) => (
-                        <RadioGroup.Option
-                          key={color.name}
-                          value={color}
-                          className={({ active, checked }) =>
-                            classNames(
-                              color.selectedClass,
-                              active && checked ? "ring ring-offset-1" : "",
-                              !active && checked ? "ring-2" : "",
-                              "relative -m-0.5 flex cursor-pointer items-center justify-center rounded-full p-0.5 focus:outline-none"
-                            )
-                          }
-                        >
-                          <RadioGroup.Label as="span" className="sr-only">
-                            {color.name}
-                          </RadioGroup.Label>
-                          <span
-                            aria-hidden="true"
-                            className={classNames(
-                              color.className,
-                              "h-8 w-8 rounded-full border border-black border-opacity-10"
-                            )}
-                          />
-                        </RadioGroup.Option>
-                      ))}
-                    </div>
-                  </RadioGroup>
-                </div>
-
-                {/* Sizes */}
-                <div className="mt-10">
-                  <div className="flex items-center justify-between">
-                    <h3 className="text-sm font-medium text-gray-900">Size</h3>
-                    <a
-                      href="#"
-                      className="text-sm font-medium text-indigo-600 hover:text-indigo-500"
-                    >
-                      Size guide
-                    </a>
-                  </div>
-
-                  <RadioGroup
-                    value={selectedSize}
-                    onChange={setSelectedSize}
-                    className="mt-4"
-                  >
-                    <RadioGroup.Label className="sr-only">
-                      Choose a size
-                    </RadioGroup.Label>
-                    <div className="grid grid-cols-4 gap-4 sm:grid-cols-8 lg:grid-cols-4">
-                      {product.sizes.map((size) => (
-                        <RadioGroup.Option
-                          key={size.name}
-                          value={size}
-                          disabled={!size.inStock}
-                          className={({ active }) =>
-                            classNames(
-                              size.inStock
-                                ? "cursor-pointer bg-white text-gray-900 shadow-sm"
-                                : "cursor-not-allowed bg-gray-50 text-gray-200",
-                              active ? "ring-2 ring-indigo-500" : "",
-                              "group relative flex items-center justify-center rounded-md border px-4 py-3 text-sm font-medium uppercase hover:bg-gray-50 focus:outline-none sm:flex-1 sm:py-6"
-                            )
-                          }
-                        >
-                          {({ active, checked }) => (
-                            <>
-                              <RadioGroup.Label as="span">
-                                {size.name}
-                              </RadioGroup.Label>
-                              {size.inStock ? (
-                                <span
-                                  className={classNames(
-                                    active ? "border" : "border-2",
-                                    checked
-                                      ? "border-indigo-500"
-                                      : "border-transparent",
-                                    "pointer-events-none absolute -inset-px rounded-md"
-                                  )}
-                                  aria-hidden="true"
+            </div> */}
+            <div className="pt-6">
+              {/* Business gallery */}
+              <div className="mx-2 grid grid-cols-2 grid-rows-5 gap-4 lg:grid-cols-3 lg:grid-rows-4">
+                <div className="col-start-2 row-span-3 row-start-2 lg:col-start-auto lg:row-span-3 lg:row-start-auto">
+                  {businessPosts.filter(
+                    (e) => e.business?.typeOfBusiness.value === "Venue"
+                  ).length ? (
+                    <div role="status" className={statusClassesWithItems}>
+                      <div className={statusChildClassesWithItems}>
+                        {data?.businessesInPlan
+                          .filter(
+                            (e) => e.business?.typeOfBusiness.value === "Venue"
+                          )
+                          .map((item, index) => {
+                            const newItem = {
+                              id: item.id,
+                              title: item.title,
+                              icon: (
+                                <BuildingOfficeIcon
+                                  className={"hidden h-7 w-7 lg:block"}
                                 />
-                              ) : (
-                                <span
-                                  aria-hidden="true"
-                                  className="pointer-events-none absolute -inset-px rounded-md border-2 border-gray-200"
-                                >
-                                  <svg
-                                    className="absolute inset-0 h-full w-full stroke-2 text-gray-200"
-                                    viewBox="0 0 100 100"
-                                    preserveAspectRatio="none"
-                                    stroke="currentColor"
-                                  >
-                                    <line
-                                      x1={0}
-                                      y1={100}
-                                      x2={100}
-                                      y2={0}
-                                      vectorEffect="non-scaling-stroke"
-                                    />
-                                  </svg>
-                                </span>
-                              )}
-                            </>
-                          )}
-                        </RadioGroup.Option>
-                      ))}
-                    </div>
-                  </RadioGroup>
-                </div>
+                              ),
 
-                <button
-                  type="submit"
-                  className="mt-10 flex w-full items-center justify-center rounded-md border border-transparent bg-indigo-600 px-8 py-3 text-base font-medium text-white hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
-                >
-                  Add to bag
-                </button>
-              </form>
-            </div>
-            <>
-              <ol className="relative border-l border-gray-200 dark:border-gray-700">
-                <li className="mb-10 ml-6">
-                  <span className="absolute -left-3 flex h-6 w-6 items-center justify-center rounded-full bg-blue-100 ring-8 ring-white dark:bg-blue-900 dark:ring-gray-900">
-                    <Image
-                      height={999}
-                      width={999}
-                      className="rounded-full shadow-lg"
-                      src="/docs/images/people/profile-picture-3.jpg"
-                      alt="Bonnie image"
-                    />
-                  </span>
-                  <div className="items-center justify-between rounded-lg border border-gray-200 bg-white p-4 shadow-sm dark:border-gray-600 dark:bg-gray-700 sm:flex">
-                    <time className="mb-1 text-xs font-normal text-gray-400 sm:order-last sm:mb-0">
-                      just now
-                    </time>
-                    <div className="text-sm font-normal text-gray-500 dark:text-gray-300">
-                      Bonnie moved{" "}
-                      <a
-                        href="#"
-                        className="font-semibold text-blue-600 hover:underline dark:text-blue-500"
-                      >
-                        Jese Leos
-                      </a>{" "}
-                      to{" "}
-                      <span className="mr-2 rounded bg-gray-100 px-2.5 py-0.5 text-xs font-normal text-gray-800 dark:bg-gray-600 dark:text-gray-300">
-                        Funny Group
-                      </span>
-                    </div>
-                  </div>
-                </li>
-                <li className="mb-10 ml-6">
-                  <span className="absolute -left-3 flex h-6 w-6 items-center justify-center rounded-full bg-blue-100 ring-8 ring-white dark:bg-blue-900 dark:ring-gray-900">
-                    <Image
-                      height={999}
-                      width={999}
-                      className="rounded-full shadow-lg"
-                      src="/docs/images/people/profile-picture-5.jpg"
-                      alt="Thomas Lean image"
-                    />
-                  </span>
-                  <div className="rounded-lg border border-gray-200 bg-white p-4 shadow-sm dark:border-gray-600 dark:bg-gray-700">
-                    <div className="mb-3 items-center justify-between sm:flex">
-                      <time className="mb-1 text-xs font-normal text-gray-400 sm:order-last sm:mb-0">
-                        2 hours ago
-                      </time>
-                      <div className="lex text-sm font-normal text-gray-500 dark:text-gray-300">
-                        Thomas Lean commented on{" "}
-                        <a
-                          href="#"
-                          className="font-semibold text-gray-900 hover:underline dark:text-white"
-                        >
-                          Flowbite Pro
-                        </a>
+                              handleDelete: async () => {
+                                await disconnectPostFromPlan({
+                                  planId: query.id as string,
+                                  companyPostId: item.id,
+                                });
+                              },
+                            };
+                            return (
+                              <div
+                                key={index}
+                                className=" my-1 flex w-full items-center"
+                              >
+                                <ListCardSimple item={newItem} />
+                              </div>
+                            );
+                          })}
                       </div>
                     </div>
-                    <div className="rounded-lg border border-gray-200 bg-gray-50 p-3 text-xs font-normal italic text-gray-500 dark:border-gray-500 dark:bg-gray-600 dark:text-gray-300">
-                      Hi ya&apos;ll! I wanted to share a webinar zeroheight is
-                      having regarding how to best measure your design system!
-                      This is the second session of our new webinar series on
-                      #DesignSystems discussions where we&apos;ll be speaking
-                      about Measurement.
+                  ) : (
+                    <div role="status" className={statusClasses}>
+                      <div className={statusChildClasses}>
+                        <BuildingOfficeIcon className={iconClasses} />
+                        <p>Dodaj prostore u projekt</p>
+                      </div>
+                    </div>
+                  )}
+                </div>
+                <div className="row-start-4 lg:row-start-auto">
+                  <div role="status" className={statusClasses}>
+                    <div className={statusChildClasses}>
+                      <CakeIcon className={iconClasses} />
+                      <p>Dodaj prostore u projekt</p>
                     </div>
                   </div>
-                </li>
-                <li className="ml-6">
-                  <span className="absolute -left-3 flex h-6 w-6 items-center justify-center rounded-full bg-blue-100 ring-8 ring-white dark:bg-blue-900 dark:ring-gray-900">
-                    <Image
-                      height={999}
-                      width={999}
-                      className="rounded-full shadow-lg"
-                      src="/docs/images/people/profile-picture-1.jpg"
-                      alt="Jese Leos image"
-                    />
-                  </span>
-                  <div className="items-center justify-between rounded-lg border border-gray-200 bg-white p-4 shadow-sm dark:border-gray-600 dark:bg-gray-700 sm:flex">
-                    <time className="mb-1 text-xs font-normal text-gray-400 sm:order-last sm:mb-0">
-                      1 day ago
-                    </time>
-                    <div className="lex text-sm font-normal text-gray-500 dark:text-gray-300">
-                      Jese Leos has changed{" "}
-                      <a
-                        href="#"
-                        className="font-semibold text-blue-600 hover:underline dark:text-blue-500"
+                </div>
+                <div className="col-start-1 row-start-2 lg:col-start-auto lg:row-span-2">
+                  <div role="status" className={statusClasses}>
+                    <div className={statusChildClasses}>
+                      <LuFlower className={iconClasses} />
+                      <p>Dodaj prostore u projekt</p>
+                    </div>
+                  </div>
+                </div>
+                <div className="col-span-2 row-start-5 lg:col-span-1 lg:col-start-3 lg:row-span-2 lg:row-start-3">
+                  <div role="status" className={statusClasses}>
+                    <div className={statusChildClasses}>
+                      <FaGuitar className={iconClasses} />
+                      <p>Dodaj prostore u projekt</p>
+                    </div>
+                  </div>
+                </div>
+                <div className="col-span-2 lg:col-span-1 lg:col-start-2 lg:row-span-3 lg:row-start-2">
+                  {businessPosts.filter(
+                    (e) => e.business?.typeOfBusiness.value === "Catering"
+                  ).length ? (
+                    <div role="status" className={statusClassesWithItems}>
+                      <div className={statusChildClassesWithItems}>
+                        {data?.businessesInPlan
+                          .filter(
+                            (e) =>
+                              e.business?.typeOfBusiness.value === "Catering"
+                          )
+                          .map((item, index) => {
+                            const newItem = {
+                              id: item.id,
+                              title: item.title,
+                              icon: (
+                                <FaBreadSlice
+                                  className={"hidden h-7 w-7 lg:block"}
+                                />
+                              ),
+
+                              handleDelete: async () => {
+                                await disconnectPostFromPlan({
+                                  planId: query.id as string,
+                                  companyPostId: item.id,
+                                });
+                              },
+                            };
+                            return (
+                              <div
+                                key={index}
+                                className=" my-1 flex w-full items-center"
+                              >
+                                <ListCardSimple item={newItem} />
+                              </div>
+                            );
+                          })}
+                      </div>
+                    </div>
+                  ) : (
+                    <div role="status" className={statusClasses}>
+                      <div className={statusChildClasses}>
+                        <FaBreadSlice className={iconClasses} />
+                        <p>Dodaj katering u projekt</p>
+                      </div>
+                    </div>
+                  )}
+                </div>
+                <div className="col-start-1 row-start-3 lg:col-start-1 lg:row-span-1 lg:row-start-4">
+                  <div role="status" className={statusClasses}>
+                    <div className={statusChildClasses}>
+                      <AiFillCar className={iconClasses} />
+                      <p>Dodaj prostore u projekt</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              {/* Product info */}
+              <div className="mx-auto max-w-2xl px-4 pb-16 pt-10 sm:px-6 lg:grid lg:max-w-7xl lg:grid-cols-3 lg:grid-rows-[auto,auto,1fr] lg:gap-x-8 lg:px-8 lg:pb-24 lg:pt-16">
+                <div className="lg:col-span-2 lg:border-r lg:border-gray-200 lg:pr-8">
+                  <h1 className="text-2xl font-bold tracking-tight text-gray-900 sm:text-3xl">
+                    {data?.name}
+                  </h1>
+
+                  <Dnd isLoading={isLoading} tasks={tasks} />
+                </div>
+
+                {/* Details */}
+                <div className="mt-4 lg:row-span-3 lg:mt-0">
+                  <h2 className="sr-only">Plan information</h2>
+                  <p className="text-3xl tracking-tight text-gray-900">
+                    {data?.budget} €
+                  </p>
+
+                  {/* Date */}
+                  <div className="mt-6">
+                    <h3 className="sr-only">Dates</h3>
+                    <h3 className="text-sm font-medium text-gray-900">
+                      Datumi
+                    </h3>
+                    <hr />
+                    <div className="mt-4 flex items-center ">
+                      {data?.eventDate ? (
+                        <p>IS HERE</p>
+                      ) : (
+                        <div>
+                          <button
+                            type="button"
+                            className=" btn-outline-gray-small"
+                          >
+                            <PlusIcon className="h-4 w-4" /> Novi datum
+                          </button>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+
+                  <form className="mt-10">
+                    {/* Colors */}
+                    <div>
+                      <h3 className="text-sm font-medium text-gray-900">
+                        Boja
+                      </h3>
+                      <hr />
+                      <RadioGroup
+                        value={selectedColor}
+                        onChange={setSelectedColor}
+                        className="mt-4"
                       >
-                        Pricing page
-                      </a>{" "}
-                      task status to{" "}
-                      <span className="font-semibold text-gray-900 dark:text-white">
-                        Finished
-                      </span>
+                        <RadioGroup.Label className="sr-only">
+                          Choose a color
+                        </RadioGroup.Label>
+                        <div className="flex items-center space-x-3">
+                          {ColorsForPlans.map((color) => (
+                            <RadioGroup.Option
+                              key={color.name}
+                              value={color}
+                              className={({ active, checked }) => {
+                                if (checked) {
+                                  setBackground(color.className);
+                                  console.log(background);
+                                }
+                                return classNames(
+                                  color.selectedClass,
+                                  active && checked ? "ring ring-offset-1" : "",
+                                  !active && checked ? "ring-2" : "",
+                                  "relative -m-0.5 flex cursor-pointer items-center justify-center rounded-full p-0.5 focus:outline-none"
+                                );
+                              }}
+                            >
+                              <RadioGroup.Label as="span" className="sr-only">
+                                {color.name}
+                              </RadioGroup.Label>
+                              <span
+                                aria-hidden="true"
+                                className={classNames(
+                                  color.className,
+                                  "h-8 w-8 rounded-full border border-black border-opacity-10"
+                                )}
+                              />
+                            </RadioGroup.Option>
+                          ))}
+                        </div>
+                      </RadioGroup>
                     </div>
-                  </div>
-                </li>
-              </ol>
-            </>
+
+                    <button
+                      type="submit"
+                      className="mt-10 flex w-full items-center justify-center rounded-md border border-transparent bg-indigo-600 px-8 py-3 text-base font-medium text-white hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
+                    >
+                      Spremi promjene
+                    </button>
+                  </form>
+                </div>
+              </div>
+            </div>
           </div>
-        </div>
-      </div>
-    </MainTemplate>
+        </MainTemplate>
+      </main>
+    </>
   );
-}
+};
 
 export default Index;
 

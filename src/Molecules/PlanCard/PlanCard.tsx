@@ -11,7 +11,7 @@ type PropsCard = {
   name: string;
   icon: JSX.Element;
   date: Date;
-  deletePlan: (id: string) => void;
+  deletePlan: (id: string) => Promise<void>;
 };
 
 const PlanCard = ({ name, icon, date, id, router, deletePlan }: PropsCard) => {
@@ -77,8 +77,9 @@ const PlanCard = ({ name, icon, date, id, router, deletePlan }: PropsCard) => {
             </div>
           </div>
           <SmallModal
-            onConfirm={() => {
-              deletePlan(id);
+            // eslint-disable-next-line @typescript-eslint/no-misused-promises
+            onConfirm={async () => {
+              await deletePlan(id);
             }}
             title={`Izbrisi ${name}`}
             subText={"Ova akcija se ne moze vratiti!"}

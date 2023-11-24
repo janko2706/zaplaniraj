@@ -224,10 +224,14 @@ const Index = (props: InferGetStaticPropsType<typeof getStaticProps>) => {
                       <li>
                         <p className="mb-0 flex items-center gap-1">
                           <ClockIcon className="h-5 w-5 text-[var(--tertiary)]" />
-                          <span className="clr-neutral-500">Dostupno od:</span>
+                          <span className="clr-neutral-500">
+                            Najranije dostupno:
+                          </span>
                           {post.earlisetAvailable
                             ? format(
-                                new Date(post.earlisetAvailable),
+                                new Date(
+                                  post.earlisetAvailable ?? "20/02/2024"
+                                ),
                                 "dd / MM / yyy"
                               )
                             : ""}
@@ -643,7 +647,9 @@ const Index = (props: InferGetStaticPropsType<typeof getStaticProps>) => {
                           {" "}
                           Joined in{" "}
                           {format(
-                            new Date(post.business?.user?.createdAt ?? ""),
+                            new Date(
+                              post.business?.user?.createdAt ?? "10/10/2023"
+                            ),
                             "LLLL yyyy"
                           )}{" "}
                         </p>

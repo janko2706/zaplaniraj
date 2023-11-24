@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { CgRing } from "react-icons/cg";
 import { FaBirthdayCake, FaChurch } from "react-icons/fa";
 import { LuPartyPopper } from "react-icons/lu";
@@ -7,7 +7,6 @@ import Spotlight from "~/Molecules/SpotlightCard/Spotlight";
 import SpotlightCard from "~/Molecules/SpotlightCard/SpotlightCard";
 import { useRouter } from "next/router";
 import { Tab } from "@headlessui/react";
-
 import {
   ChevronDoubleRightIcon,
   PlusCircleIcon,
@@ -22,16 +21,16 @@ function MyPlans() {
   const [openCreateModal, setOpenCreateModal] = useState<boolean>(false);
   const router = useRouter();
 
-  const ctx = api.useContext();
-  const { mutate: deleteUserPlan } = api.userPlans.deleteUserPlan.useMutation({
-    onSuccess: async () => {
-      await ctx.userPlans.getUserPlans.invalidate();
-      console.log("Invalidated data test ");
-      // toast.success("Plan je izbrisan!");
-    },
-  });
-  const deletePlan = (id: string) => {
-    deleteUserPlan({
+  const [plans, setPlans] = useState<UserPlan[]>([]);
+  const { mutateAsync: deleteUserPlan } =
+    api.userPlans.deleteUserPlan.useMutation({
+      onSettled: (_a, _b, c) => {
+        setPlans((prev) => prev.filter((i) => i.id !== c.planId));
+        toast.success("Plan je izbrisan!");
+      },
+    });
+  const deletePlan = async (id: string) => {
+    await deleteUserPlan({
       planId: id,
     });
   };
@@ -55,6 +54,10 @@ function MyPlans() {
   };
   const { data } = api.userPlans.getUserPlans.useQuery();
 
+  useEffect(() => {
+    setPlans(data ?? []);
+  }, [data]);
+
   return (
     <section className="  h-full w-full  px-5 py-5 ">
       <ul>
@@ -73,7 +76,7 @@ function MyPlans() {
                   <ChevronDoubleRightIcon className="h-5 w-5" />
                   <span className="inline-block">
                     In Progress ({" "}
-                    {data?.filter((i) => i.progress === "INPROGRESS").length})
+                    {plans?.filter((i) => i.progress === "INPROGRESS").length})
                   </span>
                 </Tab>
                 <Tab
@@ -88,7 +91,7 @@ function MyPlans() {
                   <span className="inline-block">
                     {" "}
                     Completed (
-                    {data?.filter((i) => i.progress === "COMPLETED").length})
+                    {plans?.filter((i) => i.progress === "COMPLETED").length})
                   </span>
                 </Tab>
               </Tab.List>
@@ -98,11 +101,12 @@ function MyPlans() {
                   id="inprogress"
                 >
                   <Spotlight className="group mx-0 flex h-full w-full flex-col gap-5 overflow-y-auto  ">
-                    {data?.map((item, idx) => {
+                    {plans?.map((item, idx) => {
                       const icon = getPlanIcon(item.category);
                       return (
                         <SpotlightCard key={idx}>
                           <PlanCard
+                            // eslint-disable-next-line @typescript-eslint/no-misused-promises
                             deletePlan={deletePlan}
                             router={router}
                             name={item.name}
@@ -127,8 +131,9 @@ function MyPlans() {
                 </Tab.Panel>
                 <Tab.Panel className="tab-pane fade" id="completed">
                   <Spotlight className="group mx-0 flex h-full w-full flex-col gap-5 overflow-y-auto  ">
-                    {data?.filter((i) => i.progress === "COMPLETED")?.length ? (
-                      data
+                    {plans?.filter((i) => i.progress === "COMPLETED")
+                      ?.length ? (
+                      plans
                         .filter((i) => i.progress === "COMPLETED")
                         .map((item, idx) => {
                           const icon = getPlanIcon(item.category);
@@ -155,7 +160,7 @@ function MyPlans() {
               </Tab.Panels>
             </Tab.Group>
             <CreatePlanModal
-              api={api}
+              setPlans={setPlans}
               open={openCreateModal}
               setOpen={setOpenCreateModal}
             />
@@ -174,14 +179,15 @@ import { XMarkIcon } from "@heroicons/react/24/outline";
 import { HeroDropdown } from "~/Molecules/HeroSection/HeroDropdown/HeroDropdown";
 import LoadingSpinner from "~/Atoms/LoadingSpinner/LoadingSpinner";
 import { toast } from "react-toastify";
+import type { UserPlan } from "@prisma/client";
 
 type Props = {
   open: boolean;
   setOpen: Dispatch<SetStateAction<boolean>>;
-  api: typeof api;
+  setPlans: Dispatch<SetStateAction<UserPlan[]>>;
 };
 
-function CreatePlanModal({ open, setOpen, api }: Props) {
+function CreatePlanModal({ open, setOpen, setPlans }: Props) {
   const iconClasses = "h-7 w-7";
   const categories = [
     {
@@ -222,22 +228,17 @@ function CreatePlanModal({ open, setOpen, api }: Props) {
         return PlanCategory[0];
     }
   };
-  const [loading, setLoading] = useState(false);
   const [name, setName] = useState<string>("");
-  const ctx = api.useContext();
-  const { mutateAsync: createPlan } = api.userPlans.createUserPlans.useMutation(
-    {
-      onSuccess: async () => {
-        await ctx.userPlans.getUserPlans.invalidate();
-        setLoading(false);
+  const { mutateAsync: createPlan, isLoading } =
+    api.userPlans.createUserPlans.useMutation({
+      onSuccess: (a) => {
+        setPlans((prev) => [...prev, a]);
         setOpen(false);
         toast.success("Plan napravljen!");
       },
-    }
-  );
+    });
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    setLoading(true);
 
     await createPlan({
       name,
@@ -281,7 +282,7 @@ function CreatePlanModal({ open, setOpen, api }: Props) {
                   >
                     <XMarkIcon className="h-8 w-8" aria-hidden="true" />
                   </button>
-                  {loading ? (
+                  {isLoading ? (
                     <div className="absolute left-1/3 top-1/3">
                       <LoadingSpinner
                         spinnerHeight="h-12"
@@ -295,7 +296,7 @@ function CreatePlanModal({ open, setOpen, api }: Props) {
                   <div className=" flex h-full w-full items-center justify-center gap-x-6 gap-y-8 sm:grid-cols-12 lg:gap-x-8">
                     <form
                       className={`${
-                        loading ? "opacity-10" : "opacity-100"
+                        isLoading ? "opacity-10" : "opacity-100"
                       } flex flex-col gap-5 transition-all duration-300`}
                       // eslint-disable-next-line @typescript-eslint/no-misused-promises
                       onSubmit={handleSubmit}

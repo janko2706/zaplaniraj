@@ -4,6 +4,7 @@ import type {
   Review,
   Business,
   User,
+  BusinessTypeCategory,
 } from "@prisma/client";
 
 interface BuinessWithUser extends Business {
@@ -20,6 +21,9 @@ export interface WholePostType extends CompanyPost {
     label: string;
   }[];
 }
+export interface PostForUserPlan extends CompanyPost {
+  business?: BussinesForPLan | null;
+}
 
 export interface CompanyPostWihtoutDate extends CompanyPost {
   statistics?: Statistic;
@@ -29,4 +33,9 @@ export interface CompanyPostWihtoutDate extends CompanyPost {
     value: string;
     label: string;
   }[];
+}
+
+interface BussinesForPLan extends Business {
+  user?: User | null;
+  typeOfBusiness: BusinessTypeCategory;
 }

@@ -11,6 +11,44 @@ const PlanCategory = [
 ] as const;
 
 export const userPlansRouter = createTRPCRouter({
+  getById: privateProcedure
+    .input(z.object({ planId: z.string() }))
+    .query(async ({ ctx, input }) => {
+      const userPlan = await ctx.prisma.userPlan
+        .findFirst({
+          where: {
+            id: input.planId,
+          },
+          include: {
+            tasks: true,
+            businessesInPlan: {
+              include: {
+                business: {
+                  include: {
+                    typeOfBusiness: true,
+                  },
+                },
+              },
+            },
+          },
+        })
+        .catch(() => {
+          throw new TRPCError({
+            message: "Error while searching for user plans",
+            code: "INTERNAL_SERVER_ERROR",
+          });
+        });
+
+      if (!userPlan) {
+        throw new TRPCError({
+          message:
+            "Something went wrong while searching for user plans. Wanted [], got undefined",
+          code: "NOT_FOUND",
+        });
+      }
+
+      return userPlan;
+    }),
   getUserPlans: privateProcedure.query(async ({ ctx }) => {
     const userPlans = await ctx.prisma.userPlan
       .findMany({
@@ -64,7 +102,7 @@ export const userPlansRouter = createTRPCRouter({
           });
         });
 
-      return newPlan.id;
+      return newPlan;
     }),
 
   deleteUserPlan: privateProcedure
@@ -74,11 +112,21 @@ export const userPlansRouter = createTRPCRouter({
       })
     )
     .mutation(async ({ input, ctx }) => {
-      const deletePlan = await ctx.prisma.userPlan
+      await ctx.prisma.userPlan
         .delete({
           where: {
             id: input.planId,
           },
+        })
+        .then(async () => {
+          const newData = await ctx.prisma.userPlan.findMany({
+            where: {
+              user: {
+                clerkId: ctx.userId,
+              },
+            },
+          });
+          return newData;
         })
         .catch(() => {
           throw new TRPCError({
@@ -86,7 +134,6 @@ export const userPlansRouter = createTRPCRouter({
             code: "INTERNAL_SERVER_ERROR",
           });
         });
-      return deletePlan;
     }),
   updateUserPlan: privateProcedure
     .input(
