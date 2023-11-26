@@ -115,12 +115,14 @@ const Index = () => {
   const onChangeTask = (index: number, newContent: string) => {
     setData((prev) => {
       if (!prev) return;
-      if (prev.tasks[index] !== undefined) {
-        const task = prev.tasks[index];
-        if (task) {
-          task.content = newContent;
+      prev.tasks.map((item, idx) => {
+        if (item.id === index) {
+          const task = prev.tasks[idx];
+          if (task) {
+            task.content = newContent;
+          }
         }
-      }
+      });
     });
   };
   useEffect(() => {
@@ -147,10 +149,52 @@ const Index = () => {
   const statusChildClasses =
     "flex h-full w-full flex-col items-center justify-center  rounded text-slate-400  ";
   const statusClassesWithItems =
-    "h-full shadow shadow-xl  border rounded-xl hover:bg-slate-200 transition-all duration-500 ease-in-out bg-white bg-opacity-50 items-start overflow-scroll max-h-96";
+    "h-full shadow shadow-xl  border rounded-xl hover:bg-slate-200 transition-all duration-500 ease-in-out bg-white bg-opacity-50 items-start overflow-auto max-h-96 p-2";
 
   const statusChildClassesWithItems =
     "flex h-full w-full flex-col items-center justify-center  rounded text-slate-400  ";
+  const plannerGridObjectArray = [
+    {
+      icon: <BuildingOfficeIcon className={iconClasses} />,
+      noContentText: "Dodaj prostore u projekt",
+      arraySearchValue: "Venue",
+      gridClasses:
+        "col-start-2 row-span-3 row-start-2 lg:col-start-auto lg:row-span-3 lg:row-start-auto",
+    },
+    {
+      icon: <CakeIcon className={iconClasses} />,
+      noContentText: "Dodaj slasticarne u projekt",
+      arraySearchValue: "Cakes",
+      gridClasses: "row-start-4 lg:row-start-auto",
+    },
+    {
+      icon: <LuFlower className={iconClasses} />,
+      noContentText: "Dodaj cvjecarne u projekt",
+      arraySearchValue: "Flowers",
+      gridClasses: "col-start-1 row-start-2 lg:col-start-auto lg:row-span-2",
+    },
+    {
+      icon: <FaGuitar className={iconClasses} />,
+      noContentText: "Dodaj zabavu u projekt",
+      arraySearchValue: "Music",
+      gridClasses:
+        "col-span-2 row-start-5 lg:col-span-1 lg:col-start-3 lg:row-span-2 lg:row-start-3",
+    },
+    {
+      icon: <FaBreadSlice className={iconClasses} />,
+      noContentText: "Dodaj katering u projekt",
+      arraySearchValue: "Catering",
+      gridClasses:
+        "col-span-2 lg:col-span-1 lg:col-start-2 lg:row-span-3 lg:row-start-2",
+    },
+    {
+      icon: <AiFillCar className={iconClasses} />,
+      noContentText: "Dodaj prijevoz u projekt",
+      arraySearchValue: "Transport",
+      gridClasses:
+        "col-start-1 row-start-3 lg:col-start-1 lg:row-span-1 lg:row-start-4",
+    },
+  ];
 
   return (
     <>
@@ -161,141 +205,64 @@ const Index = () => {
         <MainTemplate menus={menus} userCompany={userCompany}>
           <div className={`${background} transition-all duration-500 ease-in`}>
             {/* TODO UPGRADE SECTION FOR THIS PAGE:*COPIED FROM WEDDING DISCOVERY* */}
-            <div className=" z-20 w-full rounded-lg bg-primaryLight shadow-md  lg:max-h-[20vmin]">
+            {/* <div className=" z-20 w-full rounded-lg bg-primaryLight shadow-md  lg:max-h-[20vmin]">
               <h1 className="w-full text-center font-Alex-Brush text-6xl ">
                 {data?.name}
               </h1>
-            </div>
+            </div> */}
             <div className="pt-4">
               {/* Business gallery */}
               <div className="mx-2 grid grid-cols-2 grid-rows-5 gap-4 lg:grid-cols-3 lg:grid-rows-4">
-                <div className="col-start-2 row-span-3 row-start-2 lg:col-start-auto lg:row-span-3 lg:row-start-auto">
-                  {businessPosts.filter(
-                    (e) => e.business?.typeOfBusiness.value === "Venue"
-                  ).length ? (
-                    <div role="status" className={statusClassesWithItems}>
-                      <div className={statusChildClassesWithItems}>
-                        {data?.businessesInPlan
-                          .filter(
-                            (e) => e.business?.typeOfBusiness.value === "Venue"
-                          )
-                          .map((item, index) => {
-                            const newItem = {
-                              id: item.id,
-                              title: item.title,
-                              icon: (
-                                <BuildingOfficeIcon
-                                  className={"hidden h-7 w-7 lg:block"}
-                                />
-                              ),
+                {plannerGridObjectArray.map((item, idx) => {
+                  return (
+                    <div key={idx} className={item.gridClasses}>
+                      {businessPosts.filter(
+                        (e) =>
+                          e.business?.typeOfBusiness.value ===
+                          item.arraySearchValue
+                      ).length ? (
+                        <div role="status" className={statusClassesWithItems}>
+                          <div className={statusChildClassesWithItems}>
+                            {data?.businessesInPlan
+                              .filter(
+                                (e) =>
+                                  e.business?.typeOfBusiness.value ===
+                                  item.arraySearchValue
+                              )
+                              .map((item, index) => {
+                                const newItem = {
+                                  id: item.id,
+                                  title: item.title,
 
-                              handleDelete: async () => {
-                                await disconnectPostFromPlan({
-                                  planId: query.id as string,
-                                  companyPostId: item.id,
-                                });
-                              },
-                            };
-                            return (
-                              <div
-                                key={index}
-                                className=" my-1 flex w-full items-center"
-                              >
-                                <ListCardSimple item={newItem} />
-                              </div>
-                            );
-                          })}
-                      </div>
+                                  handleDelete: async () => {
+                                    await disconnectPostFromPlan({
+                                      planId: query.id as string,
+                                      companyPostId: item.id,
+                                    });
+                                  },
+                                };
+                                return (
+                                  <div
+                                    key={index}
+                                    className=" my-1 flex w-full "
+                                  >
+                                    <ListCardSimple item={newItem} />
+                                  </div>
+                                );
+                              })}
+                          </div>
+                        </div>
+                      ) : (
+                        <div role="status" className={statusClasses}>
+                          <div className={statusChildClasses}>
+                            {item.icon}
+                            <p>{item.noContentText}</p>
+                          </div>
+                        </div>
+                      )}
                     </div>
-                  ) : (
-                    <div role="status" className={statusClasses}>
-                      <div className={statusChildClasses}>
-                        <BuildingOfficeIcon className={iconClasses} />
-                        <p>Dodaj prostore u projekt</p>
-                      </div>
-                    </div>
-                  )}
-                </div>
-                <div className="row-start-4 lg:row-start-auto">
-                  <div role="status" className={statusClasses}>
-                    <div className={statusChildClasses}>
-                      <CakeIcon className={iconClasses} />
-                      <p>Dodaj prostore u projekt</p>
-                    </div>
-                  </div>
-                </div>
-                <div className="col-start-1 row-start-2 lg:col-start-auto lg:row-span-2">
-                  <div role="status" className={statusClasses}>
-                    <div className={statusChildClasses}>
-                      <LuFlower className={iconClasses} />
-                      <p>Dodaj prostore u projekt</p>
-                    </div>
-                  </div>
-                </div>
-                <div className="col-span-2 row-start-5 lg:col-span-1 lg:col-start-3 lg:row-span-2 lg:row-start-3">
-                  <div role="status" className={statusClasses}>
-                    <div className={statusChildClasses}>
-                      <FaGuitar className={iconClasses} />
-                      <p>Dodaj prostore u projekt</p>
-                    </div>
-                  </div>
-                </div>
-                <div className="col-span-2 lg:col-span-1 lg:col-start-2 lg:row-span-3 lg:row-start-2">
-                  {businessPosts.filter(
-                    (e) => e.business?.typeOfBusiness.value === "Catering"
-                  ).length ? (
-                    <div role="status" className={statusClassesWithItems}>
-                      <div className={statusChildClassesWithItems}>
-                        {data?.businessesInPlan
-                          .filter(
-                            (e) =>
-                              e.business?.typeOfBusiness.value === "Catering"
-                          )
-                          .map((item, index) => {
-                            const newItem = {
-                              id: item.id,
-                              title: item.title,
-                              icon: (
-                                <FaBreadSlice
-                                  className={"hidden h-7 w-7 lg:block"}
-                                />
-                              ),
-
-                              handleDelete: async () => {
-                                await disconnectPostFromPlan({
-                                  planId: query.id as string,
-                                  companyPostId: item.id,
-                                });
-                              },
-                            };
-                            return (
-                              <div
-                                key={index}
-                                className=" my-1 flex w-full items-center"
-                              >
-                                <ListCardSimple item={newItem} />
-                              </div>
-                            );
-                          })}
-                      </div>
-                    </div>
-                  ) : (
-                    <div role="status" className={statusClasses}>
-                      <div className={statusChildClasses}>
-                        <FaBreadSlice className={iconClasses} />
-                        <p>Dodaj katering u projekt</p>
-                      </div>
-                    </div>
-                  )}
-                </div>
-                <div className="col-start-1 row-start-3 lg:col-start-1 lg:row-span-1 lg:row-start-4">
-                  <div role="status" className={statusClasses}>
-                    <div className={statusChildClasses}>
-                      <AiFillCar className={iconClasses} />
-                      <p>Dodaj prostore u projekt</p>
-                    </div>
-                  </div>
-                </div>
+                  );
+                })}
               </div>
               {/* Product info */}
               <div className="mx-auto max-w-2xl  px-4 pb-16 pt-10 sm:px-6 lg:grid lg:max-w-7xl lg:grid-cols-3 lg:grid-rows-[auto,auto,1fr] lg:gap-x-8 lg:px-8 lg:pb-24 lg:pt-16">

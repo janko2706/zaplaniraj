@@ -137,7 +137,7 @@ const Dnd = ({
                                 value={task.content}
                                 className="w-full  bg-inherit transition-all duration-200 ease-in-out hover:bg-slate-200 hover:bg-opacity-40"
                                 onChange={(e) =>
-                                  onChangeTask(index, e.target.value)
+                                  onChangeTask(task.id, e.target.value)
                                 }
                               />
                             </div>
