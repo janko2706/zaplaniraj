@@ -2,6 +2,7 @@ import type { GetStaticPaths, GetStaticProps } from "next";
 import { serverSideTranslations } from "next-i18next/serverSideTranslations";
 import MainTemplate from "~/Templates/MainTemplate";
 import React, { useEffect, useState } from "react";
+import { useImmer } from "use-immer";
 import {
   BuildingOfficeIcon,
   CakeIcon,
@@ -19,52 +20,112 @@ import { FaGuitar, FaBreadSlice } from "react-icons/fa";
 import { LuFlower } from "react-icons/lu";
 import ListCardSimple from "~/Molecules/ListCardSimple/ListCardSimple";
 import type { PostForUserPlan } from "~/utils/types";
+import isEqual from "lodash/isEqual";
+import { getCategoryTranslation } from "~/utils/translationHelpers";
+import { toast } from "react-toastify";
+import LoadingSpinner from "~/Atoms/LoadingSpinner/LoadingSpinner";
 
-const ColorsForPlans = [
-  { name: "White", className: "bg-white", selectedClass: "ring-slate-500" },
-  {
-    name: "Yellow",
-    className: "bg-yellow-100",
-    selectedClass: "ring-slate-500",
-  },
-  {
-    name: "Orange",
-    className: "bg-orange-100",
-    selectedClass: "ring-slate-500",
-  },
-  { name: "Slate", className: "bg-slate-200", selectedClass: "ring-slate-500" },
-  { name: "Red", className: "bg-red-200", selectedClass: "ring-slate-500" },
-  { name: "Blue", className: "bg-blue-200", selectedClass: "ring-slate-500" },
+const colorsForBg = [
+  "bg-white",
+  "bg-yellow-100",
+  "bg-orange-100",
+  "bg-slate-200",
+  "bg-red-200",
+  "bg-blue-200",
 ];
-
-const product = {
-  name: "My wedding",
-  price: "$192",
-  href: "#",
-
-  colors: [
-    { name: "White", className: "bg-white", selectedClass: "ring-gray-400" },
-    { name: "Gray", className: "bg-gray-200", selectedClass: "ring-gray-400" },
-    { name: "Black", className: "bg-gray-900", selectedClass: "ring-gray-900" },
-  ],
-};
 
 const Index = () => {
   const iconClasses = "h-16 w-16";
-
   const { query } = useRouter();
   const [background, setBackground] = useState("bg-white");
-  const [selectedColor, setSelectedColor] = useState(product.colors[0]);
+  const [selectedColor, setSelectedColor] = useState(colorsForBg);
   const [tasks, setTasks] = useState<
-    { id: number; content: string; isCompleted: boolean }[]
+    {
+      id: number;
+      content: string;
+      isCompleted: boolean;
+      forWhat: string | undefined;
+    }[]
   >([]);
   const { menus, userCompany } = useMenu();
-  const { data, isLoading } = api.userPlans.getById.useQuery({
+  const { data: result, isLoading } = api.userPlans.getById.useQuery({
     planId: (query.id as string) ?? "",
   });
+  const { data: categories } = api.businessCategoryType.getAll.useQuery();
+
+  const [data, setData] = useImmer<typeof result>(undefined);
   const [businessPosts, setBusinessPosts] = useState<PostForUserPlan[]>([]);
   const { mutateAsync: disconnectPostFromPlan } =
     api.userPlans.disconnectPlanWithPost.useMutation();
+  const { mutateAsync: addTask } = api.userPlans.createUserTask.useMutation();
+  const { mutateAsync: deleteTask } =
+    api.userPlans.deleteUserTask.useMutation();
+  const { mutateAsync: updatePlan, isLoading: isSavingFullPlanUpdate } =
+    api.userPlans.updateUserPlan.useMutation({
+      onSuccess: () => {
+        toast.success("Promjene premljene");
+      },
+    });
+
+  const onSubmitSave = async () => {
+    if (!data) return;
+    await updatePlan({
+      planId: data.id,
+      color: data.color,
+      progress: data.progress,
+      name: data.name,
+      budget: data.budget,
+      tasks: data.tasks,
+    });
+  };
+  const onDeleteTask = async (taskId: number) => {
+    await deleteTask({
+      taskId,
+    });
+    setData((prev) => {
+      if (!prev) return;
+      prev.tasks = prev.tasks.filter((e) => e.id !== taskId);
+    });
+  };
+
+  const onCreateTask = async (categoryId: number) => {
+    const category = categories?.filter((e) => e.id === categoryId)[0];
+    if (!data) return;
+    if (!category) return;
+
+    const newTask = await addTask({
+      content: "",
+      forWhat: categoryId,
+      planId: data.id,
+    });
+    setData((prev) => {
+      if (!prev) return;
+      const newArray = [...(prev?.tasks ?? [])];
+      newArray.push({
+        content: "",
+        forWhat: category,
+        userPlanId: data.id,
+        id: newTask.id,
+        status: "INPROGRESS",
+        BusinessTypeCategoryId: categoryId,
+      });
+      prev.tasks = [...newArray];
+    });
+  };
+  const onChangeTask = (index: number, newContent: string) => {
+    setData((prev) => {
+      if (!prev) return;
+      if (prev.tasks[index] !== undefined) {
+        const task = prev.tasks[index];
+        if (task) {
+          task.content = newContent;
+        }
+      }
+    });
+  };
+  useEffect(() => {
+    setData(result);
+  }, [result, setData]);
 
   useEffect(() => {
     setTasks(
@@ -73,11 +134,12 @@ const Index = () => {
           id: item.id,
           content: item.content,
           isCompleted: item.status === "COMPLETED" ? true : false,
+          forWhat: item.forWhat?.value,
         };
       }) ?? []
     );
     setBusinessPosts(data?.businessesInPlan ?? []);
-    console.log(data?.businessesInPlan);
+    setBackground(data?.color ?? "bg-white");
   }, [data]);
   const statusClasses =
     "h-full  cursor-pointer shadow shadow-xl  border rounded-xl hover:bg-slate-200 transition-all duration-500 ease-in-out bg-white bg-opacity-75";
@@ -98,13 +160,13 @@ const Index = () => {
       <main>
         <MainTemplate menus={menus} userCompany={userCompany}>
           <div className={`${background} transition-all duration-500 ease-in`}>
-            {/* TODO UPGRADE SECTION FOR THIS PAGE:*UPDATED FROM WEDDING DISCOVERY* */}
-            {/* <div className="fixed z-20 w-full rounded-lg bg-primaryLight shadow-md  lg:max-h-[20vmin]">
-              <h1 className="w-full text-center font-Alex-Brush text-6xl lg:text-8xl">
-                Vase {data?.category.toLocaleLowerCase()}
+            {/* TODO UPGRADE SECTION FOR THIS PAGE:*COPIED FROM WEDDING DISCOVERY* */}
+            <div className=" z-20 w-full rounded-lg bg-primaryLight shadow-md  lg:max-h-[20vmin]">
+              <h1 className="w-full text-center font-Alex-Brush text-6xl ">
+                {data?.name}
               </h1>
-            </div> */}
-            <div className="pt-6">
+            </div>
+            <div className="pt-4">
               {/* Business gallery */}
               <div className="mx-2 grid grid-cols-2 grid-rows-5 gap-4 lg:grid-cols-3 lg:grid-rows-4">
                 <div className="col-start-2 row-span-3 row-start-2 lg:col-start-auto lg:row-span-3 lg:row-start-auto">
@@ -236,13 +298,34 @@ const Index = () => {
                 </div>
               </div>
               {/* Product info */}
-              <div className="mx-auto max-w-2xl px-4 pb-16 pt-10 sm:px-6 lg:grid lg:max-w-7xl lg:grid-cols-3 lg:grid-rows-[auto,auto,1fr] lg:gap-x-8 lg:px-8 lg:pb-24 lg:pt-16">
-                <div className="lg:col-span-2 lg:border-r lg:border-gray-200 lg:pr-8">
+              <div className="mx-auto max-w-2xl  px-4 pb-16 pt-10 sm:px-6 lg:grid lg:max-w-7xl lg:grid-cols-3 lg:grid-rows-[auto,auto,1fr] lg:gap-x-8 lg:px-8 lg:pb-24 lg:pt-16">
+                <div className="h-full lg:col-span-2 lg:row-span-3 lg:border-r lg:border-gray-200">
                   <h1 className="text-2xl font-bold tracking-tight text-gray-900 sm:text-3xl">
-                    {data?.name}
+                    {data?.category[0]
+                      ? data?.category[0] +
+                        data?.category.slice(1).toLocaleLowerCase()
+                      : ""}{" "}
+                    - TODOs
                   </h1>
-
-                  <Dnd isLoading={isLoading} tasks={tasks} />
+                  <div className="h-full overflow-y-scroll p-3 transition-shadow duration-300 ease-in-out hover:shadow-md">
+                    {categories?.map((cat, idx) => {
+                      return (data?.businessesInPlan ?? []).filter(
+                        (e) => e.business?.typeOfBusiness.value === cat.value
+                      ).length ? (
+                        <Dnd
+                          onChangeTask={onChangeTask}
+                          key={idx}
+                          onDelete={onDeleteTask}
+                          onCreate={async () => await onCreateTask(cat.id)}
+                          title={getCategoryTranslation(cat.value)}
+                          isLoading={isLoading}
+                          tasks={tasks.filter((e) => e.forWhat === cat.value)}
+                        />
+                      ) : (
+                        void 0
+                      );
+                    })}
+                  </div>
                 </div>
 
                 {/* Details */}
@@ -275,7 +358,14 @@ const Index = () => {
                     </div>
                   </div>
 
-                  <form className="mt-10">
+                  <form
+                    className="mt-10"
+                    // eslint-disable-next-line @typescript-eslint/no-misused-promises
+                    onSubmit={async (e) => {
+                      e.preventDefault();
+                      await onSubmitSave();
+                    }}
+                  >
                     {/* Colors */}
                     <div>
                       <h3 className="text-sm font-medium text-gray-900">
@@ -291,30 +381,30 @@ const Index = () => {
                           Choose a color
                         </RadioGroup.Label>
                         <div className="flex items-center space-x-3">
-                          {ColorsForPlans.map((color) => (
+                          {colorsForBg.map((color, idx) => (
                             <RadioGroup.Option
-                              key={color.name}
+                              key={idx}
                               value={color}
                               className={({ active, checked }) => {
                                 if (checked) {
-                                  setBackground(color.className);
-                                  console.log(background);
+                                  setBackground(color);
+                                  setData((prev) => {
+                                    if (!prev) return;
+                                    prev.color = color;
+                                  });
                                 }
                                 return classNames(
-                                  color.selectedClass,
+                                  "ring-slate-400",
                                   active && checked ? "ring ring-offset-1" : "",
                                   !active && checked ? "ring-2" : "",
                                   "relative -m-0.5 flex cursor-pointer items-center justify-center rounded-full p-0.5 focus:outline-none"
                                 );
                               }}
                             >
-                              <RadioGroup.Label as="span" className="sr-only">
-                                {color.name}
-                              </RadioGroup.Label>
                               <span
                                 aria-hidden="true"
                                 className={classNames(
-                                  color.className,
+                                  color,
                                   "h-8 w-8 rounded-full border border-black border-opacity-10"
                                 )}
                               />
@@ -326,9 +416,17 @@ const Index = () => {
 
                     <button
                       type="submit"
-                      className="mt-10 flex w-full items-center justify-center rounded-md border border-transparent bg-indigo-600 px-8 py-3 text-base font-medium text-white hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
+                      disabled={isEqual(result, data) || isSavingFullPlanUpdate}
+                      className="mt-10 flex w-full items-center justify-center rounded-md border border-transparent bg-indigo-600 px-8 py-3 text-base font-medium text-white hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 disabled:opacity-50 disabled:hover:bg-indigo-600"
                     >
-                      Spremi promjene
+                      {isSavingFullPlanUpdate ? (
+                        <LoadingSpinner
+                          spinnerHeight="h-7"
+                          spinnerWidth="w-7"
+                        />
+                      ) : (
+                        "Spremi promjene"
+                      )}
                     </button>
                   </form>
                 </div>

@@ -109,7 +109,12 @@ export const userRouter = createTRPCRouter({
           };
         });
       })
-      .catch((err) => console.log(err));
+      .catch((err) => {
+        throw new TRPCError({
+          message: `There was an error while getting all users: ${err} `,
+          code: "INTERNAL_SERVER_ERROR",
+        });
+      });
 
     return res;
   }),

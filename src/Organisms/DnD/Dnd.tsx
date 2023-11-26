@@ -1,4 +1,8 @@
-import { ChevronDownIcon, PlusCircleIcon } from "@heroicons/react/20/solid";
+import {
+  ChevronDownIcon,
+  PlusCircleIcon,
+  TrashIcon,
+} from "@heroicons/react/20/solid";
 import React, { useEffect, useState } from "react";
 import {
   DragDropContext,
@@ -35,8 +39,19 @@ const swapElements = (
 type Props = {
   isLoading: boolean;
   tasks: { isCompleted: boolean; content: string; id: number }[];
+  title: string;
+  onCreate: () => Promise<void>;
+  onDelete: (taskId: number) => Promise<void>;
+  onChangeTask: (index: number, newContent: string) => void;
 };
-const Dnd = ({ isLoading, tasks }: Props) => {
+const Dnd = ({
+  isLoading,
+  tasks,
+  title,
+  onCreate,
+  onDelete,
+  onChangeTask,
+}: Props) => {
   const [state, setState] = useState(tasks);
   useEffect(() => {
     setState(tasks);
@@ -57,7 +72,7 @@ const Dnd = ({ isLoading, tasks }: Props) => {
     <Accordion
       buttonContent={(open) => (
         <div className="mt-4 flex items-center justify-between gap-5 rounded-2xl border px-5">
-          <h3 className="h3 p-3">Prostor </h3>
+          <h3 className="p-3 text-lg">{title} </h3>
           <ChevronDownIcon
             className={`h-5 w-5 duration-300 sm:h-6 sm:w-6 ${
               open ? "rotate-180" : ""
@@ -85,7 +100,7 @@ const Dnd = ({ isLoading, tasks }: Props) => {
                       {(draggableProvided, draggableSnapshot) => (
                         <div
                           key={index}
-                          className={`z-20 mb-1 flex h-fit rounded-xl bg-white p-6 align-middle shadow-2xl outline  ${
+                          className={`z-20 mb-1 flex h-fit justify-between rounded-xl bg-white p-6 align-middle shadow-2xl outline  ${
                             draggableSnapshot.isDragging
                               ? "outline-primary"
                               : "outline-none"
@@ -94,7 +109,7 @@ const Dnd = ({ isLoading, tasks }: Props) => {
                           {...draggableProvided.draggableProps}
                           ref={draggableProvided.innerRef}
                         >
-                          <div className="flex items-center">
+                          <div className="flex w-full items-center ">
                             <input
                               checked={task.isCompleted}
                               id="checked-checkbox"
@@ -109,19 +124,32 @@ const Dnd = ({ isLoading, tasks }: Props) => {
                                   newObj,
                                 ]);
                               }}
-                              className="h-4 w-4 rounded border-gray-300 bg-gray-100 text-blue-600 focus:ring-2 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:ring-offset-gray-800 dark:focus:ring-blue-600"
+                              className="h-4 w-4 rounded border-gray-300 bg-gray-100 text-blue-600 focus:ring-2 focus:ring-blue-500"
                             />
-                            <label
-                              htmlFor="checked-checkbox"
-                              className={`ms-2 text-sm font-medium ${
+                            <div
+                              className={`ml-2 w-full  text-sm font-medium ${
                                 task.isCompleted
                                   ? "text-gray-400 line-through"
                                   : "text-black"
                               }`}
                             >
-                              {task.content}
-                            </label>
+                              <input
+                                value={task.content}
+                                className="w-full  bg-inherit transition-all duration-200 ease-in-out hover:bg-slate-200 hover:bg-opacity-40"
+                                onChange={(e) =>
+                                  onChangeTask(index, e.target.value)
+                                }
+                              />
+                            </div>
                           </div>
+                          <button
+                            type="button"
+                            className="text-red-200 transition-all duration-300 ease-in-out hover:text-red-400"
+                            // eslint-disable-next-line @typescript-eslint/no-misused-promises
+                            onClick={async () => await onDelete(task.id)}
+                          >
+                            <TrashIcon className="h-7 w-7 " />
+                          </button>
                         </div>
                       )}
                     </Draggable>
@@ -133,11 +161,16 @@ const Dnd = ({ isLoading, tasks }: Props) => {
             )}
           </Droppable>
         </DragDropContext>
-        <button type="button" className="mt-4 flex w-full justify-center ">
-          <div className=" flex w-fit items-center justify-center gap-3 rounded-lg border border-primary px-3 py-1 text-primary transition-all duration-300 ease-in-out hover:bg-primary hover:text-white">
+        <div className="mt-4 flex w-full justify-center">
+          <button
+            type="button"
+            // eslint-disable-next-line @typescript-eslint/no-misused-promises
+            onClick={async () => await onCreate()}
+            className=" flex w-fit items-center justify-center gap-3 rounded-lg border border-primary px-3 py-1 text-primary transition-all duration-300 ease-in-out hover:bg-primary hover:text-white"
+          >
             <PlusCircleIcon className="flex h-6 w-6 " />
-          </div>
-        </button>
+          </button>
+        </div>
       </div>
     </Accordion>
   );

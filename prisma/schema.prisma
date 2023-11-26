@@ -30,7 +30,7 @@ model UserPlan {
   id               String        @id @default(cuid())
   createdAt        DateTime      @default(now())
   updatedAt        DateTime      @updatedAt
-  category         PlanCategory  @default(CELEBRATION)
+  category         PlanCategory  @default(SLAVLJE)
   businessesInPlan CompanyPost[]
   name             String
   color            String        @default("primary")
@@ -45,10 +45,10 @@ model UserPlan {
 }
 
 enum PlanCategory {
-  WEDDING
-  SACRAMENT
-  BIRTHDAY
-  CELEBRATION
+  VJENCANJE
+  RODENDAN
+  SAKRAMENT
+  SLAVLJE
 }
 
 enum PlanProgress {
@@ -57,15 +57,15 @@ enum PlanProgress {
 }
 
 model PlanTask {
-  id            Int          @id @default(autoincrement())
-  content       String
-  UserPlan      UserPlan?    @relation(fields: [userPlanId], references: [id])
-  userPlanId    String?
-  forWhat       CompanyPost? @relation(fields: [companyPostId], references: [id])
-  companyPostId Int?
-  status        PlanProgress @default(INPROGRESS)
+  id                     Int                   @id @default(autoincrement())
+  content                String
+  UserPlan               UserPlan?             @relation(fields: [userPlanId], references: [id])
+  userPlanId             String?
+  forWhat                BusinessTypeCategory? @relation(fields: [BusinessTypeCategoryId], references: [id])
+  BusinessTypeCategoryId Int?
+  status                 PlanProgress          @default(INPROGRESS)
 
-  @@index([companyPostId])
+  @@index([BusinessTypeCategoryId])
   @@index([userPlanId])
 }
 
@@ -116,7 +116,6 @@ model CompanyPost {
   statisticId           Int             @unique
   UserPlan              UserPlan?       @relation(fields: [userPlanId], references: [id])
   userPlanId            String?
-  PlanTask              PlanTask[]
 
   @@index([userPlanId])
 }
@@ -172,4 +171,5 @@ model BusinessTypeCategory {
   value      String
   label      String
   businesses Business[]
+  PlanTask   PlanTask[]
 }

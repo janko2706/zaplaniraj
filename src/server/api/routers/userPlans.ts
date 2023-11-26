@@ -3,12 +3,7 @@ import { z } from "zod";
 import { createTRPCRouter, privateProcedure } from "~/server/api/trpc";
 
 const PlanProgress = ["INPROGRESS", "COMPLETED"] as const;
-const PlanCategory = [
-  "WEDDING",
-  "SACRAMENT",
-  "BIRTHDAY",
-  "CELEBRATION",
-] as const;
+const PlanCategory = ["VJENCANJE", "RODENDAN", "SAKRAMENT", "SLAVLJE"] as const;
 
 export const userPlansRouter = createTRPCRouter({
   getById: privateProcedure
@@ -20,7 +15,11 @@ export const userPlansRouter = createTRPCRouter({
             id: input.planId,
           },
           include: {
-            tasks: true,
+            tasks: {
+              include: {
+                forWhat: true,
+              },
+            },
             businessesInPlan: {
               include: {
                 business: {
@@ -143,7 +142,14 @@ export const userPlansRouter = createTRPCRouter({
         progress: z.enum(PlanProgress).optional(),
         name: z.string().optional(),
         budget: z.number().optional(),
-        companyPostId: z.string().optional(),
+        tasks: z
+          .array(
+            z.object({
+              id: z.number(),
+              content: z.string(),
+            })
+          )
+          .optional(),
       })
     )
     .mutation(async ({ input, ctx }) => {
@@ -158,6 +164,22 @@ export const userPlansRouter = createTRPCRouter({
             name: input.name,
             color: input.color,
           },
+          include: {
+            tasks: {
+              include: {
+                forWhat: true,
+              },
+            },
+            businessesInPlan: {
+              include: {
+                business: {
+                  include: {
+                    typeOfBusiness: true,
+                  },
+                },
+              },
+            },
+          },
         })
         .catch(() => {
           throw new TRPCError({
@@ -165,6 +187,18 @@ export const userPlansRouter = createTRPCRouter({
             code: "INTERNAL_SERVER_ERROR",
           });
         });
+      if (input.tasks?.length) {
+        input.tasks.map(async (item) => {
+          await ctx.prisma.planTask.update({
+            where: {
+              id: item.id,
+            },
+            data: {
+              content: item.content,
+            },
+          });
+        });
+      }
       return updatedPlan;
     }),
   connectPlanWithPost: privateProcedure
@@ -224,5 +258,66 @@ export const userPlansRouter = createTRPCRouter({
           });
         });
       return updatedPlan;
+    }),
+  createUserTask: privateProcedure
+    .input(
+      z.object({
+        planId: z.string(),
+        content: z.string(),
+        forWhat: z.number(),
+      })
+    )
+    .mutation(async ({ input, ctx }) => {
+      const newTask = await ctx.prisma.planTask
+        .create({
+          data: {
+            content: input.content,
+            UserPlan: {
+              connect: {
+                id: input.planId,
+              },
+            },
+            forWhat: {
+              connect: {
+                id: input.forWhat,
+              },
+            },
+          },
+          include: {
+            forWhat: true,
+          },
+        })
+        .catch(() => {
+          throw new TRPCError({
+            message: "Error while creating plan task.",
+            code: "INTERNAL_SERVER_ERROR",
+          });
+        });
+      return {
+        id: newTask.id,
+        content: newTask.content,
+        isCompleted: newTask.status === "COMPLETED" ? true : false,
+        forWhat: newTask.forWhat?.value,
+      };
+    }),
+  deleteUserTask: privateProcedure
+    .input(
+      z.object({
+        taskId: z.number(),
+      })
+    )
+    .mutation(async ({ input, ctx }) => {
+      await ctx.prisma.planTask
+        .delete({
+          where: {
+            id: input.taskId,
+          },
+        })
+        .catch(() => {
+          throw new TRPCError({
+            message: "Error while creating plan task.",
+            code: "INTERNAL_SERVER_ERROR",
+          });
+        });
     }),
 });

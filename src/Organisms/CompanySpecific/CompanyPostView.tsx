@@ -33,7 +33,6 @@ type Props = {
 function CompanyPostView({ companyPost }: Props) {
   const { eventCategories, updatePost, deletePostImage, isUpdatePostLoading } =
     useCompanyPost();
-  console.log(eventCategories);
 
   const [currentPost, setCurrentPost] =
     useState<CompanyPostWihtoutDate>(companyPost);
