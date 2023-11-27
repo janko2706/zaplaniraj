@@ -152,7 +152,7 @@ const Index = () => {
     "h-full shadow shadow-xl  border rounded-xl hover:bg-slate-200 transition-all duration-500 ease-in-out bg-white bg-opacity-50 items-start overflow-auto max-h-96 p-2";
 
   const statusChildClassesWithItems =
-    "flex h-full w-full flex-col items-center justify-center  rounded text-slate-400  ";
+    "flex h-fit w-full flex-col items-center justify-start gap-2 pt-2  rounded text-slate-400";
   const plannerGridObjectArray = [
     {
       icon: <BuildingOfficeIcon className={iconClasses} />,
@@ -222,6 +222,10 @@ const Index = () => {
                           item.arraySearchValue
                       ).length ? (
                         <div role="status" className={statusClassesWithItems}>
+                          <h3 className="text-slate-500">
+                            {getCategoryTranslation(item.arraySearchValue)}
+                          </h3>
+
                           <div className={statusChildClassesWithItems}>
                             {data?.businessesInPlan
                               .filter(
