@@ -208,10 +208,10 @@ function CreatePlanModal({ open, setOpen, setPlans }: Props) {
     },
   ];
   const PlanCategory = [
-    "WEDDING",
-    "SACRAMENT",
-    "BIRTHDAY",
-    "CELEBRATION",
+    "VJENCANJE",
+    "RODENDAN",
+    "SAKRAMENT",
+    "SLAVLJE",
   ] as const;
   const getEnumForCategory = (category: string) => {
     switch (category) {
