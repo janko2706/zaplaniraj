@@ -24,6 +24,7 @@ import isEqual from "lodash/isEqual";
 import { getCategoryTranslation } from "~/utils/translationHelpers";
 import { toast } from "react-toastify";
 import LoadingSpinner from "~/Atoms/LoadingSpinner/LoadingSpinner";
+import { format } from "date-fns";
 
 const colorsForBg = [
   "bg-white",
@@ -55,8 +56,10 @@ const Index = () => {
 
   const [data, setData] = useImmer<typeof result>(undefined);
   const [businessPosts, setBusinessPosts] = useState<PostForUserPlan[]>([]);
-  const { mutateAsync: disconnectPostFromPlan } =
-    api.userPlans.disconnectPlanWithPost.useMutation();
+  const {
+    mutateAsync: disconnectPostFromPlan,
+    isLoading: isDisconnectPostLoading,
+  } = api.userPlans.disconnectPlanWithPost.useMutation();
   const { mutateAsync: addTask } = api.userPlans.createUserTask.useMutation();
   const { mutateAsync: deleteTask } =
     api.userPlans.deleteUserTask.useMutation();
@@ -86,6 +89,19 @@ const Index = () => {
       if (!prev) return;
       prev.tasks = prev.tasks.filter((e) => e.id !== taskId);
     });
+  };
+  const onDisconnectBusiness = async (companyPostId: number) => {
+    await disconnectPostFromPlan({
+      planId: query.id as string,
+      companyPostId,
+    });
+    setData((prev) => {
+      if (!prev) return;
+      prev.businessesInPlan = prev.businessesInPlan.filter(
+        (e) => e.id !== companyPostId
+      );
+    });
+    toast.success("Plan promijenjen.");
   };
 
   const onCreateTask = async (categoryId: number) => {
@@ -195,7 +211,6 @@ const Index = () => {
         "col-start-1 row-start-3 lg:col-start-1 lg:row-span-1 lg:row-start-4",
     },
   ];
-
   return (
     <>
       <Head>
@@ -204,12 +219,6 @@ const Index = () => {
       <main>
         <MainTemplate menus={menus} userCompany={userCompany}>
           <div className={`${background} transition-all duration-500 ease-in`}>
-            {/* TODO UPGRADE SECTION FOR THIS PAGE:*COPIED FROM WEDDING DISCOVERY* */}
-            {/* <div className=" z-20 w-full rounded-lg bg-primaryLight shadow-md  lg:max-h-[20vmin]">
-              <h1 className="w-full text-center font-Alex-Brush text-6xl ">
-                {data?.name}
-              </h1>
-            </div> */}
             <div className="pt-4">
               {/* Business gallery */}
               <div className="mx-2 grid grid-cols-2 grid-rows-5 gap-4 lg:grid-cols-3 lg:grid-rows-4">
@@ -239,18 +248,22 @@ const Index = () => {
                                   title: item.title,
 
                                   handleDelete: async () => {
-                                    await disconnectPostFromPlan({
-                                      planId: query.id as string,
-                                      companyPostId: item.id,
-                                    });
+                                    await onDisconnectBusiness(item.id);
                                   },
                                 };
                                 return (
                                   <div
                                     key={index}
-                                    className=" my-1 flex w-full "
+                                    className=" my-1 flex w-full justify-center"
                                   >
-                                    <ListCardSimple item={newItem} />
+                                    {!isDisconnectPostLoading ? (
+                                      <ListCardSimple item={newItem} />
+                                    ) : (
+                                      <LoadingSpinner
+                                        spinnerHeight="h-5"
+                                        spinnerWidth="w-5"
+                                      />
+                                    )}
                                   </div>
                                 );
                               })}
@@ -272,11 +285,7 @@ const Index = () => {
               <div className="mx-auto max-w-2xl  px-4 pb-16 pt-10 sm:px-6 lg:grid lg:max-w-7xl lg:grid-cols-3 lg:grid-rows-[auto,auto,1fr] lg:gap-x-8 lg:px-8 lg:pb-24 lg:pt-16">
                 <div className="h-full lg:col-span-2 lg:row-span-3 lg:border-r lg:border-gray-200">
                   <h1 className="text-2xl font-bold tracking-tight text-gray-900 sm:text-3xl">
-                    {data?.category[0]
-                      ? data?.category[0] +
-                        data?.category.slice(1).toLocaleLowerCase()
-                      : ""}{" "}
-                    - TODOs
+                    {data?.name ?? ""} - TODOs
                   </h1>
                   <div className="h-full overflow-y-scroll p-3 transition-shadow duration-300 ease-in-out hover:shadow-md">
                     {categories?.map((cat, idx) => {
@@ -302,10 +311,46 @@ const Index = () => {
                 {/* Details */}
                 <div className="mt-4 lg:row-span-3 lg:mt-0">
                   <h2 className="sr-only">Plan information</h2>
-                  <p className="text-3xl tracking-tight text-gray-900">
-                    {data?.budget} €
+                  <p className="text-2xl tracking-tight text-gray-900">
+                    Ukupno: {/* CACL BUDGETS */}0 € / {data?.budget} €
                   </p>
 
+                  {/* Budgets */}
+                  <div className="mt-6">
+                    <h3 className="sr-only">Budgets</h3>
+                    <h3 className="text-sm font-medium text-gray-900">
+                      Budzeti
+                    </h3>
+                    <hr />
+                    <div className="mt-4 flex items-center ">
+                      {data?.eventDate ? (
+                        <div className="flex gap-2">
+                          <input
+                            className=" rounded-md bg-black bg-opacity-10 px-3"
+                            defaultValue={
+                              (new Date(data?.eventDate), "dd/MM/yyyy")
+                            }
+                            type="text"
+                          />
+                          -
+                          <input
+                            className=" rounded-md bg-black bg-opacity-10 px-3"
+                            defaultValue={0}
+                            type="number"
+                          />
+                        </div>
+                      ) : (
+                        <div>
+                          <button
+                            type="button"
+                            className=" btn-outline-gray-small"
+                          >
+                            <PlusIcon className="h-4 w-4" /> Novi datum
+                          </button>
+                        </div>
+                      )}
+                    </div>
+                  </div>
                   {/* Date */}
                   <div className="mt-6">
                     <h3 className="sr-only">Dates</h3>
@@ -315,7 +360,23 @@ const Index = () => {
                     <hr />
                     <div className="mt-4 flex items-center ">
                       {data?.eventDate ? (
-                        <p>IS HERE</p>
+                        <div className="flex gap-2">
+                          <input
+                            className=" rounded-md bg-black bg-opacity-10 px-3"
+                            defaultValue={
+                              (new Date(data?.eventDate), "dd/MM/yyyy")
+                            }
+                            type="text"
+                          />
+                          -
+                          <input
+                            className=" rounded-md bg-black bg-opacity-10 px-3"
+                            defaultValue={
+                              (new Date(data?.eventDate), "dd/MM/yyyy")
+                            }
+                            type="date"
+                          />
+                        </div>
                       ) : (
                         <div>
                           <button

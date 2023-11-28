@@ -161,12 +161,14 @@ const Dnd = ({
             )}
           </Droppable>
         </DragDropContext>
+        {/* {tasks.length > 7 ? ( */}
         <div className="mt-4 flex w-full justify-center">
           <button
             type="button"
             // eslint-disable-next-line @typescript-eslint/no-misused-promises
             onClick={async () => await onCreate()}
-            className=" flex w-fit items-center justify-center gap-3 rounded-lg border border-primary px-3 py-1 text-primary transition-all duration-300 ease-in-out hover:bg-primary hover:text-white"
+            disabled={tasks.length > 4}
+            className=" disable:hover:bg-slate-300 flex w-fit items-center justify-center gap-3 rounded-lg border border-primary px-3 py-1 text-primary transition-all duration-300 ease-in-out hover:bg-primary hover:text-white disabled:border-none disabled:bg-slate-300 disabled:text-slate-400"
           >
             <PlusCircleIcon className="flex h-6 w-6 " />
           </button>

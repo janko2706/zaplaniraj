@@ -56,6 +56,17 @@ enum PlanProgress {
   COMPLETED
 }
 
+model PlanDateItem {
+  id    Int    @id @default(autoincrement())
+  title String
+  date  String
+}
+model PlanBudgetItem {
+  id    Int    @id @default(autoincrement())
+  title String
+  price  Int
+}
+
 model PlanTask {
   id                     Int                   @id @default(autoincrement())
   content                String
