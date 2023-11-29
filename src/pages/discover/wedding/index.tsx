@@ -1,24 +1,28 @@
 import {
-  BuildingOfficeIcon,
   AdjustmentsHorizontalIcon,
-  FunnelIcon,
+  BuildingOfficeIcon,
   CakeIcon,
+  FunnelIcon,
 } from "@heroicons/react/20/solid";
+import { motion } from "framer-motion";
 import type { GetStaticProps } from "next";
 import { serverSideTranslations } from "next-i18next/serverSideTranslations";
+import { useRouter } from "next/router";
 import React, { useEffect, useState } from "react";
-import { FaBreadSlice, FaGuitar } from "react-icons/fa";
 import { AiFillCar } from "react-icons/ai";
+import { CgSearch } from "react-icons/cg";
+import { FaBreadSlice, FaGuitar } from "react-icons/fa";
+import { LuFlower } from "react-icons/lu";
+import Accordion from "~/Atoms/Accordion/Accordion";
+import LoadingSpinner from "~/Atoms/LoadingSpinner/LoadingSpinner";
+import RangeSliderComponent from "~/Atoms/RangeSlider/RangeSlider";
 import { HeroDropdown } from "~/Molecules/HeroSection/HeroDropdown/HeroDropdown";
 import ListCard from "~/Molecules/ListCard/ListCard";
 import Pagination from "~/Molecules/Pagination/Pagination";
+import { useCompanyPost } from "~/Organisms/CompanySpecific/useCompanyPost";
 import MainTemplate from "~/Templates/MainTemplate";
 import useMenu from "~/hooks/useMenu/useMenu";
-import { LuFlower } from "react-icons/lu";
-import { motion } from "framer-motion";
-import { useRouter } from "next/router";
-import { useCompanyPost } from "~/Organisms/CompanySpecific/useCompanyPost";
-import LoadingSpinner from "~/Atoms/LoadingSpinner/LoadingSpinner";
+import { getCategoryTranslationBackToEnglish } from "~/utils/translationHelpers";
 
 const iconClasses = "h-5 w-5";
 
@@ -28,32 +32,32 @@ const weddingCategories: {
   onClick?: React.MouseEventHandler<HTMLLIElement>;
 }[] = [
   {
-    name: "Venues",
+    name: "Prostori",
     icon: <BuildingOfficeIcon className={iconClasses} />,
     onClick: (e) => console.log(e),
   },
   {
-    name: "Cakes",
+    name: "Torte",
     icon: <CakeIcon className={iconClasses} />,
     onClick: (e) => console.log(e),
   },
   {
-    name: "Flowers",
+    name: "Cvijece",
     icon: <LuFlower className={iconClasses} />,
     onClick: (e) => console.log(e),
   },
   {
-    name: "Music",
+    name: "Muzika",
     icon: <FaGuitar className={iconClasses} />,
     onClick: (e) => console.log(e),
   },
   {
-    name: "Catering",
+    name: "Katering",
     icon: <FaBreadSlice className={iconClasses} />,
     onClick: (e) => console.log(e),
   },
   {
-    name: "Transportation",
+    name: "Transport",
     icon: <AiFillCar className={iconClasses} />,
     onClick: (e) => console.log(e),
   },
@@ -61,23 +65,23 @@ const weddingCategories: {
 
 const sortItems = [
   {
-    name: "Popular",
+    name: "Popularno",
     icon: <AdjustmentsHorizontalIcon className={iconClasses} />,
   },
   {
-    name: "Price",
+    name: "Od najvise cijene",
     icon: <AdjustmentsHorizontalIcon className={iconClasses} />,
   },
   {
-    name: "Latest",
+    name: "Od najnize cijene",
     icon: <AdjustmentsHorizontalIcon className={iconClasses} />,
   },
   {
-    name: "Reviews",
+    name: "Najnovije",
     icon: <AdjustmentsHorizontalIcon className={iconClasses} />,
   },
   {
-    name: "Oldest",
+    name: "Najstarije",
     icon: <AdjustmentsHorizontalIcon className={iconClasses} />,
   },
 ];
@@ -86,18 +90,52 @@ function Index() {
   const navigate = useRouter();
   const { getPostsByCategory } = useCompanyPost();
   const { category } = navigate.query;
-
+  const placesForSelect = [{ name: "Zagreb" }, { name: "Okolica Zagreba" }];
+  const [filterSelectedPlace, setFilterSelectedPlace] = useState(
+    placesForSelect[0]
+  );
+  const [filterName, setFilterName] = useState<string>("");
   const [skip, setSkip] = useState(0);
+  const [filterPrice, setFilterPrice] = useState([0, 5000]);
+  const [selectedCategory, setSelectedCategory] = useState<
+    | {
+        name: string;
+        icon?: JSX.Element;
+        onClick?: React.MouseEventHandler<HTMLLIElement>;
+      }
+    | undefined
+  >(weddingCategories[0]);
   const [currentPage, setCurrentPage] = useState(1);
+  //  filterPriceMin: z.number().optional(),
+  // filterPriceMax: z.number().optional(),
+  // sortPrice: z.enum(sortOpts).optional(),
+  // sortNew: z.enum(sortOpts).optional(),
+  // sortPopular: z.enum(sortOpts).optional(),
+  // filterTitle: z.string().optional(),
   const { data, refetch, isLoading } = getPostsByCategory.useQuery({
     categoryLabel: "Vjenčanja",
-    businessTypeLabel: category as string,
+    businessTypeLabel:
+      getCategoryTranslationBackToEnglish(selectedCategory?.name ?? "") ??
+      "Venue",
     skip,
+    filterPriceMax: 100000,
+    filterPriceMin: 0,
+    sortPrice: "asc",
+    sortNew: "asc",
+    sortPopular: "desc",
+    filterTitle: "",
   });
   useEffect(() => {
     void (async () => await refetch())();
-    window.scrollTo({ top: 0, left: 0, behavior: "smooth" });
+    window.scrollTo({ top: 0, behavior: "auto" });
   }, [category, skip, refetch]);
+  useEffect(() => {
+    setSelectedCategory(
+      weddingCategories.find(
+        (i) => i.name === ((category as string) ?? "Prostori")
+      )
+    );
+  }, [category]);
 
   const [posts, setPosts] = useState<
     | {
@@ -130,14 +168,6 @@ function Index() {
     );
   }, [data]);
 
-  const [selectedCategory, setSelectedCategory] = useState<
-    | {
-        name: string;
-        icon?: JSX.Element;
-        onClick?: React.MouseEventHandler<HTMLLIElement>;
-      }
-    | undefined
-  >(weddingCategories[0]);
   const [selectedSort, setSelectedSort] = useState<
     | {
         name: string;
@@ -166,27 +196,51 @@ function Index() {
           </div>
 
           <div className="mx-4 flex items-center justify-between rounded-xl bg-primaryLight py-5 lg:mx-0 lg:justify-center lg:gap-52">
-            <div
-              className={`link clr-neutral-500 flex cursor-pointer items-center gap-2 hover:text-primary `}
+            {/* TODO: USE ACCORDION FOR FILTER DROPDOWN */}
+            <Accordion
+              buttonContent={(open) => (
+                <div>
+                  <FunnelIcon
+                    className={`h-5 w-full  transition-all duration-300 ease-in-out hover:text-primary ${
+                      open ? "rotate-180" : ""
+                    }`}
+                  />
+                  Filteri
+                </div>
+              )}
+              initialOpen={false}
             >
-              <FunnelIcon className={iconClasses} />
-              {/* TODO: USE ACCORDION FOR FILTER DROPDOWN */}
-              {/* <Accordion
-                buttonContent={(open) => (
-                  <div className="flex items-center justify-between rounded-2xl">
-                    <h3 className="h3">Opcenito </h3>
-                    <FunnelIcon
-                      className={`h-5 w-5 duration-300 sm:h-6 sm:w-6 ${
-                        open ? "rotate-180" : ""
-                      }`}
-                    />
-                  </div>
-                )}
-                initialOpen={false}
-              >
-                <div className=" ">HELLOW WORLD</div>
-              </Accordion> */}
-            </div>
+              <div className="flex flex-col justify-center gap-10 ">
+                <input
+                  value={filterName}
+                  onChange={(e) => setFilterName(e.target.value)}
+                  className="mt-6 rounded-md bg-slate-200 px-2 py-1"
+                  placeholder="Pretrazi po nazivu..."
+                />
+                <div className="flex w-full justify-center">
+                  <HeroDropdown
+                    className="m-0"
+                    size={"full"}
+                    options={placesForSelect}
+                    selected={filterSelectedPlace}
+                    setSelected={setFilterSelectedPlace}
+                  />
+                </div>
+                <RangeSliderComponent
+                  value={filterPrice}
+                  handleChange={(e) => setFilterPrice(e)}
+                  min={0}
+                  max={10000}
+                />
+                <button
+                  type="button"
+                  className="flex w-full items-center justify-center gap-3 rounded-md border border-transparent bg-indigo-600 px-2 py-1 text-base font-medium text-white transition-all duration-300 ease-in-out hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 disabled:opacity-50 disabled:hover:bg-indigo-600"
+                >
+                  <CgSearch className={iconClasses} />
+                  Pretrazi
+                </button>
+              </div>
+            </Accordion>
 
             <div className="w-fit ">
               <HeroDropdown
@@ -261,6 +315,12 @@ function Index() {
                 }}
                 count={posts?.length ?? 1}
                 currentPage={currentPage}
+                onClickPage={(p) => {
+                  if (currentPage !== p) {
+                    setSkip(10 * (p - 1));
+                    setCurrentPage(p);
+                  }
+                }}
               />
             </>
           ) : (

@@ -78,7 +78,7 @@ function MyPlans() {
                 >
                   <ChevronDoubleRightIcon className="h-5 w-5" />
                   <span className="inline-block">
-                    In Progress ({" "}
+                    U tijeku ({" "}
                     {plans?.filter((i) => i.progress === "INPROGRESS").length})
                   </span>
                 </Tab>
@@ -93,7 +93,7 @@ function MyPlans() {
                   <CheckBadgeIcon className="h-5 w-5" />
                   <span className="inline-block">
                     {" "}
-                    Completed (
+                    Zavrseno (
                     {plans?.filter((i) => i.progress === "COMPLETED").length})
                   </span>
                 </Tab>
@@ -104,22 +104,24 @@ function MyPlans() {
                   id="inprogress"
                 >
                   <Spotlight className="group mx-0 flex h-full w-full flex-col gap-5 overflow-y-auto  ">
-                    {plans?.map((item, idx) => {
-                      const icon = getPlanIcon(item.category);
-                      return (
-                        <SpotlightCard key={idx}>
-                          <PlanCard
-                            // eslint-disable-next-line @typescript-eslint/no-misused-promises
-                            deletePlan={deletePlan}
-                            router={router}
-                            name={item.name}
-                            icon={icon}
-                            date={new Date(item.eventDate ?? "")}
-                            id={item.id}
-                          />
-                        </SpotlightCard>
-                      );
-                    })}
+                    {plans
+                      ?.filter((i) => i.progress === "INPROGRESS")
+                      .map((item, idx) => {
+                        const icon = getPlanIcon(item.category);
+                        return (
+                          <SpotlightCard key={idx}>
+                            <PlanCard
+                              // eslint-disable-next-line @typescript-eslint/no-misused-promises
+                              deletePlan={deletePlan}
+                              router={router}
+                              name={item.name}
+                              icon={icon}
+                              date={new Date(item.eventDate ?? "")}
+                              id={item.id}
+                            />
+                          </SpotlightCard>
+                        );
+                      })}
                   </Spotlight>
                   <div className="mt-10 flex justify-center">
                     <Button

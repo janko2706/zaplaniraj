@@ -14,6 +14,8 @@ const ratelimit = new Ratelimit({
   analytics: true,
 });
 
+const sortOpts = ["asc", "desc"] as const;
+
 export const businessPostRouter = createTRPCRouter({
   getPostByBusinessId: privateProcedure
     .input(
@@ -200,26 +202,52 @@ export const businessPostRouter = createTRPCRouter({
         categoryLabel: z.string(),
         businessTypeLabel: z.string(),
         skip: z.number(),
+        filterPriceMin: z.number().optional(),
+        filterPriceMax: z.number().optional(),
+        sortPrice: z.enum(sortOpts),
+        sortNew: z.enum(sortOpts),
+        sortPopular: z.enum(sortOpts),
+        filterTitle: z.string(),
       })
     )
     .query(async ({ input, ctx }) => {
       try {
         const posts = await ctx.prisma.companyPost.findMany({
           where: {
+            title: {
+              contains: input.filterTitle,
+            },
             isLive: true,
+            priceRangeMax: {
+              lte: input.filterPriceMax,
+            },
+            priceRangeMin: {
+              gte: input.filterPriceMin,
+            },
             selectedCategoriesIds: {
               some: {
                 label: input.categoryLabel,
                 value: input.categoryLabel,
               },
             },
-            // TODO uncomment to get only results with companies
-            // business: {
-            //   typeOfBusiness: {
-            //     label: input.businessTypeLabel,
-            //     value: input.businessTypeLabel,
-            //   },
-            // },
+            business: {
+              typeOfBusiness: {
+                label: input.businessTypeLabel,
+                value: input.businessTypeLabel,
+              },
+            },
+          },
+          // TODO: FIX ORDER BY, it does not take objects the error sais??
+          orderBy: {
+            priceRangeMax: { sort: input.sortPrice },
+            business: {
+              user: {
+                createdAt: input.sortNew,
+              },
+            },
+            statistics: {
+              visitors: input.sortPopular,
+            },
           },
           take: 10,
           skip: input.skip,

@@ -19,7 +19,7 @@ const swapElements = (
   array: {
     id: number;
     content: string;
-    isCompleted: boolean;
+    status: "COMPLETED" | "INPROGRESS";
   }[],
   index1: number,
   index2: number
@@ -28,7 +28,7 @@ const swapElements = (
   const newItem = newArray.splice(
     index2,
     1,
-    newArray[index1] ?? { id: 123, content: "sada", isCompleted: false }
+    newArray[index1] ?? { id: 123, content: "sada", status: "COMPLETED" }
   )[0];
   if (newItem) {
     newArray[index1] = newItem;
@@ -38,11 +38,15 @@ const swapElements = (
 
 type Props = {
   isLoading: boolean;
-  tasks: { isCompleted: boolean; content: string; id: number }[];
+  tasks: { status: "COMPLETED" | "INPROGRESS"; content: string; id: number }[];
   title: string;
   onCreate: () => Promise<void>;
   onDelete: (taskId: number) => Promise<void>;
   onChangeTask: (index: number, newContent: string) => void;
+  onChangeTaskCompleted: (
+    index: number,
+    isCompleted: "INPROGRESS" | "COMPLETED"
+  ) => void;
 };
 const Dnd = ({
   isLoading,
@@ -51,6 +55,7 @@ const Dnd = ({
   onCreate,
   onDelete,
   onChangeTask,
+  onChangeTaskCompleted,
 }: Props) => {
   const [state, setState] = useState(tasks);
   useEffect(() => {
@@ -111,31 +116,29 @@ const Dnd = ({
                         >
                           <div className="flex w-full items-center ">
                             <input
-                              checked={task.isCompleted}
+                              checked={
+                                task.status === "COMPLETED" ? true : false
+                              }
                               id="checked-checkbox"
                               type="checkbox"
                               onChange={() => {
-                                const newObj = {
-                                  ...task,
-                                  isCompleted: !task.isCompleted,
-                                };
-                                setState((prev) => [
-                                  ...prev.filter((e) => e.id !== task.id),
-                                  newObj,
-                                ]);
+                                const newStatus =
+                                  task.status === "COMPLETED"
+                                    ? "INPROGRESS"
+                                    : "COMPLETED";
+                                onChangeTaskCompleted(task.id, newStatus);
                               }}
                               className="h-4 w-4 rounded border-gray-300 bg-gray-100 text-blue-600 focus:ring-2 focus:ring-blue-500"
                             />
-                            <div
-                              className={`ml-2 w-full  text-sm font-medium ${
-                                task.isCompleted
-                                  ? "text-gray-400 line-through"
-                                  : "text-black"
-                              }`}
-                            >
+                            <div className={`ml-2 w-full text-sm font-medium`}>
                               <input
                                 value={task.content}
-                                className="w-full  bg-inherit transition-all duration-200 ease-in-out hover:bg-slate-200 hover:bg-opacity-40"
+                                disabled={task.status === "COMPLETED"}
+                                className={`w-full  bg-inherit transition-all duration-200 ease-in-out hover:bg-slate-200 hover:bg-opacity-40 ${
+                                  task.status === "COMPLETED"
+                                    ? "text-gray-400 line-through "
+                                    : "text-black"
+                                }`}
                                 onChange={(e) =>
                                   onChangeTask(task.id, e.target.value)
                                 }

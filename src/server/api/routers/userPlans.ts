@@ -29,6 +29,8 @@ export const userPlansRouter = createTRPCRouter({
                 },
               },
             },
+            dateItem: true,
+            budgetItem: true,
           },
         })
         .catch(() => {
@@ -142,11 +144,39 @@ export const userPlansRouter = createTRPCRouter({
         progress: z.enum(PlanProgress).optional(),
         name: z.string().optional(),
         budget: z.number().optional(),
+        budgets: z
+          .array(
+            z.object({
+              id: z.number(),
+              title: z.string(),
+              userPlanId: z.string().nullable(),
+              price: z.number(),
+            })
+          )
+          .optional(),
+        dates: z
+          .array(
+            z.object({
+              id: z.number(),
+              userPlanId: z.string().nullable(),
+              title: z.string(),
+              date: z.string(),
+            })
+          )
+          .optional(),
         tasks: z
           .array(
             z.object({
               id: z.number(),
               content: z.string(),
+              status: z.enum(PlanProgress),
+              forWhat: z.object({
+                id: z.number(),
+                value: z.string(),
+                label: z.string(),
+              }),
+              userPlanId: z.string(),
+              BusinessTypeCategoryId: z.number().nullable(),
             })
           )
           .optional(),
@@ -179,6 +209,8 @@ export const userPlansRouter = createTRPCRouter({
                 },
               },
             },
+            dateItem: true,
+            budgetItem: true,
           },
         })
         .catch(() => {
@@ -195,11 +227,44 @@ export const userPlansRouter = createTRPCRouter({
             },
             data: {
               content: item.content,
+              status: item.status,
             },
           });
         });
       }
-      return updatedPlan;
+      if (input.dates?.length) {
+        input.dates.map(async (item) => {
+          await ctx.prisma.planDateItem.update({
+            where: {
+              id: item.id,
+            },
+            data: {
+              title: item.title,
+              date: item.date,
+            },
+          });
+        });
+      }
+      if (input.budgets?.length) {
+        input.budgets.map(async (item) => {
+          await ctx.prisma.planBudgetItem.update({
+            where: {
+              id: item.id,
+            },
+            data: {
+              title: item.title,
+              price: item.price,
+            },
+          });
+        });
+      }
+
+      return {
+        ...updatedPlan,
+        dateItem: input.dates ?? [],
+        budgetItem: input.budgets ?? [],
+        tasks: input.tasks ?? [],
+      };
     }),
   connectPlanWithPost: privateProcedure
     .input(
@@ -316,6 +381,104 @@ export const userPlansRouter = createTRPCRouter({
         .catch(() => {
           throw new TRPCError({
             message: "Error while creating plan task.",
+            code: "INTERNAL_SERVER_ERROR",
+          });
+        });
+    }),
+  createUserDateItem: privateProcedure
+    .input(
+      z.object({
+        planId: z.string(),
+        title: z.string(),
+        date: z.string(),
+      })
+    )
+    .mutation(async ({ input, ctx }) => {
+      const newDateItem = await ctx.prisma.planDateItem
+        .create({
+          data: {
+            title: input.title,
+            date: input.date,
+            UserPlan: {
+              connect: {
+                id: input.planId,
+              },
+            },
+          },
+        })
+        .catch(() => {
+          throw new TRPCError({
+            message: "Error while creating plan date item.",
+            code: "INTERNAL_SERVER_ERROR",
+          });
+        });
+      return newDateItem;
+    }),
+  deleteUserDateItem: privateProcedure
+    .input(
+      z.object({
+        dateItemId: z.number(),
+      })
+    )
+    .mutation(async ({ input, ctx }) => {
+      await ctx.prisma.planDateItem
+        .delete({
+          where: {
+            id: input.dateItemId,
+          },
+        })
+        .catch(() => {
+          throw new TRPCError({
+            message: "Error while deleting plan date item.",
+            code: "INTERNAL_SERVER_ERROR",
+          });
+        });
+    }),
+  createUserBudgetItem: privateProcedure
+    .input(
+      z.object({
+        planId: z.string(),
+        title: z.string(),
+        budget: z.number(),
+      })
+    )
+    .mutation(async ({ input, ctx }) => {
+      const newBudgetItem = await ctx.prisma.planBudgetItem
+        .create({
+          data: {
+            title: input.title,
+            price: input.budget,
+            UserPlan: {
+              connect: {
+                id: input.planId,
+              },
+            },
+          },
+        })
+        .catch(() => {
+          throw new TRPCError({
+            message: "Error while creating plan budget item.",
+            code: "INTERNAL_SERVER_ERROR",
+          });
+        });
+      return newBudgetItem;
+    }),
+  deleteUserBudgetItem: privateProcedure
+    .input(
+      z.object({
+        planBudgetId: z.number(),
+      })
+    )
+    .mutation(async ({ input, ctx }) => {
+      await ctx.prisma.planBudgetItem
+        .delete({
+          where: {
+            id: input.planBudgetId,
+          },
+        })
+        .catch(() => {
+          throw new TRPCError({
+            message: "Error while deleteing plan budget item.",
             code: "INTERNAL_SERVER_ERROR",
           });
         });

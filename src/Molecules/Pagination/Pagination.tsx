@@ -25,9 +25,10 @@ function Pagination({
         <ul className="flex justify-center gap-3">
           <li>
             <button
+              disabled={currentPage === 1}
               type="button"
               onClick={onClickLeft}
-              className=" lh-1 grid h-10 w-10 place-content-center rounded-full border border-[var(--primary)] p-0 text-primary hover:bg-primary hover:text-white"
+              className=" lh-1 grid h-10 w-10 place-content-center rounded-full border border-[var(--primary)] p-0 text-primary hover:bg-primary hover:text-white disabled:opacity-20 disabled:hover:bg-transparent disabled:hover:text-primary"
             >
               <ChevronLeftIcon className="h-5 w-5" />
             </button>
@@ -53,7 +54,8 @@ function Pagination({
           <li>
             <button
               type="button"
-              className=" lh-1 grid h-10 w-10 place-content-center rounded-full border border-[var(--primary)] p-0 text-primary hover:bg-primary hover:text-white"
+              disabled={currentPage === arr.length}
+              className=" lh-1 grid h-10 w-10 place-content-center rounded-full border border-[var(--primary)] p-0 text-primary hover:bg-primary hover:text-white  disabled:opacity-20 disabled:hover:bg-transparent disabled:hover:text-primary"
               onClick={onClickRight}
             >
               <ChevronRightIcon className="h-5 w-5" />

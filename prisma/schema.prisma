@@ -27,19 +27,21 @@ model User {
 }
 
 model UserPlan {
-  id               String        @id @default(cuid())
-  createdAt        DateTime      @default(now())
-  updatedAt        DateTime      @updatedAt
-  category         PlanCategory  @default(SLAVLJE)
+  id               String           @id @default(cuid())
+  createdAt        DateTime         @default(now())
+  updatedAt        DateTime         @updatedAt
+  category         PlanCategory     @default(SLAVLJE)
   businessesInPlan CompanyPost[]
   name             String
-  color            String        @default("primary")
+  color            String           @default("primary")
   eventDate        String?
   tasks            PlanTask[]
-  budget           Int           @default(0)
-  user             User          @relation(fields: [userId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  budget           Int              @default(0)
+  user             User             @relation(fields: [userId], references: [id], onDelete: NoAction, onUpdate: NoAction)
   userId           String
-  progress         PlanProgress  @default(INPROGRESS)
+  progress         PlanProgress     @default(INPROGRESS)
+  dateItem         PlanDateItem[]
+  budgetItem       PlanBudgetItem[]
 
   @@index([userId])
 }
@@ -57,20 +59,29 @@ enum PlanProgress {
 }
 
 model PlanDateItem {
-  id    Int    @id @default(autoincrement())
-  title String
-  date  String
+  id         Int       @id @default(autoincrement())
+  title      String
+  date       String
+  UserPlan   UserPlan? @relation(fields: [userPlanId], references: [id], onDelete: Cascade)
+  userPlanId String?
+
+  @@index([userPlanId])
 }
+
 model PlanBudgetItem {
-  id    Int    @id @default(autoincrement())
-  title String
-  price  Int
+  id         Int       @id @default(autoincrement())
+  title      String
+  price      Int
+  UserPlan   UserPlan? @relation(fields: [userPlanId], references: [id], onDelete: Cascade)
+  userPlanId String?
+
+  @@index([userPlanId])
 }
 
 model PlanTask {
   id                     Int                   @id @default(autoincrement())
   content                String
-  UserPlan               UserPlan?             @relation(fields: [userPlanId], references: [id])
+  UserPlan               UserPlan?             @relation(fields: [userPlanId], references: [id], onDelete: Cascade)
   userPlanId             String?
   forWhat                BusinessTypeCategory? @relation(fields: [BusinessTypeCategoryId], references: [id])
   BusinessTypeCategoryId Int?
@@ -117,7 +128,7 @@ model CompanyPost {
   offerPictures         String?         @db.VarChar(3000)
   placeSize             String?
   contactPhones         String?
-  statistics            Statistic       @relation(fields: [statisticId], references: [id])
+  statistics            Statistic       @relation(fields: [statisticId], references: [id], onDelete: Cascade)
   contactEmails         String?
   reviews               Review[]
   website               String?

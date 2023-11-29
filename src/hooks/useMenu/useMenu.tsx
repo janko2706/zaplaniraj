@@ -42,23 +42,23 @@ function useMenu() {
             },
             {
               title: "Music",
-              url: "/discover/wedding/music?category=Music",
+              url: "/discover/wedding?category=Music",
             },
             {
               title: "Catering",
-              url: "/discover/wedding/catering?category=Catering",
+              url: "/discover/wedding?category=Catering",
             },
             {
               title: "Transport",
-              url: "/discover/wedding/transport?category=Transport",
+              url: "/discover/wedding?category=Transport",
             },
             {
               title: "Flowers",
-              url: "/discover/wedding/flowers?category=Flowers",
+              url: "/discover/wedding?category=Flowers",
             },
             {
               title: "Cakes",
-              url: "/discover/wedding/cakes?category=Cakes",
+              url: "/discover/wedding?category=Cakes",
             },
           ],
         },

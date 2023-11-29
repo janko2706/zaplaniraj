@@ -1,30 +1,22 @@
+import { RadioGroup } from "@headlessui/react";
+import { PlusIcon, TrashIcon } from "@heroicons/react/20/solid";
+import isEqual from "lodash/isEqual";
 import type { GetStaticPaths, GetStaticProps } from "next";
 import { serverSideTranslations } from "next-i18next/serverSideTranslations";
-import MainTemplate from "~/Templates/MainTemplate";
-import React, { useEffect, useState } from "react";
-import { useImmer } from "use-immer";
-import {
-  BuildingOfficeIcon,
-  CakeIcon,
-  PlusIcon,
-} from "@heroicons/react/20/solid";
-import { RadioGroup } from "@headlessui/react";
-import classNames from "~/utils/classNames";
-import useMenu from "~/hooks/useMenu/useMenu";
 import Head from "next/head";
-import Dnd from "~/Organisms/DnD/Dnd";
-import { api } from "~/utils/api";
 import { useRouter } from "next/router";
-import { AiFillCar } from "react-icons/ai";
-import { FaGuitar, FaBreadSlice } from "react-icons/fa";
-import { LuFlower } from "react-icons/lu";
-import ListCardSimple from "~/Molecules/ListCardSimple/ListCardSimple";
-import type { PostForUserPlan } from "~/utils/types";
-import isEqual from "lodash/isEqual";
-import { getCategoryTranslation } from "~/utils/translationHelpers";
-import { toast } from "react-toastify";
+import { useEffect } from "react";
 import LoadingSpinner from "~/Atoms/LoadingSpinner/LoadingSpinner";
+import ListCardSimple from "~/Molecules/ListCardSimple/ListCardSimple";
+import Dnd from "~/Organisms/DnD/Dnd";
+import MainTemplate from "~/Templates/MainTemplate";
+import classNames from "~/utils/classNames";
+import {
+  getCategoryTranslation,
+  getEventTypeTranslation,
+} from "~/utils/translationHelpers";
 import { format } from "date-fns";
+import usePlan from "./usePlan";
 
 const colorsForBg = [
   "bg-white",
@@ -36,114 +28,73 @@ const colorsForBg = [
 ];
 
 const Index = () => {
-  const iconClasses = "h-16 w-16";
-  const { query } = useRouter();
-  const [background, setBackground] = useState("bg-white");
-  const [selectedColor, setSelectedColor] = useState(colorsForBg);
-  const [tasks, setTasks] = useState<
-    {
-      id: number;
-      content: string;
-      isCompleted: boolean;
-      forWhat: string | undefined;
-    }[]
-  >([]);
-  const { menus, userCompany } = useMenu();
-  const { data: result, isLoading } = api.userPlans.getById.useQuery({
-    planId: (query.id as string) ?? "",
-  });
-  const { data: categories } = api.businessCategoryType.getAll.useQuery();
-
-  const [data, setData] = useImmer<typeof result>(undefined);
-  const [businessPosts, setBusinessPosts] = useState<PostForUserPlan[]>([]);
+  const { query, events, replace } = useRouter();
   const {
-    mutateAsync: disconnectPostFromPlan,
-    isLoading: isDisconnectPostLoading,
-  } = api.userPlans.disconnectPlanWithPost.useMutation();
-  const { mutateAsync: addTask } = api.userPlans.createUserTask.useMutation();
-  const { mutateAsync: deleteTask } =
-    api.userPlans.deleteUserTask.useMutation();
-  const { mutateAsync: updatePlan, isLoading: isSavingFullPlanUpdate } =
-    api.userPlans.updateUserPlan.useMutation({
-      onSuccess: () => {
-        toast.success("Promjene premljene");
-      },
-    });
-
-  const onSubmitSave = async () => {
-    if (!data) return;
-    await updatePlan({
-      planId: data.id,
-      color: data.color,
-      progress: data.progress,
-      name: data.name,
-      budget: data.budget,
-      tasks: data.tasks,
-    });
-  };
-  const onDeleteTask = async (taskId: number) => {
-    await deleteTask({
-      taskId,
-    });
-    setData((prev) => {
-      if (!prev) return;
-      prev.tasks = prev.tasks.filter((e) => e.id !== taskId);
-    });
-  };
-  const onDisconnectBusiness = async (companyPostId: number) => {
-    await disconnectPostFromPlan({
-      planId: query.id as string,
-      companyPostId,
-    });
-    setData((prev) => {
-      if (!prev) return;
-      prev.businessesInPlan = prev.businessesInPlan.filter(
-        (e) => e.id !== companyPostId
-      );
-    });
-    toast.success("Plan promijenjen.");
-  };
-
-  const onCreateTask = async (categoryId: number) => {
-    const category = categories?.filter((e) => e.id === categoryId)[0];
-    if (!data) return;
-    if (!category) return;
-
-    const newTask = await addTask({
-      content: "",
-      forWhat: categoryId,
-      planId: data.id,
-    });
-    setData((prev) => {
-      if (!prev) return;
-      const newArray = [...(prev?.tasks ?? [])];
-      newArray.push({
-        content: "",
-        forWhat: category,
-        userPlanId: data.id,
-        id: newTask.id,
-        status: "INPROGRESS",
-        BusinessTypeCategoryId: categoryId,
-      });
-      prev.tasks = [...newArray];
-    });
-  };
-  const onChangeTask = (index: number, newContent: string) => {
-    setData((prev) => {
-      if (!prev) return;
-      prev.tasks.map((item, idx) => {
-        if (item.id === index) {
-          const task = prev.tasks[idx];
-          if (task) {
-            task.content = newContent;
-          }
-        }
-      });
-    });
-  };
+    background,
+    selectedColor,
+    setSelectedColor,
+    tasks,
+    menus,
+    userCompany,
+    isLoading,
+    businessPosts,
+    isDisconnectPostLoading,
+    isSavingFullPlanUpdate,
+    onSubmitSave,
+    onDeleteTask,
+    onDeleteBudgetItem,
+    onCreateBudgetItem,
+    onDisconnectBusiness,
+    onCreateTask,
+    onChangeTask,
+    statusClasses,
+    statusChildClasses,
+    statusClassesWithItems,
+    statusChildClassesWithItems,
+    plannerGridObjectArray,
+    setBackground,
+    setTasks,
+    setBusinessPosts,
+    data,
+    setData,
+    result,
+    categories,
+    onDeleteDateItem,
+    onCreateDateItem,
+    onChangeBudgetItemPrice,
+    onChangeBudgetItemTitle,
+    onChangeDateItemDate,
+    onChangeDateItemTitle,
+    onChangeTaskCompleted,
+    calcBudget,
+    setCalcBudget,
+    newResult,
+    setNewResult,
+  } = usePlan({ planId: query.id as string });
   useEffect(() => {
     setData(result);
-  }, [result, setData]);
+    setNewResult(result);
+  }, [result, setData, setNewResult]);
+  const warningText = "Sve nespremljene promjene ce biti odbacene!";
+  useEffect(() => {
+    const handleWindowClose = (e: BeforeUnloadEvent) => {
+      if (!isEqual(newResult, data)) return;
+      e.preventDefault();
+      return (e.returnValue = warningText);
+    };
+    const handleBrowseAway = () => {
+      if (isEqual(newResult, data)) return;
+      if (window.confirm(warningText)) return;
+      events.emit("routeChangeError");
+      throw "routeChange aborted.";
+    };
+    window.addEventListener("beforeunload", handleWindowClose);
+    events.on("routeChangeStart", handleBrowseAway);
+    return () => {
+      window.removeEventListener("beforeunload", handleWindowClose);
+      events.off("routeChangeStart", handleBrowseAway);
+    };
+  }, [data, events, newResult]);
 
   useEffect(() => {
     setTasks(
@@ -151,66 +102,18 @@ const Index = () => {
         return {
           id: item.id,
           content: item.content,
-          isCompleted: item.status === "COMPLETED" ? true : false,
+          status: item.status,
           forWhat: item.forWhat?.value,
         };
       }) ?? []
     );
+    let budget = 0;
+    data?.budgetItem.forEach((item) => (budget = budget + item.price));
+    setCalcBudget(budget);
     setBusinessPosts(data?.businessesInPlan ?? []);
     setBackground(data?.color ?? "bg-white");
-  }, [data]);
-  const statusClasses =
-    "h-full  cursor-pointer shadow shadow-xl  border rounded-xl hover:bg-slate-200 transition-all duration-500 ease-in-out bg-white bg-opacity-75";
+  }, [data, setTasks, setBackground, setBusinessPosts, setCalcBudget]);
 
-  const statusChildClasses =
-    "flex h-full w-full flex-col items-center justify-center  rounded text-slate-400  ";
-  const statusClassesWithItems =
-    "h-full shadow shadow-xl  border rounded-xl hover:bg-slate-200 transition-all duration-500 ease-in-out bg-white bg-opacity-50 items-start overflow-auto max-h-96 p-2";
-
-  const statusChildClassesWithItems =
-    "flex h-fit w-full flex-col items-center justify-start gap-2 pt-2  rounded text-slate-400";
-  const plannerGridObjectArray = [
-    {
-      icon: <BuildingOfficeIcon className={iconClasses} />,
-      noContentText: "Dodaj prostore u projekt",
-      arraySearchValue: "Venue",
-      gridClasses:
-        "col-start-2 row-span-3 row-start-2 lg:col-start-auto lg:row-span-3 lg:row-start-auto",
-    },
-    {
-      icon: <CakeIcon className={iconClasses} />,
-      noContentText: "Dodaj slasticarne u projekt",
-      arraySearchValue: "Cakes",
-      gridClasses: "row-start-4 lg:row-start-auto",
-    },
-    {
-      icon: <LuFlower className={iconClasses} />,
-      noContentText: "Dodaj cvjecarne u projekt",
-      arraySearchValue: "Flowers",
-      gridClasses: "col-start-1 row-start-2 lg:col-start-auto lg:row-span-2",
-    },
-    {
-      icon: <FaGuitar className={iconClasses} />,
-      noContentText: "Dodaj zabavu u projekt",
-      arraySearchValue: "Music",
-      gridClasses:
-        "col-span-2 row-start-5 lg:col-span-1 lg:col-start-3 lg:row-span-2 lg:row-start-3",
-    },
-    {
-      icon: <FaBreadSlice className={iconClasses} />,
-      noContentText: "Dodaj katering u projekt",
-      arraySearchValue: "Catering",
-      gridClasses:
-        "col-span-2 lg:col-span-1 lg:col-start-2 lg:row-span-3 lg:row-start-2",
-    },
-    {
-      icon: <AiFillCar className={iconClasses} />,
-      noContentText: "Dodaj prijevoz u projekt",
-      arraySearchValue: "Transport",
-      gridClasses:
-        "col-start-1 row-start-3 lg:col-start-1 lg:row-span-1 lg:row-start-4",
-    },
-  ];
   return (
     <>
       <Head>
@@ -270,7 +173,20 @@ const Index = () => {
                           </div>
                         </div>
                       ) : (
-                        <div role="status" className={statusClasses}>
+                        <div
+                          role="status"
+                          className={statusClasses}
+                          // eslint-disable-next-line @typescript-eslint/no-misused-promises
+                          onClick={async () => {
+                            await replace(
+                              `/discover/${getEventTypeTranslation(
+                                data?.category
+                              )}?category=${getCategoryTranslation(
+                                item.arraySearchValue
+                              )}`
+                            );
+                          }}
+                        >
                           <div className={statusChildClasses}>
                             {item.icon}
                             <p>{item.noContentText}</p>
@@ -294,6 +210,7 @@ const Index = () => {
                       ).length ? (
                         <Dnd
                           onChangeTask={onChangeTask}
+                          onChangeTaskCompleted={onChangeTaskCompleted}
                           key={idx}
                           onDelete={onDeleteTask}
                           onCreate={async () => await onCreateTask(cat.id)}
@@ -311,44 +228,98 @@ const Index = () => {
                 {/* Details */}
                 <div className="mt-4 lg:row-span-3 lg:mt-0">
                   <h2 className="sr-only">Plan information</h2>
-                  <p className="text-2xl tracking-tight text-gray-900">
-                    Ukupno: {/* CACL BUDGETS */}0 € / {data?.budget} €
-                  </p>
+                  <div className="flex w-full items-center gap-4  text-xl tracking-tight text-gray-900">
+                    <p>
+                      Potrebno:{" "}
+                      <span className="text-2xl">
+                        {calcBudget.toLocaleString("en-US")}
+                      </span>{" "}
+                      €{" "}
+                    </p>
+                    <p>od{"  "}</p>
+                    <div className="w-fit ">
+                      <input
+                        className="max-w-[5em] rounded-md bg-black bg-opacity-10 px-2 text-2xl [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
+                        type="number"
+                        defaultValue={data?.budget}
+                        onChange={(e) =>
+                          setData((prev) => {
+                            if (!prev) return;
+                            prev.budget = Number(
+                              e.target.value as unknown as number
+                            );
+                          })
+                        }
+                      />
+                      €
+                    </div>
+                  </div>
 
                   {/* Budgets */}
                   <div className="mt-6">
                     <h3 className="sr-only">Budgets</h3>
                     <h3 className="text-sm font-medium text-gray-900">
-                      Budzeti
+                      Potrebna placanja
                     </h3>
                     <hr />
                     <div className="mt-4 flex items-center ">
-                      {data?.eventDate ? (
-                        <div className="flex gap-2">
-                          <input
-                            className=" rounded-md bg-black bg-opacity-10 px-3"
-                            defaultValue={
-                              (new Date(data?.eventDate), "dd/MM/yyyy")
-                            }
-                            type="text"
-                          />
-                          -
-                          <input
-                            className=" rounded-md bg-black bg-opacity-10 px-3"
-                            defaultValue={0}
-                            type="number"
-                          />
-                        </div>
-                      ) : (
-                        <div>
+                      <div className="flex flex-col gap-2">
+                        {data?.budgetItem.map((item, index) => {
+                          return (
+                            <div
+                              key={index}
+                              className="flex w-fit items-center justify-center gap-2"
+                            >
+                              <input
+                                className="w-full rounded-md bg-black bg-opacity-10 px-2"
+                                value={item.title}
+                                type="text"
+                                onChange={(e) =>
+                                  onChangeBudgetItemTitle(
+                                    item.id,
+                                    e.target.value
+                                  )
+                                }
+                                placeholder="Naziv..."
+                              />
+                              -
+                              <input
+                                className="w-full rounded-md bg-black bg-opacity-10 px-2"
+                                value={item.price}
+                                type="number"
+                                onChange={(e) =>
+                                  onChangeBudgetItemPrice(
+                                    item.id,
+                                    Number(e.target.value as unknown as number)
+                                  )
+                                }
+                              />
+                              <button
+                                type="button"
+                                className="w-full text-slate-400 transition-all duration-300 ease-in-out hover:text-red-400"
+                                // eslint-disable-next-line @typescript-eslint/no-misused-promises
+                                onClick={async () =>
+                                  await onDeleteBudgetItem(item.id)
+                                }
+                              >
+                                <TrashIcon className="h-5 w-5 " />
+                              </button>
+                            </div>
+                          );
+                        })}
+                        <>
                           <button
                             type="button"
-                            className=" btn-outline-gray-small"
+                            className="btn-outline-gray-small mt-3 w-fit"
+                            // eslint-disable-next-line @typescript-eslint/no-misused-promises
+                            onClick={async () => {
+                              await onCreateBudgetItem();
+                            }}
                           >
-                            <PlusIcon className="h-4 w-4" /> Novi datum
+                            <PlusIcon className="h-4 w-4" /> Novo placanje
                           </button>
-                        </div>
-                      )}
+                        </>
+                      </div>
                     </div>
                   </div>
                   {/* Date */}
@@ -359,34 +330,65 @@ const Index = () => {
                     </h3>
                     <hr />
                     <div className="mt-4 flex items-center ">
-                      {data?.eventDate ? (
-                        <div className="flex gap-2">
-                          <input
-                            className=" rounded-md bg-black bg-opacity-10 px-3"
-                            defaultValue={
-                              (new Date(data?.eventDate), "dd/MM/yyyy")
-                            }
-                            type="text"
-                          />
-                          -
-                          <input
-                            className=" rounded-md bg-black bg-opacity-10 px-3"
-                            defaultValue={
-                              (new Date(data?.eventDate), "dd/MM/yyyy")
-                            }
-                            type="date"
-                          />
-                        </div>
-                      ) : (
-                        <div>
+                      <div className="flex flex-col gap-2">
+                        {data?.dateItem.map((item, index) => {
+                          return (
+                            <div
+                              key={index}
+                              className="flex w-fit items-center justify-center gap-2"
+                            >
+                              <input
+                                className="w-full rounded-md bg-black bg-opacity-10 px-2"
+                                value={item.title}
+                                onChange={(e) =>
+                                  onChangeDateItemTitle(item.id, e.target.value)
+                                }
+                                type="text"
+                                placeholder="Naziv..."
+                              />
+                              -
+                              <input
+                                className="w-full rounded-md bg-black bg-opacity-10 px-2"
+                                value={item.date}
+                                onChange={(e) => {
+                                  if (e.target.value !== "") {
+                                    onChangeDateItemDate(
+                                      item.id,
+                                      format(
+                                        new Date(e.target.value),
+                                        "yyyy-MM-dd"
+                                      )
+                                    );
+                                  }
+                                }}
+                                type="date"
+                              />
+                              <button
+                                type="button"
+                                className="w-full text-slate-400 transition-all duration-300 ease-in-out hover:text-red-400"
+                                // eslint-disable-next-line @typescript-eslint/no-misused-promises
+                                onClick={async () =>
+                                  await onDeleteDateItem(item.id)
+                                }
+                              >
+                                <TrashIcon className="h-5 w-5 " />
+                              </button>
+                            </div>
+                          );
+                        })}
+                        <>
                           <button
                             type="button"
-                            className=" btn-outline-gray-small"
+                            className="btn-outline-gray-small mt-3 w-fit"
+                            // eslint-disable-next-line @typescript-eslint/no-misused-promises
+                            onClick={async () => {
+                              await onCreateDateItem();
+                            }}
                           >
                             <PlusIcon className="h-4 w-4" /> Novi datum
                           </button>
-                        </div>
-                      )}
+                        </>
+                      </div>
                     </div>
                   </div>
 
@@ -448,8 +450,10 @@ const Index = () => {
 
                     <button
                       type="submit"
-                      disabled={isEqual(result, data) || isSavingFullPlanUpdate}
-                      className="mt-10 flex w-full items-center justify-center rounded-md border border-transparent bg-indigo-600 px-8 py-3 text-base font-medium text-white hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 disabled:opacity-50 disabled:hover:bg-indigo-600"
+                      disabled={
+                        isEqual(newResult, data) || isSavingFullPlanUpdate
+                      }
+                      className="mt-10 flex w-full items-center justify-center rounded-md border border-transparent bg-indigo-600 px-8 py-3 text-base font-medium text-white transition-all duration-300 ease-in-out hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 disabled:opacity-50 disabled:hover:bg-indigo-600"
                     >
                       {isSavingFullPlanUpdate ? (
                         <LoadingSpinner
@@ -459,6 +463,23 @@ const Index = () => {
                       ) : (
                         "Spremi promjene"
                       )}
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() =>
+                        setData((prev) => {
+                          if (!prev) return;
+                          prev.progress =
+                            prev.progress === "COMPLETED"
+                              ? "INPROGRESS"
+                              : "COMPLETED";
+                        })
+                      }
+                      className="mt-10 flex w-full items-center justify-center rounded-md  bg-red-500 px-6 py-2 text-base font-medium text-white transition-all duration-300 ease-in-out hover:bg-red-600 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 "
+                    >
+                      {data?.progress === "COMPLETED"
+                        ? "Plan je jos u tijeku"
+                        : "Premjesti plan u zavrseno"}
                     </button>
                   </form>
                 </div>
