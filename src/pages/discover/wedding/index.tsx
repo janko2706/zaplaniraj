@@ -6,7 +6,7 @@ import DiscoverHeader from "~/Templates/Discover/DiscoverHeaderTemplate";
 import DiscoverPosts from "~/Templates/Discover/DiscoverPostsTemplate";
 import MainTemplate from "~/Templates/MainTemplate";
 import useDiscover from "../useDiscover";
-import { weddingCategories } from "./weddingCategories";
+import { weddingCategories } from "../../../utils/weddingCategories";
 
 function Index() {
   const { query, replace } = useRouter();

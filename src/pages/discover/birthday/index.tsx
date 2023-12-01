@@ -6,7 +6,7 @@ import DiscoverHeader from "~/Templates/Discover/DiscoverHeaderTemplate";
 import DiscoverPosts from "~/Templates/Discover/DiscoverPostsTemplate";
 import MainTemplate from "~/Templates/MainTemplate";
 import useDiscover from "../useDiscover";
-import { birthdayCategories } from "./birthdayCategories";
+import { birthdayCategories } from "../../../utils/birthdayCategories";
 
 function Index() {
   const { query, replace } = useRouter();
