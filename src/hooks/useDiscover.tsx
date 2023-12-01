@@ -4,7 +4,7 @@ import React, { useState } from "react";
 import { useCompanyPost } from "~/Organisms/CompanySpecific/useCompanyPost";
 import useMenu from "~/hooks/useMenu/useMenu";
 import { getCategoryTranslationBackToEnglish } from "~/utils/translationHelpers";
-import { sortItemsGeneral } from "../../utils/sortItems";
+import { sortItemsGeneral } from "../utils/sortItems";
 
 type Props = {
   categoryName: string;

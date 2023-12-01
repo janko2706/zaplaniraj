@@ -5,7 +5,7 @@ import { useEffect } from "react";
 import DiscoverHeader from "~/Templates/Discover/DiscoverHeaderTemplate";
 import DiscoverPosts from "~/Templates/Discover/DiscoverPostsTemplate";
 import MainTemplate from "~/Templates/MainTemplate";
-import useDiscover from "../useDiscover";
+import useDiscover from "../../../hooks/useDiscover";
 import { birthdayCategories } from "../../../utils/birthdayCategories";
 
 function Index() {

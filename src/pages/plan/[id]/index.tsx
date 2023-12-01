@@ -16,7 +16,7 @@ import {
   getEventTypeTranslation,
 } from "~/utils/translationHelpers";
 import { format } from "date-fns";
-import usePlan from "./usePlan";
+import usePlan from "../../../hooks/usePlan";
 
 const colorsForBg = [
   "bg-white",
