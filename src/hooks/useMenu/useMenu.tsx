@@ -14,6 +14,8 @@ import StatisticDashboardTab from "~/Organisms/CompanySpecific/StatisticDashboar
 import MyPlans from "~/Organisms/UserSpecific/MyPlans";
 import CalendarComponent from "~/Atoms/Calendar/Calendar";
 
+import FavoritesTab from "~/Organisms/UserSpecific/FavoritesTab";
+
 function useMenu() {
   const { t } = useTranslation("common");
   const company = useTranslation("dashboard");
@@ -124,7 +126,7 @@ function useMenu() {
       title: user.t("menu-favorites"),
       icon: <HeartIcon className="h-5 w-5 text-red-500" />,
       // FAVORITES TAB
-      children: <></>,
+      children: <FavoritesTab />,
     },
     {
       title: user.t("menu-settings"),

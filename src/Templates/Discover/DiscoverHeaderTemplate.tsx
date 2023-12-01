@@ -104,14 +104,14 @@ const DiscoverHeader = ({
 }: Props) => {
   return (
     <div
-      className={`fixed z-20 w-full rounded-b-lg ${headerColor} shadow-md  lg:max-h-[20vmin]`}
+      className={`fixed z-20 w-screen rounded-b-lg ${headerColor} shadow-md  lg:max-h-[20vmin]`}
     >
       <h1
-        className={`${headerFont} w-full pt-3 text-center text-6xl lg:pt-0 lg:text-8xl`}
+        className={`${headerFont} hidden w-full pt-3 text-center text-5xl  md:block md:text-8xl lg:block lg:pt-0 lg:text-8xl`}
       >
         {headerTitle}
       </h1>
-      <div className="flex justify-center">
+      <div className="mx-10 flex justify-center pt-5 lg:mx-0 lg:pt-0">
         <HeroDropdown
           options={categories}
           selected={selectedCategory}
@@ -120,13 +120,21 @@ const DiscoverHeader = ({
       </div>
 
       <div
-        className={`${headerColor} mx-4 flex flex-col items-center justify-between gap-5 rounded-xl py-5 md:flex-row lg:mx-0 lg:flex-row lg:justify-center lg:gap-52`}
+        className={`${headerColor} mx-4 flex flex-col items-center justify-between gap-4 rounded-xl py-5 lg:mx-0 lg:flex-row lg:justify-center lg:gap-52`}
       >
+        <div className="hidden w-fit lg:block">
+          <HeroDropdown
+            size={"small"}
+            options={sortItems}
+            selected={selectedSort}
+            setSelected={setSelectedSort}
+          />
+        </div>
         <Accordion
           buttonContent={(open) => (
-            <div>
+            <div className="text-base">
               <FunnelIcon
-                className={`h-5 w-full  transition-all duration-300 ease-in-out hover:text-primary ${
+                className={`h-4 w-full transition-all  duration-300 ease-in-out hover:text-primary lg:h-5 ${
                   open ? "rotate-180" : ""
                 }`}
               />
@@ -135,11 +143,19 @@ const DiscoverHeader = ({
           )}
           initialOpen={false}
         >
-          <div className="flex flex-col justify-center gap-10 ">
+          <div className="flex max-w-xs flex-col items-center justify-center gap-10 lg:max-w-lg">
+            <div className="flex w-full justify-center lg:hidden">
+              <HeroDropdown
+                size={"small"}
+                options={sortItems}
+                selected={selectedSort}
+                setSelected={setSelectedSort}
+              />
+            </div>
             <input
               value={filterName}
               onChange={(e) => setFilterName(e.target.value)}
-              className="mt-6 rounded-md bg-slate-200 px-2 py-1"
+              className="mt-6 w-full rounded-md bg-slate-200 px-2 py-1 placeholder:text-slate-600"
               placeholder="Pretrazi po nazivu..."
             />
             <div className="flex w-full justify-center">
@@ -151,10 +167,10 @@ const DiscoverHeader = ({
                 setSelected={setFilterSelectedPlace}
               />
             </div>
-            <div className="flex items-center gap-2">
+            <div className="flex max-w-xs items-center gap-2">
               <p>od</p>
               <input
-                className=" rounded-md bg-slate-200 px-2 py-1"
+                className="w-full rounded-md bg-slate-200 px-2 py-1"
                 type="number"
                 value={filterPriceMin}
                 min={0}
@@ -164,7 +180,7 @@ const DiscoverHeader = ({
               />
               <p>do</p>
               <input
-                className=" rounded-md bg-slate-200 px-2 py-1"
+                className="w-full rounded-md bg-slate-200 px-2 py-1"
                 type="number"
                 value={filterPriceMax}
                 max={10000}
@@ -184,15 +200,6 @@ const DiscoverHeader = ({
             </button>
           </div>
         </Accordion>
-
-        <div className="w-fit ">
-          <HeroDropdown
-            size={"small"}
-            options={sortItems}
-            selected={selectedSort}
-            setSelected={setSelectedSort}
-          />
-        </div>
       </div>
     </div>
   );

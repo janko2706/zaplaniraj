@@ -115,6 +115,7 @@ function Index() {
           currentPage={currentPage}
           setCurrentPage={setCurrentPage}
           setSkip={setSkip}
+          category="Rodendani"
         />
       </>
     </MainTemplate>

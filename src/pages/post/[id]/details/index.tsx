@@ -1,15 +1,9 @@
 import Image from "next/image";
-import { Swiper, SwiperSlide } from "swiper/react";
 import { Tooltip } from "react-tooltip";
+import { Swiper, SwiperSlide } from "swiper/react";
 // Import Swiper styles
-import "swiper/css";
-import "swiper/css/navigation";
-import { Navigation } from "swiper/modules";
-import Link from "next/link";
 import { Tab } from "@headlessui/react";
 import { PlusCircleIcon, StarIcon } from "@heroicons/react/20/solid";
-import { format } from "date-fns";
-import type { WholePostType } from "~/utils/types";
 import {
   CalendarDaysIcon,
   ChatBubbleLeftEllipsisIcon,
@@ -20,19 +14,25 @@ import {
   MapPinIcon,
   ShareIcon,
 } from "@heroicons/react/24/outline";
-import classNames from "~/utils/classNames";
-import MainTemplate from "~/Templates/MainTemplate";
-import PostReview from "~/Molecules/PostReview/PostReview";
-import Pagination from "~/Molecules/Pagination/Pagination";
-import { FaFacebook, FaGlobe, FaInstagram, FaParking } from "react-icons/fa";
-import CalendarComponent from "~/Atoms/Calendar/Calendar";
-import useMenu from "~/hooks/useMenu/useMenu";
-import { serverSideTranslations } from "next-i18next/serverSideTranslations";
+import { format } from "date-fns";
 import type {
-  GetStaticProps,
   GetStaticPaths,
+  GetStaticProps,
   InferGetStaticPropsType,
 } from "next";
+import { serverSideTranslations } from "next-i18next/serverSideTranslations";
+import Link from "next/link";
+import { FaFacebook, FaGlobe, FaInstagram, FaParking } from "react-icons/fa";
+import "swiper/css";
+import "swiper/css/navigation";
+import { Navigation } from "swiper/modules";
+import CalendarComponent from "~/Atoms/Calendar/Calendar";
+import Pagination from "~/Molecules/Pagination/Pagination";
+import PostReview from "~/Molecules/PostReview/PostReview";
+import MainTemplate from "~/Templates/MainTemplate";
+import useMenu from "~/hooks/useMenu/useMenu";
+import classNames from "~/utils/classNames";
+import type { WholePostType } from "~/utils/types";
 
 type CustomDehydrateState = {
   json: {
@@ -70,11 +70,11 @@ const Index = (props: InferGetStaticPropsType<typeof getStaticProps>) => {
         await updateStatistics({
           id: post?.statisticId ?? 0,
           month,
-          category: category as string,
+          category: getTranslationForStatistics(category as string),
         });
       })();
     }
-  }, [isSignedIn, updateStatistics, post]);
+  }, [isSignedIn, updateStatistics, post, category]);
 
   const tooltipStyle = {
     backgroundColor: "#3539E9",
@@ -559,13 +559,11 @@ const Index = (props: InferGetStaticPropsType<typeof getStaticProps>) => {
                               type="text"
                               placeholder="Name..."
                               className="w-full rounded-full border bg-[var(--bg-1)] px-3 py-2 focus:outline-none md:px-4 md:py-3"
-                              required
                             />
                             <input
                               type="email"
                               placeholder="Email..."
                               className="w-full rounded-full border bg-[var(--bg-1)] px-3 py-2 focus:outline-none md:px-4 md:py-3"
-                              required
                             />
                             <textarea
                               rows={6}
@@ -687,16 +685,17 @@ const Index = (props: InferGetStaticPropsType<typeof getStaticProps>) => {
 
 export default Index;
 
+import { useUser } from "@clerk/nextjs";
 import { createServerSideHelpers } from "@trpc/react-query/server";
-import { appRouter } from "~/server/api/root";
+import { useRouter } from "next/router";
+import { useEffect, useState } from "react";
 import superjson from "superjson";
+import LoadingSpinner from "~/Atoms/LoadingSpinner/LoadingSpinner";
+import useStatistics from "~/Organisms/CompanySpecific/useStatistics";
+import { appRouter } from "~/server/api/root";
 import { prisma } from "~/server/db";
 import { stripe } from "~/server/stripe/client";
-import { useEffect, useState } from "react";
-import LoadingSpinner from "~/Atoms/LoadingSpinner/LoadingSpinner";
-import { useUser } from "@clerk/nextjs";
-import useStatistics from "~/Organisms/CompanySpecific/useStatistics";
-import { useRouter } from "next/router";
+import { getTranslationForStatistics } from "~/utils/translationHelpers";
 
 export const getStaticProps: GetStaticProps = async ({ locale, params }) => {
   const helpers = createServerSideHelpers({

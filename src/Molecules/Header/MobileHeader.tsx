@@ -94,9 +94,9 @@ const MobileMenu = ({ appLogo, userCompany }: Props) => {
             <ul className="py-5">
               <li>
                 <Link
-                  href="/vendor-dashboard"
+                  href="/"
                   className={`flex items-center gap-2 rounded-md px-6 py-3 duration-300 ${
-                    path == "/vendor-dashboard" && "bg-primary text-white"
+                    path == "/" && "bg-primary text-white"
                   }`}
                 >
                   <BuildingStorefrontIcon className="h-5 w-5" />
@@ -121,9 +121,9 @@ const MobileMenu = ({ appLogo, userCompany }: Props) => {
               </li>
               <li>
                 <Link
-                  href="/vendor-bookings"
+                  href="/discover/wedding?category=Prostori"
                   className={`flex items-center gap-2 rounded-md px-6 py-3 duration-300 ${
-                    path == "/vendor-bookings" && "bg-primary text-white"
+                    path == "/discover/wedding" && "bg-primary text-white"
                   }`}
                 >
                   <CgRing className="h-5 w-5" />
@@ -132,9 +132,9 @@ const MobileMenu = ({ appLogo, userCompany }: Props) => {
               </li>
               <li>
                 <Link
-                  href="/vendor-activities"
+                  href="/discover/birthday?category=Prostori"
                   className={`flex items-center gap-2 rounded-md px-6 py-3 duration-300 ${
-                    path == "/vendor-activities" && "bg-primary text-white"
+                    path == "/discover/birthday" && "bg-primary text-white"
                   }`}
                 >
                   <CakeIcon className="h-5 w-5" />
@@ -143,9 +143,9 @@ const MobileMenu = ({ appLogo, userCompany }: Props) => {
               </li>
               <li>
                 <Link
-                  href="/vendor-earnings"
+                  href="/discover/sacrament?category=Prostori"
                   className={`flex items-center gap-2 rounded-md px-6 py-3 duration-300 ${
-                    path == "/vendor-earnings" && "bg-primary text-white"
+                    path == "/sacrament" && "bg-primary text-white"
                   }`}
                 >
                   <FaChurch className="h-5 w-5" />

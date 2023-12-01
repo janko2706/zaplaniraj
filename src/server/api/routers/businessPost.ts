@@ -443,4 +443,27 @@ export const businessPostRouter = createTRPCRouter({
         });
       }
     }),
+  getFavoritePosts: privateProcedure.query(async ({ ctx }) => {
+    const userFavorties = await ctx.prisma.user.findFirst({
+      where: {
+        clerkId: ctx.userId,
+      },
+      select: { favorites: true },
+    });
+    if (!userFavorties?.favorites?.split(",").map(Number)) return [];
+    const favorites = await ctx.prisma.companyPost.findMany({
+      where: {
+        id: { in: userFavorties?.favorites?.split(",").map(Number) },
+      },
+      include: {
+        business: {
+          include: {
+            typeOfBusiness: true,
+          },
+        },
+      },
+    });
+
+    return favorites;
+  }),
 });

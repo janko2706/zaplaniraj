@@ -24,6 +24,25 @@ export const getTranslationForRouter = (value: string) => {
       return "wedding";
     case "Rodendani":
       return "birthday";
+    case "Sakramenti":
+      return "birthday";
+
+    default:
+      return "";
+  }
+};
+export const getTranslationForStatistics = (value: string) => {
+  switch (value) {
+    case "Vjencanja":
+      return "Weddings";
+    case "Rodendani":
+      return "Birthdays";
+    case "Sakramenti":
+      return "Sacraments";
+    case "Poslovno":
+      return "Business";
+    case "Slavlja":
+      return "Celebrations";
 
     default:
       return "";

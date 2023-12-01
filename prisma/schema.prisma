@@ -21,6 +21,7 @@ model User {
   onboarding String
   clerkId    String     @unique
   userPlans  UserPlan[]
+  favorites  String?
 
   @@index([clerkId])
   @@index([businessId])
@@ -33,7 +34,7 @@ model UserPlan {
   category         PlanCategory     @default(SLAVLJE)
   businessesInPlan CompanyPost[]
   name             String
-  color            String           @default("primary")
+  color            String           @default("bg-white")
   tasks            PlanTask[]
   budget           Int              @default(0)
   user             User             @relation(fields: [userId], references: [id], onDelete: NoAction, onUpdate: NoAction)
@@ -100,7 +101,7 @@ model Business {
   hasPost          Boolean?             @default(false)
   postIsLive       Boolean?             @default(false)
   freeTrial        Boolean
-  companyPost      CompanyPost?         @relation(fields: [companyPostId], references: [id])
+  companyPost      CompanyPost?         @relation(fields: [companyPostId], references: [id], onDelete: Cascade)
   companyPostId    Int?                 @unique
 
   @@index([typeOfBusinessId])

@@ -5,9 +5,10 @@ import { type MouseEvent, useState } from "react";
 import { HeartIcon, MapPinIcon } from "@heroicons/react/20/solid";
 import { toast } from "react-toastify";
 import { useRouter } from "next/router";
+import { api } from "~/utils/api";
 
-const notifyAdd = () => toast.success("Added to Wishlist.");
-const notifyRemove = () => toast.error("Removed From Wishlist.");
+const notifyAdd = () => toast.success("Dodano u favorite.");
+const notifyRemove = () => toast.error("Izbaceno iz favorita.");
 
 type CardProps = {
   item: {
@@ -18,16 +19,33 @@ type CardProps = {
     type: string;
     img?: string | null;
   };
+  isFavorite?: boolean;
+  category: string;
 };
-const ListCard = ({ item }: CardProps) => {
-  const [favourite, setFavourite] = useState(false);
+const ListCard = ({ item, isFavorite, category }: CardProps) => {
+  const [favorite, setFavorite] = useState<boolean>(isFavorite ?? false);
   const { id, address, title, img, priceRange, type } = item;
+  const { mutateAsync: addToFavorites } = api.user.setFavorite.useMutation({
+    onSuccess: () => {
+      setFavorite(true);
+      notifyAdd();
+    },
+  });
+  const { mutateAsync: removeFavorite } = api.user.removeFavorite.useMutation({
+    onSuccess: () => {
+      setFavorite(false);
+      notifyRemove();
+    },
+  });
   const [isLoading, setIsLoading] = useState<boolean>(true);
-  const handleFavorite = (e: MouseEvent<HTMLButtonElement>) => {
+  const handleFavorite = async (e: MouseEvent<HTMLButtonElement>) => {
     e.stopPropagation();
     e.preventDefault();
-    setFavourite(!favourite);
-    favourite ? notifyRemove() : notifyAdd();
+    if (favorite === true) {
+      await removeFavorite({ postId: id });
+    } else {
+      await addToFavorites({ postId: id.toString() });
+    }
   };
   const { replace } = useRouter();
   return (
@@ -38,15 +56,16 @@ const ListCard = ({ item }: CardProps) => {
         e.stopPropagation();
         e.preventDefault();
         void (async () => {
-          await replace(`/post/${item.id}/details`);
+          await replace(`/post/${item.id}/details?category=${category}`);
         })();
       }}
     >
       <button
+        // eslint-disable-next-line @typescript-eslint/no-misused-promises
         onClick={handleFavorite}
         className="absolute  right-4 top-4 z-10 inline-block rounded-full bg-slate-100 p-2.5 text-primary transition-all duration-300 hover:shadow-lg "
       >
-        {favourite ? (
+        {favorite ? (
           <HeartIcon className="h-8 w-8 text-red-500" />
         ) : (
           <HeartIconOutline className="h-8 w-8 text-red-500" />

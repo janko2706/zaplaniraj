@@ -1,3 +1,4 @@
+import { clerkClient } from "@clerk/nextjs";
 import { TRPCError } from "@trpc/server";
 import { z } from "zod";
 import {
@@ -154,4 +155,73 @@ export const userRouter = createTRPCRouter({
       return 200;
     } else return 300;
   }),
+  setFavorite: privateProcedure
+    .input(
+      z.object({
+        postId: z.string(),
+      })
+    )
+    .mutation(async ({ ctx, input }) => {
+      const lastFavorites = await ctx.prisma.user.findFirst({
+        where: {
+          clerkId: ctx.userId,
+        },
+        select: {
+          favorites: true,
+        },
+      });
+      await ctx.prisma.user
+        .update({
+          where: {
+            clerkId: ctx.userId,
+          },
+          data: {
+            favorites:
+              (lastFavorites?.favorites
+                ? lastFavorites?.favorites + ","
+                : undefined) + input.postId,
+          },
+        })
+        .catch(() => {
+          throw new TRPCError({
+            code: "INTERNAL_SERVER_ERROR",
+            message: "Something went wrong while setting favorite post...",
+          });
+        });
+    }),
+  removeFavorite: privateProcedure
+    .input(
+      z.object({
+        postId: z.number(),
+      })
+    )
+    .mutation(async ({ ctx, input }) => {
+      const lastFavorites = await ctx.prisma.user.findFirst({
+        where: {
+          clerkId: ctx.userId,
+        },
+        select: {
+          favorites: true,
+        },
+      });
+      const favoritesArray = lastFavorites?.favorites?.split(",");
+      await ctx.prisma.user
+        .update({
+          where: {
+            clerkId: ctx.userId,
+          },
+          data: {
+            favorites: favoritesArray
+              ?.map(Number)
+              .filter((i) => i !== input.postId)
+              .toString(),
+          },
+        })
+        .catch(() => {
+          throw new TRPCError({
+            code: "INTERNAL_SERVER_ERROR",
+            message: "Something went wrong while setting favorite post...",
+          });
+        });
+    }),
 });

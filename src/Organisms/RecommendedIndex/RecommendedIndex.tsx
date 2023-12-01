@@ -7,6 +7,7 @@ import ListCard from "~/Molecules/ListCard/ListCard";
 import classNames from "~/utils/classNames";
 import { useCompanyPost } from "../CompanySpecific/useCompanyPost";
 import { getTranslationForRouter } from "~/utils/translationHelpers";
+import { api } from "~/utils/api";
 
 function RecommendedIndex() {
   const { getPostsByCategory } = useCompanyPost();
@@ -20,6 +21,7 @@ function RecommendedIndex() {
     take: 3,
     sortPopular: "desc",
   });
+  const { data: favoriteIds } = api.businessPost.getFavoritePosts.useQuery();
 
   return (
     <section className="relative bg-[var(--bg-2)] py-[60px] lg:py-5">
@@ -68,7 +70,16 @@ function RecommendedIndex() {
                         popular: false,
                         img: item.pictures?.split(",")[0] ?? "",
                       };
-                      return <ListCard key={item.id} item={dataItem} />;
+                      return (
+                        <ListCard
+                          key={item.id}
+                          item={dataItem}
+                          isFavorite={favoriteIds?.some(
+                            (e) => e.id === item.id
+                          )}
+                          category={cat}
+                        />
+                      );
                     })}
                     <div className="mt-10 flex justify-center">
                       <Link

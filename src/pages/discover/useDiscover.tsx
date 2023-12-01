@@ -25,7 +25,7 @@ function useDiscover({ categoryName, categories }: Props) {
         name: string;
       }
     | undefined
-  >(undefined);
+  >({ name: "Pretrazi po lokaciji" });
   const [filterName, setFilterName] = useState<string>("");
   const [sortPrice, setSortPrice] = useState<"asc" | "desc" | undefined>(
     undefined
@@ -71,7 +71,8 @@ function useDiscover({ categoryName, categories }: Props) {
     sortNew: sortNew,
     sortPopular: sortPopular,
     filterTitle: titleForSearch,
-    filterPlace: placeForSearch,
+    filterPlace:
+      placeForSearch === "Pretrazi po lokaciji" ? undefined : placeForSearch,
   });
 
   const OnFilterSearch = () => {
