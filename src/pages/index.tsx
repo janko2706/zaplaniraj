@@ -1,20 +1,21 @@
-import MainTemplate from "~/Templates/MainTemplate";
-import ContentMarginsTemplate from "~/Templates/ContentMarginsTemplate";
+import { useUser } from "@clerk/nextjs";
+import type { GetStaticProps } from "next";
+import { serverSideTranslations } from "next-i18next/serverSideTranslations";
+import { useRouter } from "next/router";
+import { useEffect } from "react";
 import HeroSection from "~/Molecules/HeroSection/HeroSection";
 import IndexCategorySection from "~/Organisms/IndexCategorySection/IndexCategorySection";
 import RecommendedIndex from "~/Organisms/RecommendedIndex/RecommendedIndex";
-import { useRouter } from "next/router";
-import { useEffect } from "react";
-import type { GetStaticProps } from "next";
-import { serverSideTranslations } from "next-i18next/serverSideTranslations";
+import ContentMarginsTemplate from "~/Templates/ContentMarginsTemplate";
+import MainTemplate from "~/Templates/MainTemplate";
 import { useHome } from "~/hooks/home/useHome";
-import { useUser } from "@clerk/nextjs";
 import useMenu from "~/hooks/useMenu/useMenu";
 export default function Home() {
   const user = useUser();
   const router = useRouter();
   const { getUserOnboarding, doesUserExists } = useHome();
   const { menus, userCompany } = useMenu();
+
 
   useEffect(() => {
     if (user.isSignedIn) {
@@ -54,7 +55,7 @@ export default function Home() {
       <MainTemplate menus={menus} userCompany={userCompany}>
         <>
           {/* HERO SECTION */}
-          <div className=" h-screen w-full bg-slate-100">
+          <div className="  w-full bg-slate-100">
             <HeroSection />
 
             {/* CATEGORIES SECTION */}
@@ -94,11 +95,11 @@ export default function Home() {
   );
 }
 
-import { appRouter } from "~/server/api/root";
-import superjson from "superjson";
-import { prisma } from "~/server/db";
-import Stripe from "stripe";
 import { createServerSideHelpers } from "@trpc/react-query/server";
+import Stripe from "stripe";
+import superjson from "superjson";
+import { appRouter } from "~/server/api/root";
+import { prisma } from "~/server/db";
 
 export const getStaticProps: GetStaticProps = async ({ locale }) => {
   const ssg = createServerSideHelpers({

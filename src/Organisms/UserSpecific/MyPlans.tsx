@@ -116,7 +116,6 @@ function MyPlans() {
                               router={router}
                               name={item.name}
                               icon={icon}
-                              date={new Date(item.eventDate ?? "")}
                               id={item.id}
                             />
                           </SpotlightCard>
@@ -149,7 +148,6 @@ function MyPlans() {
                                 router={router}
                                 name={item.name}
                                 icon={icon}
-                                date={new Date(item.eventDate ?? "")}
                                 id={item.id}
                               />
                             </SpotlightCard>

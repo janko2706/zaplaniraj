@@ -34,7 +34,6 @@ model UserPlan {
   businessesInPlan CompanyPost[]
   name             String
   color            String           @default("primary")
-  eventDate        String?
   tasks            PlanTask[]
   budget           Int              @default(0)
   user             User             @relation(fields: [userId], references: [id], onDelete: NoAction, onUpdate: NoAction)

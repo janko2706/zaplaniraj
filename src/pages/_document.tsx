@@ -16,7 +16,7 @@ export default function Document() {
       />
       <link rel="icon" href="/favicon.ico" sizes="any" />
       <link
-        href="https://fonts.googleapis.com/css2?family=Alex+Brush&family=PT+Sans:ital,wght@0,400;0,700;1,400;1,700&display=swap"
+        href="https://fonts.googleapis.com/css2?family=Alex+Brush&family=Satisfy&family=Schoolbell&family=Trochut&display=swap"
         rel="stylesheet"
       />
       <body>

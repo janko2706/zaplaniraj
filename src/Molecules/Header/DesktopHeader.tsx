@@ -55,10 +55,10 @@ const DesktopHeader = ({ user, appLogo, menus, bgColor }: Props) => {
 
   return (
     <header
-      className={`sticky top-0 z-30 hidden h-[75px] border-y align-middle lg:block ${
+      className={`sticky top-0 z-30 hidden h-[75px]  align-middle lg:block ${
         bgColor ?? "bg-white"
       }  ${
-        scrolled && "z-50 border-0  bg-opacity-70 shadow-md backdrop-blur "
+        scrolled && "z-50   border-0  bg-opacity-70 shadow-md backdrop-blur "
       } duration-300`}
     >
       <div className="container relative  flex h-full items-center justify-between  px-3 py-2 lg:px-0 lg:py-0">

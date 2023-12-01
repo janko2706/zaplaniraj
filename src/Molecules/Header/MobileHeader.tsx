@@ -34,7 +34,7 @@ const MobileMenu = ({ appLogo, userCompany }: Props) => {
   }, [path]);
   const user = useUser();
   return (
-    <header className="fixed bottom-0 left-0 right-0 z-[52] bg-white p-2 shadow lg:hidden">
+    <header className="fixed bottom-0 left-0 right-0 z-[52] bg-transparent p-2 shadow backdrop-blur-2xl  lg:hidden">
       <ul className=" flex items-center justify-around">
         <li>
           <Link

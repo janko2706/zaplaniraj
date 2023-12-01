@@ -202,12 +202,14 @@ export const businessPostRouter = createTRPCRouter({
         categoryLabel: z.string(),
         businessTypeLabel: z.string(),
         skip: z.number(),
+        take: z.number().default(10).optional(),
         filterPriceMin: z.number().optional(),
         filterPriceMax: z.number().optional(),
-        sortPrice: z.enum(sortOpts),
-        sortNew: z.enum(sortOpts),
-        sortPopular: z.enum(sortOpts),
-        filterTitle: z.string(),
+        sortPrice: z.enum(sortOpts).optional(),
+        sortNew: z.enum(sortOpts).optional(),
+        sortPopular: z.enum(sortOpts).optional(),
+        filterTitle: z.string().optional(),
+        filterPlace: z.string().optional(),
       })
     )
     .query(async ({ input, ctx }) => {
@@ -216,6 +218,9 @@ export const businessPostRouter = createTRPCRouter({
           where: {
             title: {
               contains: input.filterTitle,
+            },
+            location: {
+              contains: input.filterPlace,
             },
             isLive: true,
             priceRangeMax: {
@@ -237,19 +242,22 @@ export const businessPostRouter = createTRPCRouter({
               },
             },
           },
-          // TODO: FIX ORDER BY, it does not take objects the error sais??
-          orderBy: {
-            priceRangeMax: { sort: input.sortPrice },
-            business: {
-              user: {
-                createdAt: input.sortNew,
+          orderBy: [
+            { priceRangeMax: input.sortPrice },
+            {
+              business: {
+                user: {
+                  createdAt: input.sortNew,
+                },
               },
             },
-            statistics: {
-              visitors: input.sortPopular,
+            {
+              statistics: {
+                visitors: input.sortPopular,
+              },
             },
-          },
-          take: 10,
+          ],
+          take: input.take,
           skip: input.skip,
         });
         return posts;

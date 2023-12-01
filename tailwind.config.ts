@@ -20,6 +20,9 @@ export default {
       },
       fontFamily: {
         "Alex-Brush": ["Alex Brush, cursive"],
+        Satisfy: ["Satisfy, cursive"],
+        Schoolbell: ["Schoolbell, cursive"],
+        Trochut: ["Trochut, sans-serif"],
       },
       animation: {
         "spin-slow": "spin 5s linear infinite",

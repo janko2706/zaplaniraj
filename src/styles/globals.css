@@ -39,7 +39,7 @@
     @apply text-lg font-medium leading-[120%] text-[#243757] sm:text-2xl sm:font-semibold md:text-[32px];
   }
   .container {
-    @apply mx-auto sm:max-w-[540px] md:max-w-[720px] lg:max-w-[960px] xl:max-w-[1140px] xl:max-w-[1320px];
+    @apply mx-auto sm:max-w-[540px] md:max-w-[720px] lg:max-w-[960px] xl:max-w-[1320px];
   }
   .btn {
     @apply inline-flex items-center gap-2 rounded-[30px];
@@ -83,4 +83,3 @@
   height: 100%;
   user-select: none;
 }
-

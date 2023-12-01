@@ -1,9 +1,10 @@
 import Image from "next/image";
 import Link from "next/link";
 import { HeartIcon as HeartIconOutline } from "@heroicons/react/24/outline";
-import { useState } from "react";
+import { type MouseEvent, useState } from "react";
 import { HeartIcon, MapPinIcon } from "@heroicons/react/20/solid";
 import { toast } from "react-toastify";
+import { useRouter } from "next/router";
 
 const notifyAdd = () => toast.success("Added to Wishlist.");
 const notifyRemove = () => toast.error("Removed From Wishlist.");
@@ -20,17 +21,26 @@ type CardProps = {
 };
 const ListCard = ({ item }: CardProps) => {
   const [favourite, setFavourite] = useState(false);
-  const { id, address, title, img, priceRange } = item;
+  const { id, address, title, img, priceRange, type } = item;
   const [isLoading, setIsLoading] = useState<boolean>(true);
-  const handleFavorite = () => {
+  const handleFavorite = (e: MouseEvent<HTMLButtonElement>) => {
+    e.stopPropagation();
+    e.preventDefault();
     setFavourite(!favourite);
     favourite ? notifyRemove() : notifyAdd();
   };
-
+  const { replace } = useRouter();
   return (
     <div
       key={id}
       className="relative mx-3 flex cursor-pointer flex-wrap rounded-2xl p-3 shadow-md shadow-dark transition-all duration-300 hover:shadow-xl hover:shadow-dark lg:m-0 lg:flex-nowrap"
+      onClick={(e) => {
+        e.stopPropagation();
+        e.preventDefault();
+        void (async () => {
+          await replace(`/post/${item.id}/details`);
+        })();
+      }}
     >
       <button
         onClick={handleFavorite}
@@ -62,7 +72,7 @@ const ListCard = ({ item }: CardProps) => {
         <div>
           <Link
             href={`/post/${id}/details`}
-            className="pl-4 text-2xl font-medium text-neutral-700"
+            className="line-clamp-2 max-w-[18rem] truncate pl-4 text-2xl font-medium text-neutral-700 lg:max-w-[40rem]"
           >
             {title}
           </Link>
@@ -72,6 +82,18 @@ const ListCard = ({ item }: CardProps) => {
               <MapPinIcon className="h-5 w-5" />
               {address}
             </span>
+          </div>
+          <div className="mx-3 md:mx-5">
+            <div className=" border-t"></div>
+          </div>
+          <div className="mx-3 md:mx-5">
+            <p>
+              <span className="text-sm">Opis usluge: </span>
+              <span className="line-clamp-2 max-w-lg truncate text-lg">
+                {" "}
+                {type}{" "}
+              </span>
+            </p>
           </div>
           <div className="mx-3 md:mx-5">
             <div className=" border-t"></div>

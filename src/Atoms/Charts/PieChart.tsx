@@ -31,7 +31,7 @@ function PieChart({ companyPost }: Props) {
     {
       percentage: companyPost.statistics.Celebrations,
       name: "Slavlja",
-      color: "#37D279",
+      color: "#d23737",
     },
     {
       percentage: companyPost.statistics.Business,
@@ -41,7 +41,7 @@ function PieChart({ companyPost }: Props) {
     {
       percentage: companyPost.statistics.Birthdays,
       name: "Rodendani",
-      color: "#FE6F5E",
+      color: "#FFBE46",
     },
   ];
   const options: ApexOptions = {

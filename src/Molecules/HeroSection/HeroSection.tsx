@@ -174,14 +174,6 @@ function HeroSection() {
                 </div>
               </div> */}
             </div>
-            <div className="mx-auto mt-16">
-              <button className="mb-2 rounded-full bg-primary p-4 text-white">
-                <Link href="#">
-                  <ChevronDownIcon width={30} height={30} />
-                </Link>
-              </button>
-              <br />
-            </div>
           </div>
         </div>
       </div>

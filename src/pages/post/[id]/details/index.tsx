@@ -50,6 +50,9 @@ const Index = (props: InferGetStaticPropsType<typeof getStaticProps>) => {
 
   const { updateStatistics } = useStatistics();
 
+  const { query } = useRouter();
+  const category = query.category;
+
   const [post, setPost] = useState<WholePostType | undefined>();
   const { isSignedIn, user } = useUser();
 
@@ -61,10 +64,14 @@ const Index = (props: InferGetStaticPropsType<typeof getStaticProps>) => {
   useEffect(() => {
     if (isSignedIn) {
       const month = format(new Date(), "LLLL");
-      const category = "Weddings";
       if (!post?.statisticId) return;
+      if (!category) return;
       void (async () => {
-        await updateStatistics({ id: post?.statisticId ?? 0, month, category });
+        await updateStatistics({
+          id: post?.statisticId ?? 0,
+          month,
+          category: category as string,
+        });
       })();
     }
   }, [isSignedIn, updateStatistics, post]);
@@ -267,7 +274,7 @@ const Index = (props: InferGetStaticPropsType<typeof getStaticProps>) => {
                       id="parking"
                       style={tooltipStyle}
                       offset={7}
-                      content={`${post.title} ima ${
+                      content={`Ukljuceno ${
                         post.parkingPlaces ? post.parkingPlaces : 0
                       } mjesta za parking.`}
                     />
@@ -689,6 +696,7 @@ import { useEffect, useState } from "react";
 import LoadingSpinner from "~/Atoms/LoadingSpinner/LoadingSpinner";
 import { useUser } from "@clerk/nextjs";
 import useStatistics from "~/Organisms/CompanySpecific/useStatistics";
+import { useRouter } from "next/router";
 
 export const getStaticProps: GetStaticProps = async ({ locale, params }) => {
   const helpers = createServerSideHelpers({

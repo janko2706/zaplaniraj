@@ -1,26 +1,19 @@
-import moment from "moment";
-import { type NextRouter } from "next/router";
-import Link from "next/link";
 import { TrashIcon } from "@heroicons/react/20/solid";
-import SmallModal from "~/Atoms/SmallModal/SmallModal";
+import Link from "next/link";
+import { type NextRouter } from "next/router";
 import { useState } from "react";
+import SmallModal from "~/Atoms/SmallModal/SmallModal";
 
 type PropsCard = {
   router: NextRouter;
   id: string;
   name: string;
   icon: JSX.Element;
-  date: Date;
   deletePlan: (id: string) => Promise<void>;
 };
 
-const PlanCard = ({ name, icon, date, id, router, deletePlan }: PropsCard) => {
-  const endDate = moment(date),
-    todayDate = moment();
-
+const PlanCard = ({ name, icon, id, router, deletePlan }: PropsCard) => {
   const [openDeleteModal, setOpenDeleteModal] = useState(false);
-
-  const daysDifference = moment(endDate).diff(todayDate, "days");
 
   return (
     <>
@@ -43,17 +36,6 @@ const PlanCard = ({ name, icon, date, id, router, deletePlan }: PropsCard) => {
               </div>
               <div className="flex-grow">
                 <h5 className="mb-1 font-medium">{name}</h5>
-                {!Number.isNaN(daysDifference) ?? (
-                  <ul className=" flex flex-wrap items-center">
-                    <li>
-                      <span className="inline-block text-sm">
-                        <span className="inline-block text-neutral-500">
-                          {daysDifference} days remaining
-                        </span>
-                      </span>
-                    </li>
-                  </ul>
-                )}
               </div>
             </div>
             <div className="flex gap-4 pt-4">

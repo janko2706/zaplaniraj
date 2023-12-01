@@ -6,7 +6,7 @@ import DiscoverHeader from "~/Templates/Discover/DiscoverHeaderTemplate";
 import DiscoverPosts from "~/Templates/Discover/DiscoverPostsTemplate";
 import MainTemplate from "~/Templates/MainTemplate";
 import useDiscover from "../useDiscover";
-import { weddingCategories } from "./weddingCategories";
+import { birthdayCategories } from "./birthdayCategories";
 
 function Index() {
   const { query, replace } = useRouter();
@@ -40,8 +40,8 @@ function Index() {
     refetch,
     skip,
   } = useDiscover({
-    categoryName: "Vjencanja",
-    categories: weddingCategories({ replace, iconClasses: "h-5 w-5" }),
+    categoryName: "Rodendani",
+    categories: birthdayCategories({ replace, iconClasses: "h-5 w-5" }),
   });
 
   useEffect(() => {
@@ -66,12 +66,12 @@ function Index() {
 
   useEffect(() => {
     void (async () => await refetch())();
-    window.scrollTo({ top: 0, behavior: "auto" });
+    window.scrollTo({ top: 0, behavior: "smooth" });
   }, [category, skip, refetch]);
 
   useEffect(() => {
     setSelectedCategory(
-      weddingCategories({ replace, iconClasses: "h-5 w-5" }).find(
+      birthdayCategories({ replace, iconClasses: "h-5 w-5" }).find(
         (i) => i.name === ((category as string) ?? "Prostori")
       )
     );
@@ -79,13 +79,13 @@ function Index() {
 
   return (
     <MainTemplate
-      bgColorDesktop="bg-primaryLight"
+      bgColorDesktop="bg-blue-200"
       menus={menus}
       userCompany={userCompany}
     >
       <>
         <DiscoverHeader
-          categories={weddingCategories({
+          categories={birthdayCategories({
             replace,
             iconClasses: "h-5 w-5",
           })}
@@ -105,9 +105,9 @@ function Index() {
           sortItems={sortItems}
           selectedSort={selectedSort}
           setSelectedSort={setSelectedSort}
-          headerColor={"bg-primaryLight"}
-          headerTitle={"Vjencanja"}
-          headerFont={"font-Alex-Brush"}
+          headerColor={"bg-blue-200"}
+          headerTitle={"Rodendani"}
+          headerFont={"font-Schoolbell"}
         />
         <DiscoverPosts
           posts={posts}

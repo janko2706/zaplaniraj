@@ -37,15 +37,15 @@ function useMenu() {
           title: t("Category1"),
           submenu: [
             {
-              title: "Venues",
-              url: "/discover/wedding?category=Venue",
+              title: "Prostori",
+              url: "/discover/wedding?category=Prostori",
             },
             {
-              title: "Music",
+              title: "Muzika",
               url: "/discover/wedding?category=Music",
             },
             {
-              title: "Catering",
+              title: "Katering",
               url: "/discover/wedding?category=Catering",
             },
             {
@@ -53,11 +53,11 @@ function useMenu() {
               url: "/discover/wedding?category=Transport",
             },
             {
-              title: "Flowers",
+              title: "Cvijece",
               url: "/discover/wedding?category=Flowers",
             },
             {
-              title: "Cakes",
+              title: "Torte",
               url: "/discover/wedding?category=Cakes",
             },
           ],
@@ -66,12 +66,16 @@ function useMenu() {
           title: t("Category2"),
           submenu: [
             {
-              title: "Agent",
-              url: "/agent",
+              title: "Prostori",
+              url: "/discover/birthday?category=Prostori",
             },
             {
-              title: "Agent Details List",
-              url: "/agent-details-list",
+              title: "Torte",
+              url: "/discover/birthday?category=Torte",
+            },
+            {
+              title: "Zabava",
+              url: "/discover/birthday?category=Zabava",
             },
           ],
         },

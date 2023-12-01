@@ -2,6 +2,8 @@ export const getCategoryTranslation = (value: string) => {
   switch (value) {
     case "Venue":
       return "Prostori";
+    case "Entertainment":
+      return "Zabava";
     case "Flowers":
       return "Cvijece";
     case "Transport":
@@ -16,10 +18,23 @@ export const getCategoryTranslation = (value: string) => {
       return "";
   }
 };
+export const getTranslationForRouter = (value: string) => {
+  switch (value) {
+    case "Vjencanja":
+      return "wedding";
+    case "Rodendani":
+      return "birthday";
+
+    default:
+      return "";
+  }
+};
 export const getCategoryTranslationBackToEnglish = (value: string) => {
   switch (value) {
     case "Prostori":
       return "Venue";
+    case "Zabava":
+      return "Entertainment";
     case "Cvijece":
       return "Flowers";
     case "Transport":
@@ -31,7 +46,7 @@ export const getCategoryTranslationBackToEnglish = (value: string) => {
     case "Katering":
       return "Catering";
     default:
-      return undefined;
+      return "";
   }
 };
 export const getEventTypeTranslation = (value?: string) => {
