@@ -1,11 +1,10 @@
-import { useRouter } from "next/router";
-import { motion } from "framer-motion";
 import { ArrowRightIcon } from "@heroicons/react/24/outline";
-import Select from "react-select";
-import type { SingleValue } from "react-select";
+import { motion } from "framer-motion";
+import { useRouter } from "next/router";
 import { useEffect, useState } from "react";
+import type { SingleValue } from "react-select";
+import Select from "react-select";
 import { api } from "~/utils/api";
-import { toast } from "react-toastify";
 const STAGGER_CHILD_VARIANTS = {
   hidden: { opacity: 0, y: 20 },
   show: { opacity: 1, y: 0, transition: { duration: 0.4, type: "spring" } },

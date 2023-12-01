@@ -1,18 +1,17 @@
-import React, { useState } from "react";
+import {
+  CalendarDaysIcon,
+  MagnifyingGlassIcon,
+} from "@heroicons/react/20/solid";
+import { useTranslation } from "next-i18next";
 import Image from "next/image";
 import Link from "next/link";
-import {
-  ChevronDownIcon,
-  MagnifyingGlassIcon,
-  CalendarDaysIcon,
-} from "@heroicons/react/20/solid";
-import heroImage from "../../Assets/HeroAssets/heroImage.png";
-import { useTranslation } from "next-i18next";
+import { useState } from "react";
 import { CgDollar, CgRing } from "react-icons/cg";
 import { FaBirthdayCake, FaChurch } from "react-icons/fa";
 import { LuPartyPopper } from "react-icons/lu";
-import { HeroDropdown } from "./HeroDropdown/HeroDropdown";
 import { useParallax } from "react-scroll-parallax";
+import heroImage from "../../Assets/HeroAssets/heroImage.png";
+import { HeroDropdown } from "./HeroDropdown/HeroDropdown";
 
 function HeroSection() {
   const { t } = useTranslation("frontPage");

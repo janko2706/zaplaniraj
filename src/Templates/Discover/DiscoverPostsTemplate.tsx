@@ -1,6 +1,5 @@
 import { motion } from "framer-motion";
-import { useRouter } from "next/router";
-import React, { type Dispatch, type SetStateAction } from "react";
+import { type Dispatch, type SetStateAction } from "react";
 import LoadingSpinner from "~/Atoms/LoadingSpinner/LoadingSpinner";
 import ListCard from "~/Molecules/ListCard/ListCard";
 import Pagination from "~/Molecules/Pagination/Pagination";
