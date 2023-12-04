@@ -284,15 +284,17 @@ export const businessPostRouter = createTRPCRouter({
         companyDescription: z.string().optional().nullable(),
         serviceDescription: z.string().optional().nullable(),
         selectedCategoryIds: z.number().array().optional().nullable(),
-        prices: z.array(
-          z.object({
-            id: z.number(),
-            name: z.string(),
-            price: z.number(),
-            unit: z.string(),
-            maximum: z.number(),
-          })
-        ),
+        prices: z
+          .array(
+            z.object({
+              id: z.number(),
+              name: z.string(),
+              price: z.number(),
+              unit: z.string(),
+              maximum: z.number(),
+            })
+          )
+          .optional(),
         pictures: z
           .string()
           .array()
@@ -359,7 +361,7 @@ export const businessPostRouter = createTRPCRouter({
     )
     .mutation(async ({ input, ctx }) => {
       try {
-        if (input.prices.length) {
+        if (input.prices?.length) {
           input.prices.map(async (item) => {
             await ctx.prisma.postPrice.update({
               where: {
@@ -408,7 +410,7 @@ export const businessPostRouter = createTRPCRouter({
           include: {
             statistics: true,
             selectedCategoriesIds: true,
-
+            prices: true,
             reviews: {
               where: {
                 companyPostId: input.id,
