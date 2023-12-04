@@ -30,6 +30,9 @@ export const businessRouter = createTRPCRouter({
             clerkId: input.clerkId,
           },
         },
+        include: {
+          typeOfBusiness: true,
+        },
       });
 
       if (!business) {

@@ -17,31 +17,41 @@ function PieChart({ companyPost }: Props) {
       </div>
     );
   }
-  const categoryArray: { name: string; percentage: number; color: string }[] = [
+  const categoryArray: {
+    name: string;
+    percentage: number;
+    color: string;
+    tailwindColor: string;
+  }[] = [
     {
       percentage: companyPost.statistics.Weddings,
       name: "Vjenjcanje",
-      color: "#585BF0",
+      color: "#58A4F0",
+      tailwindColor: "bg-[#58A4F0]",
     },
     {
       percentage: companyPost.statistics.Sacraments,
       name: "Sakramenti",
       color: "#FFBE46",
+      tailwindColor: "bg-[#FFBE46]",
     },
     {
       percentage: companyPost.statistics.Celebrations,
       name: "Slavlja",
-      color: "#d23737",
+      color: "#D23737",
+      tailwindColor: "bg-[#D23737]",
     },
     {
       percentage: companyPost.statistics.Business,
       name: "Poslovno",
       color: "#8A8DF5",
+      tailwindColor: "bg-[#8A8DF5]",
     },
     {
       percentage: companyPost.statistics.Birthdays,
       name: "Rodendani",
-      color: "#FFBE46",
+      color: "#619434",
+      tailwindColor: "bg-[#619434]",
     },
   ];
   const options: ApexOptions = {
@@ -71,25 +81,26 @@ function PieChart({ companyPost }: Props) {
   return (
     <div className="grid grid-cols-2 gap-5 lg:gap-12">
       <div className="col-span-2 md:col-span-1">
-        <Chart options={options} series={series} type="pie" width={300} />
+        <Chart options={options} series={series} type="pie" width={250} />
       </div>
       <div className="col-span-2 flex items-center md:col-span-1">
-        <ul className="flex w-full flex-col flex-wrap gap-4">
+        <ul className="flex w-full flex-col gap-4">
           {categoryArray.map((item, idx) => {
+            console.log(`h-2 w-2 rounded-full bg-${item.tailwindColor}`);
             return (
               <li key={idx} className="flex items-center justify-between">
-                <span className="flex items-center gap-2">
-                  <span
-                    className={`h-2 w-2 rounded-full bg-[${item.color}]`}
-                  ></span>
+                <div className="flex items-center gap-2">
+                  <div
+                    className={`h-2 w-2 rounded-full ${item.tailwindColor}`}
+                  ></div>
                   {item.name}
-                </span>
-                <span>
+                </div>
+                <div>
                   {Math.round(
                     (item.percentage / companyPost.statistics.visitors) * 100
                   )}
                   %
-                </span>
+                </div>
               </li>
             );
           })}
@@ -100,40 +111,3 @@ function PieChart({ companyPost }: Props) {
 }
 
 export default PieChart;
-<div className="grid grid-cols-2 gap-5 lg:gap-12">
-  <div className="col-span-2 md:col-span-1">
-    <PieChart />
-  </div>
-  <div className="col-span-2 flex items-center md:col-span-1">
-    <ul className="flex w-full flex-col flex-wrap gap-4">
-      <li className="flex items-center justify-between">
-        <span className="flex items-center gap-2">
-          <span className="h-2 w-2 rounded-full bg-[#585BF0]"></span>
-          Organic
-        </span>
-        <span>64%</span>
-      </li>
-      <li className="flex items-center justify-between">
-        <span className="flex items-center gap-2">
-          <span className="h-2 w-2 rounded-full bg-[#FFBE46]"></span>
-          Google
-        </span>
-        <span>12%</span>
-      </li>
-      <li className="flex items-center justify-between">
-        <span className="flex items-center gap-2">
-          <span className="h-2 w-2 rounded-full bg-[#37D279]"></span>
-          Social Media
-        </span>
-        <span>13%</span>
-      </li>
-      <li className="flex items-center justify-between">
-        <span className="flex items-center gap-2">
-          <span className="h-2 w-2 rounded-full bg-[#8A8DF5]"></span>
-          Referral program
-        </span>
-        <span>11%</span>
-      </li>
-    </ul>
-  </div>
-</div>;

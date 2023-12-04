@@ -138,8 +138,21 @@ model CompanyPost {
   statisticId           Int             @unique
   UserPlan              UserPlan?       @relation(fields: [userPlanId], references: [id])
   userPlanId            String?
+  prices                PostPrice[]
 
   @@index([userPlanId])
+}
+
+model PostPrice {
+  id            Int          @id @default(autoincrement())
+  name          String
+  price         Int
+  unit          String
+  CompanyPost   CompanyPost? @relation(fields: [companyPostId], references: [id])
+  companyPostId Int?
+  maximum       Int
+
+  @@index([companyPostId])
 }
 
 model Statistic {

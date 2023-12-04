@@ -16,9 +16,9 @@ import RangeSliderComponent from "~/Atoms/RangeSlider/RangeSlider";
 import Map from "~/Molecules/Map/Map";
 import { useCompanyPost } from "./useCompanyPost";
 import Uploader from "~/Molecules/Uploader/Uploader";
-import PreviewModal from "~/Molecules/PreviewModal/PreviewModal";
 import { type CompanyPostWihtoutDate } from "~/utils/types";
 import LoadingSpinner from "~/Atoms/LoadingSpinner/LoadingSpinner";
+import { useImmer } from "use-immer";
 
 const tooltipStyle = {
   backgroundColor: "#3539E9",
@@ -31,13 +31,17 @@ type Props = {
 };
 
 function CompanyPostView({ companyPost }: Props) {
-  const { eventCategories, updatePost, deletePostImage, isUpdatePostLoading } =
-    useCompanyPost();
+  const {
+    eventCategories,
+    updatePost,
+    deletePostImage,
+    isUpdatePostLoading,
+    createPostPrice,
+    isCreatingPrice,
+  } = useCompanyPost();
 
   const [currentPost, setCurrentPost] =
     useState<CompanyPostWihtoutDate>(companyPost);
-
-  const [previewOpen, setPreviewOpen] = useState<boolean>(false);
   const [contactPhones, setContactPhones] = useState<string[]>(
     currentPost.contactPhones?.split(",") ?? []
   );
@@ -100,6 +104,15 @@ function CompanyPostView({ companyPost }: Props) {
       lng: langitude,
     }));
   };
+  const [prices, setPrices] = useImmer<
+    {
+      name: string;
+      price: number;
+      unit: string;
+      id: number;
+      maximum: number;
+    }[]
+  >(companyPost.prices);
 
   async function postAction(e: FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -107,6 +120,7 @@ function CompanyPostView({ companyPost }: Props) {
     try {
       const result = await updatePost({
         ...currentPost,
+        prices,
         pictures: currentPost.pictures?.split(","),
         offerPictures: currentPost.offerPictures?.split(","),
         tags: currentPost.tags?.split(","),
@@ -122,7 +136,6 @@ function CompanyPostView({ companyPost }: Props) {
           ...result,
         });
         toast.success("Promjene spremljene");
-        setPreviewOpen(true);
       }
     } catch (error) {
       toast.error("Doslo je do pogreske molimo pokusajte ponovo kasnije.");
@@ -347,7 +360,187 @@ function CompanyPostView({ companyPost }: Props) {
               </div>
             </Accordion>
           </div>
-          {/* Map */}
+          {/* Details for price calc */}
+          <div className="mb-5 rounded-2xl bg-white p-4 sm:mb-8 sm:p-6 md:mb-12 md:p-10">
+            <Accordion
+              buttonContent={(open) => (
+                <div className="flex items-center justify-between rounded-2xl">
+                  <div className="flex items-center gap-3">
+                    <h3 className="h3">Kalkulacija cijene usluge </h3>
+                    <QuestionMarkCircleIcon
+                      className=" h-6 w-6 text-primary"
+                      data-tooltip-id="price-calc"
+                    />
+                    <Tooltip
+                      id="price-calc"
+                      style={tooltipStyle}
+                      className="max-w-sm"
+                      offset={7}
+                      content="Ovi podaci ce omoguciti korisniku da izracuna potencijalnu cijenu Vase usluge..."
+                    />
+                  </div>
+                  <ChevronDownIcon
+                    className={`h-5 w-5 duration-300 sm:h-6 sm:w-6 ${
+                      open ? "rotate-180" : ""
+                    }`}
+                  />
+                </div>
+              )}
+              initialOpen={false}
+            >
+              <div className="pt-6">
+                <div className="mt-6">
+                  <div className="h-fit">
+                    {!isCreatingPrice ? (
+                      <div>
+                        <div className="mb-5 flex w-full flex-col items-center gap-4 overflow-x-auto">
+                          {prices.map((item, idx) => {
+                            return (
+                              <div
+                                key={idx}
+                                className="flex w-full justify-between gap-3 "
+                              >
+                                <div className="flex min-w-fit flex-col">
+                                  <label htmlFor={`price-${idx}-name`}>
+                                    Naziv
+                                  </label>
+                                  <input
+                                    type="text"
+                                    id={`price-${idx}-name`}
+                                    className="w-full rounded-md border p-2 text-base focus:outline-none"
+                                    placeholder="Naziv"
+                                    value={item.name}
+                                    onChange={(e) => {
+                                      setPrices((prev) => {
+                                        const thisItem = prev[idx];
+                                        if (!thisItem) return;
+                                        thisItem.name = e.target.value;
+                                      });
+                                    }}
+                                  />
+                                </div>
+                                <div className="flex flex-col">
+                                  <label
+                                    htmlFor={`price-${idx}-unit`}
+                                    className="line-clamp-2 truncate"
+                                  >
+                                    Mjerna jedinica
+                                  </label>
+                                  <input
+                                    type="text"
+                                    id={`price-${idx}-unit`}
+                                    className="w-full rounded-md border p-2 text-base focus:outline-none"
+                                    placeholder="Mjerna jedinica"
+                                    value={item.unit}
+                                    onChange={(e) => {
+                                      setPrices((prev) => {
+                                        const thisItem = prev[idx];
+                                        if (!thisItem) return;
+                                        thisItem.unit = e.target.value;
+                                      });
+                                    }}
+                                  />
+                                </div>
+                                <div className="flex w-full flex-col">
+                                  <label
+                                    htmlFor={`price-${idx}-price`}
+                                    className="line-clamp-1 truncate"
+                                  >
+                                    Cijena po ({item.unit})
+                                  </label>
+                                  <input
+                                    type="number"
+                                    id={`price-${idx}-price`}
+                                    className="w-full rounded-md border p-2 text-base focus:outline-none"
+                                    placeholder="cijena u eurima"
+                                    value={item.price}
+                                    onChange={(e) => {
+                                      setPrices((prev) => {
+                                        const thisItem = prev[idx];
+                                        if (!thisItem) return;
+                                        thisItem.price = Number(
+                                          e.target.value as unknown as number
+                                        );
+                                      });
+                                    }}
+                                  />
+                                </div>
+                                <div className="flex flex-col">
+                                  <label htmlFor={`price-${idx}-max`}>
+                                    Maximalno
+                                  </label>
+                                  <input
+                                    type="number"
+                                    id={`price-${idx}-max`}
+                                    className="w-full rounded-md border p-2 text-base focus:outline-none"
+                                    placeholder="maximalan broj ljudi/usluga..."
+                                    value={item.maximum}
+                                    onChange={(e) => {
+                                      setPrices((prev) => {
+                                        const thisItem = prev[idx];
+                                        if (!thisItem) return;
+                                        thisItem.maximum = Number(
+                                          e.target.value as unknown as number
+                                        );
+                                      });
+                                    }}
+                                  />
+                                </div>
+
+                                <button
+                                  className="flex h-fit cursor-pointer items-center gap-2 self-end rounded-md bg-slate-200 px-3 py-1 transition-all duration-300 ease-in-out hover:bg-slate-400 hover:shadow-lg"
+                                  type="button"
+                                  onClick={() => {
+                                    setPrices((prev) => {
+                                      return prev.filter((_, i) => i !== idx);
+                                    });
+                                  }}
+                                >
+                                  <XCircleIcon className="h-5 w-5 text-red-400" />
+                                  makni
+                                </button>
+                              </div>
+                            );
+                          })}
+                        </div>
+                        {prices.length < 5 && (
+                          <button
+                            className="flex w-fit cursor-pointer items-center gap-2 rounded-md bg-slate-200 px-3 py-1 transition-all duration-300 ease-in-out hover:bg-slate-400 hover:shadow-lg"
+                            type="button"
+                            // eslint-disable-next-line @typescript-eslint/no-misused-promises
+                            onClick={async (e) => {
+                              e.preventDefault();
+                              const newPost = await createPostPrice({
+                                name: "",
+                                price: 0,
+                                unit: "",
+                                maximum: 0,
+                                postId: companyPost.id,
+                              });
+                              setPrices((prev) => {
+                                prev.push(newPost);
+                              });
+                            }}
+                          >
+                            <PlusCircleIcon className="h-5 w-5" />
+                            <p>Dodaj cijenu</p>
+                          </button>
+                        )}
+                      </div>
+                    ) : (
+                      <div className="flex justify-center">
+                        <LoadingSpinner
+                          spinnerWidth="w-8"
+                          spinnerHeight="h-8"
+                        />
+                      </div>
+                    )}
+                  </div>
+                </div>
+              </div>
+            </Accordion>
+          </div>
+          {/* Location */}
           <div className="mb-5 rounded-2xl bg-white p-4 sm:mb-8 sm:p-6 md:mb-12 md:p-10">
             <Accordion
               buttonContent={(open) => (
@@ -389,6 +582,7 @@ function CompanyPostView({ companyPost }: Props) {
                     <Tooltip
                       id="details"
                       style={tooltipStyle}
+                      className="max-w-sm"
                       offset={7}
                       content="Ukoliko se neki detalji ne odnose na Vase poslovanje, ostavite ih prazne."
                     />
@@ -403,30 +597,6 @@ function CompanyPostView({ companyPost }: Props) {
               initialOpen={false}
             >
               <div className="pt-6">
-                <p className="mb-4 text-xl font-medium">
-                  Maksimalan broj ljudi :
-                </p>
-                <input
-                  type="text"
-                  className="w-full rounded-md border p-2 text-base focus:outline-none"
-                  placeholder="Broj ljudi..."
-                  value={currentPost.maximumPeople ?? 0}
-                  onChange={(e) => {
-                    const num = parseInt(e.target.value, 10);
-                    if (e.target.value === "") {
-                      setCurrentPost((prev) => ({ ...prev, maximumPeople: 0 }));
-                      return;
-                    }
-                    if (!Number.isNaN(num)) {
-                      setCurrentPost((prev) => ({
-                        ...prev,
-                        maximumPeople: num,
-                      }));
-                    } else {
-                      toast.error("Potreban broj!");
-                    }
-                  }}
-                />
                 <p className="mb-4 mt-6 text-xl font-medium">
                   Najranije slobodno :
                 </p>
@@ -444,24 +614,6 @@ function CompanyPostView({ companyPost }: Props) {
                     }));
                   }}
                 />
-
-                <div className="mb-4  mt-6 flex items-center gap-5 text-xl font-medium">
-                  <label htmlFor="visit-checkbox" className=" text-gray-900">
-                    Mogucnost posjeta :
-                  </label>
-                  <input
-                    id="visit-checkbox"
-                    type="checkbox"
-                    checked={currentPost.userCanVisit ?? false}
-                    className="h-4 w-4 rounded border-gray-700  text-blue-600 "
-                    onChange={(e) =>
-                      setCurrentPost((prev) => ({
-                        ...prev,
-                        userCanVisit: e.target.checked,
-                      }))
-                    }
-                  />
-                </div>
                 <p className="mb-4 mt-6 text-xl font-medium">
                   Kljucne rijeci :
                 </p>
@@ -471,9 +623,11 @@ function CompanyPostView({ companyPost }: Props) {
                   isMulti
                   isClearable
                   value={
-                    currentPost.tags
-                      ?.split(",")
-                      .map((item) => ({ label: item, value: item })) ?? []
+                    currentPost.tags !== ""
+                      ? currentPost.tags
+                          ?.split(",")
+                          .map((item) => ({ label: item, value: item }))
+                      : []
                   }
                   placeholder="Npr. romanticno, cvijece, zabavan prostor, itd..."
                   onChange={(
@@ -552,7 +706,7 @@ function CompanyPostView({ companyPost }: Props) {
               initialOpen={false}
             >
               <div className="pt-6">
-                <p className="mb-4 mt-6 text-xl font-medium">Phone :</p>
+                <p className="mb-4 mt-6 text-xl font-medium">Broj telefona :</p>
                 <div className="mb-5 flex flex-col gap-4">
                   {contactPhonesNedded.map((_item, idx) => {
                     return (
@@ -561,7 +715,7 @@ function CompanyPostView({ companyPost }: Props) {
                           type="tel"
                           pattern="^[0-9]{3,45}$"
                           className="w-full rounded-md border p-2 text-base focus:outline-none"
-                          placeholder="Enter Number"
+                          placeholder="Unesite broj"
                           value={contactPhones[idx]}
                           onChange={(e) => {
                             const newArray = [...contactPhones];
@@ -601,7 +755,7 @@ function CompanyPostView({ companyPost }: Props) {
                   </div>
                 )}
 
-                <p className="mb-4 mt-6 text-xl font-medium">Email :</p>
+                <p className="mb-4 mt-6 text-xl font-medium">Email adresa:</p>
                 <div className="mb-5 flex flex-col gap-4">
                   {contactEmailsNedded.map((_item, idx) => {
                     return (
@@ -609,7 +763,7 @@ function CompanyPostView({ companyPost }: Props) {
                         <input
                           type="email"
                           className="w-full rounded-md border p-2 text-base focus:outline-none"
-                          placeholder="Enter email"
+                          placeholder="Unesite email"
                           value={contactEmails[idx]}
                           onChange={(e) => {
                             const newArray = [...contactEmails];
@@ -694,63 +848,14 @@ function CompanyPostView({ companyPost }: Props) {
             // eslint-disable-next-line @typescript-eslint/no-misused-promises
             onSubmit={async (e) => {
               await postAction(e);
-              setPreviewOpen(true);
             }}
           >
-            <div className="py-6 md:py-10">
-              <ul className="flex flex-col gap-4">
-                <li>
-                  <div className="mb-4 flex items-center">
-                    <input
-                      id="terms-checkbox"
-                      type="checkbox"
-                      value=""
-                      className="h-4 w-4 rounded border-gray-300 bg-gray-100 text-blue-600 focus:ring-2 focus:ring-blue-500"
-                      required
-                    />
-                    <label
-                      htmlFor="terms-checkbox"
-                      className="ml-2 text-sm font-medium text-gray-900"
-                    >
-                      Uvjeti koristenja
-                    </label>
-                  </div>
-                </li>
-                <li>
-                  <div className="mb-4 flex items-center">
-                    <input
-                      id="privacy-checkbox"
-                      type="checkbox"
-                      value=""
-                      className="h-4 w-4 rounded border-gray-300 bg-gray-100 text-blue-600 focus:ring-2 focus:ring-blue-500"
-                      required
-                    />
-                    <label
-                      htmlFor="privacy-checkbox"
-                      className="ml-2 text-sm font-medium text-gray-900"
-                    >
-                      Privatnost
-                    </label>
-                  </div>
-                </li>
-              </ul>
-            </div>
-
-            <button type="submit" className="btn-primary font-semibold">
-              Spremi i pregledaj
+            <button type="submit" className="btn-primary mt-6 font-semibold">
+              Spremi promjene
             </button>
           </form>
         </div>
       </div>
-      <PreviewModal
-        isCompanyPreview={true}
-        open={previewOpen}
-        setOpen={setPreviewOpen}
-        previewPicture={
-          currentPost.pictures ? currentPost.pictures.split(",")[0] ?? "" : ""
-        }
-        name={currentPost.title}
-      />
     </div>
   );
 }

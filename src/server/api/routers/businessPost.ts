@@ -34,6 +34,7 @@ export const businessPostRouter = createTRPCRouter({
         },
         include: {
           selectedCategoriesIds: true,
+          prices: true,
         },
       });
 
@@ -177,6 +178,10 @@ export const businessPostRouter = createTRPCRouter({
             where: {
               companyPostId: input.postId,
             },
+            take: 10,
+          },
+          prices: {
+            where: { companyPostId: input.postId },
           },
           statistics: true,
           selectedCategoriesIds: true,
@@ -279,6 +284,15 @@ export const businessPostRouter = createTRPCRouter({
         companyDescription: z.string().optional().nullable(),
         serviceDescription: z.string().optional().nullable(),
         selectedCategoryIds: z.number().array().optional().nullable(),
+        prices: z.array(
+          z.object({
+            id: z.number(),
+            name: z.string(),
+            price: z.number(),
+            unit: z.string(),
+            maximum: z.number(),
+          })
+        ),
         pictures: z
           .string()
           .array()
@@ -345,6 +359,21 @@ export const businessPostRouter = createTRPCRouter({
     )
     .mutation(async ({ input, ctx }) => {
       try {
+        if (input.prices.length) {
+          input.prices.map(async (item) => {
+            await ctx.prisma.postPrice.update({
+              where: {
+                id: item.id,
+              },
+              data: {
+                name: item.name,
+                price: item.price,
+                maximum: item.maximum,
+                unit: item.unit,
+              },
+            });
+          });
+        }
         const updatedPost = await ctx.prisma.companyPost.update({
           where: {
             id: input.id,
@@ -379,6 +408,7 @@ export const businessPostRouter = createTRPCRouter({
           include: {
             statistics: true,
             selectedCategoriesIds: true,
+
             reviews: {
               where: {
                 companyPostId: input.id,
@@ -393,6 +423,39 @@ export const businessPostRouter = createTRPCRouter({
           message: `Post with id:${input.id} was not updated! With Error: ${
             error as string
           }`,
+        });
+      }
+    }),
+  createPostPrice: privateProcedure
+    .input(
+      z.object({
+        name: z.string(),
+        price: z.number(),
+        unit: z.string(),
+        maximum: z.number(),
+        postId: z.number(),
+      })
+    )
+    .mutation(async ({ input, ctx }) => {
+      try {
+        const newPost = await ctx.prisma.postPrice.create({
+          data: {
+            name: input.name,
+            price: input.price,
+            maximum: input.maximum,
+            unit: input.unit,
+            CompanyPost: {
+              connect: {
+                id: input.postId,
+              },
+            },
+          },
+        });
+        return newPost;
+      } catch (error) {
+        throw new TRPCError({
+          code: "INTERNAL_SERVER_ERROR",
+          message: `Price was not created! With Error: ${error as string}`,
         });
       }
     }),
@@ -466,4 +529,74 @@ export const businessPostRouter = createTRPCRouter({
 
     return favorites;
   }),
+  createPostReview: privateProcedure
+    .input(
+      z.object({
+        stars: z.number(),
+        reviewText: z.string(),
+        postId: z.number(),
+        userName: z.string(),
+      })
+    )
+    .mutation(async ({ ctx, input }) => {
+      const newReview = await ctx.prisma.review
+        .create({
+          data: {
+            starts: input.stars,
+            reviewText: input.reviewText,
+            userName: input.userName,
+            likes: 0,
+            CompanyPost: {
+              connect: {
+                id: input.postId,
+              },
+            },
+          },
+        })
+        .catch(() => {
+          throw new TRPCError({
+            code: "INTERNAL_SERVER_ERROR",
+            message: "Something went wrong while creating a review.",
+          });
+        });
+      const allTheReviews = await ctx.prisma.review.findMany({
+        where: {
+          companyPostId: input.postId,
+        },
+        select: {
+          starts: true,
+        },
+      });
+      const forAverage = allTheReviews
+        .map((item) => {
+          return item.starts;
+        })
+        .reduce((partialSum, a) => partialSum + a, 0);
+      const post = await ctx.prisma.companyPost.findFirstOrThrow({
+        where: {
+          id: input.postId,
+        },
+        select: {
+          statisticId: true,
+        },
+      });
+      const oldStats = await ctx.prisma.statistic.findFirstOrThrow({
+        where: {
+          id: post.statisticId,
+        },
+        select: {
+          numberOfReviews: true,
+        },
+      });
+      await ctx.prisma.statistic.update({
+        where: {
+          id: post.statisticId,
+        },
+        data: {
+          numberOfReviews: oldStats.numberOfReviews + 1,
+          averageReviewGrade: forAverage / allTheReviews.length,
+        },
+      });
+      return newReview;
+    }),
 });

@@ -51,6 +51,7 @@ function RootLayout(props: Props) {
   const router = useRouter();
   const [liveModalOpen, setLiveModalOpen] = useState(false);
   const [post, setPost] = useState<WholePostType>();
+  const [isLive, setIsLive] = useState<boolean>(false);
   const { updatePost } = useCompanyPost();
 
   const shouldHidePostLink = (): boolean => {
@@ -62,9 +63,9 @@ function RootLayout(props: Props) {
     }
     return true;
   };
-  const isPostLiveText = (): string => {
+  const isPostLiveText = (isLive: boolean): string => {
     if (props.isCompany && props.hasPost) {
-      if (post?.isLive === true) {
+      if (isLive === true) {
         return "Oglas je objavljen";
       } else {
         return "Oglas nije objavljen!";
@@ -85,8 +86,9 @@ function RootLayout(props: Props) {
   useEffect(() => {
     if (props.isCompany) {
       setPost(props.post);
+      setIsLive(props.post?.isLive ?? false);
     }
-  }, []);
+  }, [props.isCompany, props.isCompany && props.post]);
 
   const updatePostIsLive = async () => {
     if (props.isCompany) {
@@ -115,7 +117,7 @@ function RootLayout(props: Props) {
         menus={props.menus}
         userCompany={props.isCompany ? props.business : undefined}
       >
-        <section className="bg-white">
+        <section className="w-screen bg-white ">
           <div>
             <div className="flex flex-wrap items-center justify-between gap-5 bg-[var(--dark)] px-3 py-5 md:p-[30px] lg:p-[60px]">
               <div className="flex items-center gap-2">
@@ -163,7 +165,7 @@ function RootLayout(props: Props) {
                   }}
                 >
                   <FaCircle className={`h-3 w-3 ${isPostLiveColor()}`} />
-                  {isPostLiveText()}
+                  {isPostLiveText(isLive)}
                 </button>
 
                 <Link

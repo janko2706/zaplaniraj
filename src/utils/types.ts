@@ -5,6 +5,7 @@ import type {
   Business,
   User,
   BusinessTypeCategory,
+  PostPrice,
 } from "@prisma/client";
 
 interface BuinessWithUser extends Business {
@@ -20,6 +21,7 @@ export interface WholePostType extends CompanyPost {
     value: string;
     label: string;
   }[];
+  prices: PostPrice[];
 }
 export interface PostForUserPlan extends CompanyPost {
   business?: BussinesForPLan | null;
@@ -33,6 +35,7 @@ export interface CompanyPostWihtoutDate extends CompanyPost {
     value: string;
     label: string;
   }[];
+  prices: PostPrice[];
 }
 
 interface BussinesForPLan extends Business {

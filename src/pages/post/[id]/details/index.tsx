@@ -2,11 +2,13 @@ import Image from "next/image";
 import { Tooltip } from "react-tooltip";
 import { Swiper, SwiperSlide } from "swiper/react";
 // Import Swiper styles
-import { Tab } from "@headlessui/react";
-import { PlusCircleIcon, StarIcon } from "@heroicons/react/20/solid";
+import {
+  CheckCircleIcon,
+  PlusCircleIcon,
+  StarIcon,
+} from "@heroicons/react/20/solid";
 import {
   CalendarDaysIcon,
-  ChatBubbleLeftEllipsisIcon,
   ChevronLeftIcon,
   ChevronRightIcon,
   ClockIcon,
@@ -26,12 +28,9 @@ import { FaFacebook, FaGlobe, FaInstagram, FaParking } from "react-icons/fa";
 import "swiper/css";
 import "swiper/css/navigation";
 import { Navigation } from "swiper/modules";
-import CalendarComponent from "~/Atoms/Calendar/Calendar";
-import Pagination from "~/Molecules/Pagination/Pagination";
 import PostReview from "~/Molecules/PostReview/PostReview";
 import MainTemplate from "~/Templates/MainTemplate";
 import useMenu from "~/hooks/useMenu/useMenu";
-import classNames from "~/utils/classNames";
 import type { WholePostType } from "~/utils/types";
 
 type CustomDehydrateState = {
@@ -50,10 +49,22 @@ const Index = (props: InferGetStaticPropsType<typeof getStaticProps>) => {
 
   const { updateStatistics } = useStatistics();
 
-  const { query } = useRouter();
+  const { query, reload } = useRouter();
   const category = query.category;
 
   const [post, setPost] = useState<WholePostType | undefined>();
+  const [calculatedPrice, setCalculatedPrice] = useState<number>(0);
+  const [selectedPrice, setSelectedPrice] = useState<
+    | {
+        name: string;
+        id?: number;
+        unit?: string;
+        price?: number;
+        maximum?: number;
+        onClick?: MouseEventHandler<HTMLLIElement> | undefined;
+      }
+    | undefined
+  >({ name: "Kakvu uslugu zelite?" });
   const { isSignedIn, user } = useUser();
 
   useEffect(() => {
@@ -75,6 +86,35 @@ const Index = (props: InferGetStaticPropsType<typeof getStaticProps>) => {
       })();
     }
   }, [isSignedIn, updateStatistics, post, category]);
+
+  const { mutateAsync: createReview } =
+    api.businessPost.createPostReview.useMutation({
+      onSuccess: () => {
+        reload();
+        toast.success("Recenzija poslana.");
+      },
+    });
+
+  const postReviewAction = (e: FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    void (async () =>
+      await createReview({
+        postId: post?.id ?? 0,
+        stars: starsArray.filter((e) => e.color === "text-yellow-300").length,
+        reviewText: reviewText,
+        userName: user && user.fullName ? user.fullName : userName,
+      }))();
+  };
+
+  const [starsArray, setStarsArray] = useState<{ color: string }[]>([
+    { color: "text-yellow-300" },
+    { color: "text-slate-300" },
+    { color: "text-slate-300" },
+    { color: "text-slate-300" },
+    { color: "text-slate-300" },
+  ]);
+  const [reviewText, setReviewText] = useState<string>("");
+  const [userName, setUserName] = useState<string>("");
 
   const tooltipStyle = {
     backgroundColor: "#3539E9",
@@ -206,10 +246,14 @@ const Index = (props: InferGetStaticPropsType<typeof getStaticProps>) => {
                     </div>
                     <ul className="gap-md-0 flex flex-wrap items-center justify-between gap-4">
                       <li>
-                        <div className="flex items-center gap-2">
+                        <a
+                          href={`https://www.google.com/maps/place/${post.location}`}
+                          target="_blank"
+                          className="flex items-center gap-2 transition-all duration-200 ease-in-out hover:text-blue-400"
+                        >
                           <MapPinIcon className="h-5 w-5 text-[var(--secondary-500)]" />
                           <p className="mb-0"> {post.location} </p>
-                        </div>
+                        </a>
                       </li>
                       {post.reviews.length ? (
                         <>
@@ -245,7 +289,7 @@ const Index = (props: InferGetStaticPropsType<typeof getStaticProps>) => {
                         </p>
                       </li>
                     </ul>
-                    <div className="my-8 border border-dashed"></div>
+                    {/* <div className="my-8 border border-dashed"></div>
                     <ul className="flex flex-wrap items-center gap-3">
                       <li>
                         <span className="block text-lg font-medium">
@@ -277,7 +321,7 @@ const Index = (props: InferGetStaticPropsType<typeof getStaticProps>) => {
                       content={`Ukljuceno ${
                         post.parkingPlaces ? post.parkingPlaces : 0
                       } mjesta za parking.`}
-                    />
+                    /> */}
                   </div>
                   <div className="mb-10 rounded-2xl bg-white p-3 sm:p-4 lg:p-6">
                     <h4 className="mb-5 text-2xl font-semibold">
@@ -343,176 +387,240 @@ const Index = (props: InferGetStaticPropsType<typeof getStaticProps>) => {
                   ) : (
                     <></>
                   )}
-                  <div className="mb-10 rounded-2xl bg-white p-3 sm:p-4 lg:p-6">
-                    <h4 className="mb-5 text-2xl font-semibold">
-                      Hotel Policies
-                    </h4>
-                    <ul className="mb-5 flex flex-col gap-4">
-                      <li>
-                        <div className="flex gap-4">
-                          <div className="grid h-6 w-6 shrink-0 place-content-center rounded-full bg-[var(--primary-light)]">
-                            <i className="las la-check text-lg text-primary"></i>
+                  {post.prices.length && (
+                    <div className="mb-10 rounded-2xl bg-white p-3 sm:p-4 lg:p-6">
+                      <h4 className="mb-5 text-2xl font-semibold">
+                        Izracunaj cijenu usluge
+                      </h4>
+
+                      <HeroDropdown
+                        options={post.prices}
+                        selected={selectedPrice}
+                        setSelected={setSelectedPrice}
+                      />
+                      {selectedPrice &&
+                        selectedPrice.name !== "Kakvu uslugu zelite?" && (
+                          <div className="mt-8 flex flex-col rounded-lg  bg-slate-100 p-2">
+                            <div className="w-full">
+                              <div className="m-5 flex flex-col gap-3">
+                                <p className="font-bold">
+                                  <span className="font-normal">Cijena:</span>{" "}
+                                  {selectedPrice.price}€ po {selectedPrice.unit}
+                                </p>
+                                <p className="font-bold">
+                                  <span className="font-normal">
+                                    Maksimalna kolicina:
+                                  </span>{" "}
+                                  {selectedPrice.maximum}
+                                </p>
+                              </div>
+                              <div className="m-5 flex items-center justify-start gap-3">
+                                <p className="line-clamp-1 w-fit">
+                                  Unesite potrebnu kolicinu:
+                                </p>
+                                <input
+                                  type="number"
+                                  max={selectedPrice.maximum}
+                                  min={0}
+                                  placeholder="Potrebna kolicina..."
+                                  className="m-4 w-40 rounded-lg bg-slate-200 px-2"
+                                  onChange={(e) => {
+                                    const calcPrice =
+                                      Number(
+                                        e.target.value as unknown as number
+                                      ) * (selectedPrice.price ?? 0);
+
+                                    setCalculatedPrice(
+                                      Number(
+                                        e.target.value as unknown as number
+                                      ) > (selectedPrice.maximum ?? 0)
+                                        ? 0
+                                        : calcPrice
+                                    );
+                                  }}
+                                />
+                              </div>
+                            </div>
+
+                            <div className="mb-3 ml-4 mt-6 w-fit rounded-lg bg-primary px-4 py-1 text-xl text-white">
+                              Izracunata cijena: {calculatedPrice}€
+                            </div>
                           </div>
-                          <span className="inline-block">
-                            Check-in and check-out: Check-in time is 3:00 PM,
-                            and check-out time is 12:00 PM
-                          </span>
-                        </div>
-                      </li>
-                      <li>
-                        <div className="flex gap-4">
-                          <div className="grid h-6 w-6 shrink-0 place-content-center rounded-full bg-[var(--primary-light)]">
-                            <i className="las la-check text-lg text-primary"></i>
-                          </div>
-                          <span className="inline-block">
-                            Children policy: Children of all ages are welcome at
-                            Hotel. The hotel offers a range of amenities and
-                            activities for children, including a kids club and
-                            babysitting services.
-                          </span>
-                        </div>
-                      </li>
-                      <li>
-                        <div className="flex gap-4">
-                          <div className="grid h-6 w-6 shrink-0 place-content-center rounded-full bg-[var(--primary-light)]">
-                            <i className="las la-check text-lg text-primary"></i>
-                          </div>
-                          <span className="inline-block">
-                            Smoking policy: Our Hotel is a non-smoking hotel.
-                            Smoking is prohibited in all rooms and public areas.
-                            Violators may be subject to a cleaning fee.
-                          </span>
-                        </div>
-                      </li>
-                      <li>
-                        <div className="flex gap-4">
-                          <div className="grid h-6 w-6 shrink-0 place-content-center rounded-full bg-[var(--primary-light)]">
-                            <i className="las la-check text-lg text-primary"></i>
-                          </div>
-                          <span className="inline-block">
-                            Pet policy: Pets are not allowed at Hotel,with the
-                            exception of guide dogs.
-                          </span>
-                        </div>
-                      </li>
-                    </ul>
-                  </div>
+                        )}
+                      <button
+                        className="mt-10 rounded-lg bg-blue-500 px-3 py-2 text-white transition-all duration-300 ease-in-out hover:bg-blue-700 disabled:opacity-20 disabled:hover:bg-blue-300"
+                        disabled={calculatedPrice === 0}
+                        type="button"
+                      >
+                        Dodaj cijenu u plan
+                      </button>
+                    </div>
+                  )}
 
                   {post.reviews && post.reviews.length ? (
                     <div className="mb-10 rounded-2xl bg-white p-3 sm:p-4 lg:mb-14 lg:px-5 lg:py-8">
                       <div className="mb-10 flex flex-wrap items-center justify-between gap-4">
                         <div className="flex items-center gap-2">
-                          <StarIcon className="h-5 w-5 text-[var(--tertiary)]" />
-                          <h3 className="h3 mb-0">
-                            {post.statistics.averageReviewGrade} (
-                            {post.statistics.numberOfReviews} reviews)
+                          <h3 className=" mb-0">
+                            ({post.statistics.numberOfReviews} recenzija)
                           </h3>
+                          <div className="flex items-center gap-1">
+                            <h3 className="text-2xl">Prosjek: </h3>{" "}
+                            {starsArray.map((color, idx) => {
+                              let newColor = color.color;
+                              if (idx < post.statistics.averageReviewGrade) {
+                                newColor = "text-yellow-300";
+                              }
+                              return (
+                                <i
+                                  key={idx}
+                                  className={`h-4 w-4 ${newColor} transition-all duration-200 ease-in-out hover:cursor-pointer`}
+                                >
+                                  <StarIcon />
+                                </i>
+                              );
+                            })}
+                          </div>
                         </div>
                       </div>
-                      {post.reviews.map((item, idx) => {
-                        return (
-                          <PostReview
-                            key={idx}
-                            reviewerName={item.userName}
-                            dateOfReview={item.createdAt}
-                            numberOfStars={item.starts}
-                            reviewText={item.reviewText}
-                            reviewLikes={item.likes}
-                          />
-                        );
-                      })}
-                      <Pagination count={20} currentPage={1} />
+                      <Swiper
+                        spaceBetween={16}
+                        centeredSlides
+                        centeredSlidesBounds
+                        breakpoints={{
+                          1000: {
+                            slidesPerView: 1,
+                          },
+                        }}
+                        navigation={{
+                          nextEl: ".btn-next",
+                          prevEl: ".btn-prev",
+                        }}
+                        modules={[Navigation]}
+                        className="swiper "
+                      >
+                        <div className="swiper-wrapper ">
+                          {post.reviews.map((item, idx) => {
+                            return (
+                              <SwiperSlide className="swiper-slide " key={idx}>
+                                <PostReview
+                                  key={idx}
+                                  reviewerName={item.userName}
+                                  dateOfReview={item.createdAt}
+                                  numberOfStars={item.starts}
+                                  reviewText={item.reviewText}
+                                  reviewLikes={item.likes}
+                                />
+                              </SwiperSlide>
+                            );
+                          })}
+                        </div>
+                        <button className="btn-prev absolute left-4 top-[45%] z-[1] flex h-8 w-8 items-center justify-center rounded-full bg-white duration-300 hover:bg-primary hover:text-white">
+                          <ChevronLeftIcon className="h-5 w-5" />
+                        </button>
+                        <button className="btn-next absolute right-4 top-[45%] z-[1] flex h-8 w-8 items-center justify-center rounded-full bg-white duration-300 hover:bg-primary hover:text-white">
+                          <ChevronRightIcon className="h-5 w-5" />
+                        </button>
+                      </Swiper>
                     </div>
                   ) : (
                     <></>
                   )}
 
-                  <div className="mb-10 lg:mb-14">
-                    <div className="rounded-2xl bg-white px-5 py-8">
-                      <h4 className="mb-0 text-2xl font-semibold">
-                        Ostavite recenziju
-                      </h4>
-                      <div className="my-6 border border-dashed"></div>
-                      <p className="mb-3 text-xl font-medium">Rating</p>
-                      <div className="flex gap-2">
-                        <StarIcon className="h-5 w-5 text-[var(--tertiary)]" />
-                        <StarIcon className="h-5 w-5 text-[var(--tertiary)]" />
-                        <StarIcon className="h-5 w-5 text-[var(--tertiary)]" />
-                        <StarIcon className="h-5 w-5 text-[var(--tertiary)]" />
-                        <StarIcon className="h-5 w-5 text-[var(--tertiary)]" />
+                  {user &&
+                  !post.reviews.some((e) => e.userName === user.fullName) ? (
+                    <div className="mb-10 lg:mb-14">
+                      <div className="rounded-2xl bg-white px-5 py-8">
+                        <h4 className="mb-0 text-2xl font-semibold">
+                          Ostavite recenziju
+                        </h4>
+                        <div className="my-6 border border-dashed"></div>
+                        <form onSubmit={postReviewAction}>
+                          <p className="mb-3 text-xl font-medium">Rating</p>
+                          <div className="mb-2 flex gap-1">
+                            {starsArray.map((color, idx) => {
+                              return (
+                                <i
+                                  key={idx}
+                                  className={`h-6 w-6 ${color.color} transition-all duration-200 ease-in-out hover:cursor-pointer`}
+                                  onClick={() =>
+                                    setStarsArray((prev) => {
+                                      const newArray = [...prev];
+                                      return newArray.map((_item, index) => {
+                                        if (idx <= index - 1)
+                                          return {
+                                            color: "text-slate-300",
+                                          };
+                                        return {
+                                          color: "text-yellow-300",
+                                        };
+                                      });
+                                    })
+                                  }
+                                >
+                                  <StarIcon />
+                                </i>
+                              );
+                            })}
+                          </div>
+                          <div className="grid grid-cols-12 gap-4">
+                            <div className="col-span-12">
+                              <label
+                                htmlFor="review-name"
+                                className="mb-3 block text-xl font-medium"
+                              >
+                                Ime i prezime *
+                              </label>
+                              <input
+                                required
+                                type="text"
+                                className="border-neutral-40 w-full rounded-full border bg-[var(--bg-1)] px-5 py-3 focus:outline-none"
+                                readOnly={user && user.fullName ? true : false}
+                                value={
+                                  user ? user.fullName ?? undefined : undefined
+                                }
+                                placeholder={"Unesite ime..."}
+                                id="review-name"
+                                onChange={(e) => setUserName(e.target.value)}
+                              />
+                            </div>
+                            <div className="col-span-12">
+                              <label
+                                htmlFor="review-review"
+                                className="mb-3 block text-xl font-medium"
+                              >
+                                Recenzija *
+                              </label>
+                              <textarea
+                                required
+                                id="review-review"
+                                rows={5}
+                                className="w-full rounded-2xl border bg-[var(--bg-1)] px-5 py-3 focus:outline-none"
+                                placeholder="Vase misljene o poslovanju..."
+                                onChange={(e) => setReviewText(e.target.value)}
+                              ></textarea>
+                            </div>
+                            <div className="col-span-12">
+                              <button type="submit" className="btn-primary">
+                                Posalji recenziju
+                              </button>
+                            </div>
+                          </div>
+                        </form>
                       </div>
-
-                      <form action="#">
-                        <div className="grid grid-cols-12 gap-4">
-                          <div className="col-span-12">
-                            <label
-                              htmlFor="review-name"
-                              className="mb-3 block text-xl font-medium"
-                            >
-                              Ime *
-                            </label>
-                            <input
-                              type="text"
-                              className="border-neutral-40 w-full rounded-full border bg-[var(--bg-1)] px-5 py-3 focus:outline-none"
-                              defaultValue={
-                                user ? user.fullName ?? undefined : undefined
-                              }
-                              placeholder={"Unesite ime..."}
-                              id="review-name"
-                            />
-                          </div>
-                          <div className="col-span-12">
-                            <label
-                              htmlFor="review-email"
-                              className="mb-3 block text-xl font-medium"
-                            >
-                              Email *
-                            </label>
-                            <input
-                              type="text"
-                              className="border-neutral-40 w-full rounded-full border bg-[var(--bg-1)] px-5 py-3 focus:outline-none"
-                              defaultValue={
-                                user
-                                  ? user.emailAddresses[0]?.emailAddress ??
-                                    undefined
-                                  : undefined
-                              }
-                              placeholder={"Unesite email..."}
-                              id="review-email"
-                            />
-                          </div>
-                          <div className="col-span-12">
-                            <label
-                              htmlFor="review-review"
-                              className="mb-3 block text-xl font-medium"
-                            >
-                              Recenzija *
-                            </label>
-                            <textarea
-                              id="review-review"
-                              rows={5}
-                              className="w-full rounded-2xl border bg-[var(--bg-1)] px-5 py-3 focus:outline-none"
-                              placeholder="Vase misljene o poslovanju..."
-                            ></textarea>
-                          </div>
-                          <div className="col-span-12">
-                            <button
-                              type="submit"
-                              onClick={(e) => e.preventDefault()}
-                              className="btn-primary"
-                            >
-                              Posalji recenziju
-                            </button>
-                          </div>
-                        </div>
-                      </form>
                     </div>
-                  </div>
+                  ) : (
+                    <div className="mb-10 flex items-center gap-6 rounded-2xl bg-white p-3 sm:p-4 lg:mb-14 lg:px-5 lg:py-8">
+                      <CheckCircleIcon className="h-10 w-10 text-green-400" />
+                      Hvala na recenziji.
+                    </div>
+                  )}
                 </div>
               </div>
 
               <div className="col-span-12 xl:col-span-4">
-                <div className="relative mb-6 pb-0">
+                {/* TODO PUT PRICING CALCULATOR HERE */}
+                {/* <div className="relative mb-6 pb-0">
                   <div className="rounded-2xl bg-white px-6 py-8">
                     <p className="mb-3 text-lg font-medium"> Cijena </p>
                     <div className="mb-6 flex items-start gap-2">
@@ -582,26 +690,12 @@ const Index = (props: InferGetStaticPropsType<typeof getStaticProps>) => {
                       <span className="inline-block"> Proceed Booking </span>
                     </Link>
                   </div>
-                </div>
+                </div> */}
                 <div className="rounded-2xl bg-white px-6 py-8">
                   <h2 className="mb-4 text-center text-4xl font-semibold">
+                    <span className="text-2xl font-normal">Vlasnik: </span>{" "}
                     {post.business?.name ?? ""}
                   </h2>
-                  {post.statistics.averageReviewGrade ? (
-                    <ul className="mb-7 flex flex-wrap items-center justify-center gap-3">
-                      <li>
-                        <div className="flex items-center gap-1">
-                          <i className="las la-star text-[var(--tertiary)]"></i>
-                          <p className="mb-0">
-                            {post.statistics.averageReviewGrade}
-                          </p>
-                          <StarIcon className="h-5 w-5 text-[var(--tertiary)]" />
-                        </div>
-                      </li>
-                    </ul>
-                  ) : (
-                    <></>
-                  )}
                   <ul className="flex flex-wrap justify-center gap-3">
                     {post.website ? (
                       <li>
@@ -660,18 +754,6 @@ const Index = (props: InferGetStaticPropsType<typeof getStaticProps>) => {
                         </p>
                       </div>
                     </li>
-                    <li>
-                      <div className="flex items-center gap-2">
-                        <ChatBubbleLeftEllipsisIcon className="h-5 w-5 text-[var(--secondary)]" />
-                        <p className="mb-0"> Response rate - 100% </p>
-                      </div>
-                    </li>
-                    <li>
-                      <div className="flex items-center gap-2">
-                        <ClockIcon className="h-5 w-5 text-[var(--tertiary)]" />
-                        <p className="mb-0"> Fast response </p>
-                      </div>
-                    </li>
                   </ul>
                 </div>
               </div>
@@ -688,14 +770,22 @@ export default Index;
 import { useUser } from "@clerk/nextjs";
 import { createServerSideHelpers } from "@trpc/react-query/server";
 import { useRouter } from "next/router";
-import { useEffect, useState } from "react";
+import {
+  useEffect,
+  useState,
+  type FormEvent,
+  type MouseEventHandler,
+} from "react";
+import { toast } from "react-toastify";
 import superjson from "superjson";
 import LoadingSpinner from "~/Atoms/LoadingSpinner/LoadingSpinner";
 import useStatistics from "~/Organisms/CompanySpecific/useStatistics";
 import { appRouter } from "~/server/api/root";
 import { prisma } from "~/server/db";
 import { stripe } from "~/server/stripe/client";
+import { api } from "~/utils/api";
 import { getTranslationForStatistics } from "~/utils/translationHelpers";
+import { HeroDropdown } from "~/Molecules/HeroSection/HeroDropdown/HeroDropdown";
 
 export const getStaticProps: GetStaticProps = async ({ locale, params }) => {
   const helpers = createServerSideHelpers({

@@ -5,52 +5,11 @@ import Counter from "@atoms/Counter/Counter";
 import dynamic from "next/dynamic";
 import type { ApexOptions } from "apexcharts";
 import type { WholePostType } from "~/utils/types";
+import { format } from "date-fns";
 
 type Props = {
   businessPost?: WholePostType;
 };
-
-const options2: ApexOptions = {
-  chart: {
-    type: "area",
-    toolbar: {
-      show: true,
-    },
-  },
-  colors: ["#36ed5e", "#d23737"],
-  dataLabels: {
-    enabled: false,
-  },
-  stroke: {
-    curve: "smooth",
-  },
-  xaxis: {
-    categories: [
-      "Jan",
-      "Feb",
-      "Mar",
-      "Apr",
-      "May",
-      "Jun",
-      "Jul",
-      "Aug",
-      "Sep",
-      "Oct",
-      "Nov",
-      "Dec",
-    ],
-  },
-};
-const series2 = [
-  {
-    name: "Dobre recenzije",
-    data: [19, 40, 45, 30, 25, 43, 45, 62, 66, 112, 105, 100],
-  },
-  {
-    name: "Lose Recenzije",
-    data: [10, 30, 32, 50, 42, 33, 36, 45, 44, 40, 66, 56],
-  },
-];
 
 const Chart = dynamic(() => import("react-apexcharts"), { ssr: false });
 const mjeseci: ApexOptions = {
@@ -86,6 +45,20 @@ const mjeseci: ApexOptions = {
 };
 
 function StatisticDashboardTab({ businessPost }: Props) {
+  const months = [
+    "Jan",
+    "Feb",
+    "Mar",
+    "Apr",
+    "May",
+    "Jun",
+    "Jul",
+    "Aug",
+    "Sep",
+    "Oct",
+    "Nov",
+    "Dec",
+  ];
   const pregledi = [
     {
       name: "Pregleda",
@@ -103,6 +76,53 @@ function StatisticDashboardTab({ businessPost }: Props) {
         businessPost?.statistics.November ?? 0,
         businessPost?.statistics.December ?? 0,
       ],
+    },
+  ];
+  const goodReviews = months.map((month) => {
+    const reviewArray = [...(businessPost?.reviews ?? [])];
+    const reviews = reviewArray.filter((review) => {
+      return (
+        review.starts >= 3 &&
+        format(new Date(review.createdAt), "LLL") === month
+      );
+    }).length;
+    return reviews ?? 0;
+  });
+  const badReviews = months.map((month) => {
+    const reviewArray = [...(businessPost?.reviews ?? [])];
+    const reviews = reviewArray.filter((review) => {
+      return (
+        review.starts < 3 && format(new Date(review.createdAt), "LLL") === month
+      );
+    }).length;
+    return reviews ?? 0;
+  });
+  const options2: ApexOptions = {
+    chart: {
+      type: "area",
+      toolbar: {
+        show: true,
+      },
+    },
+    colors: ["#36ed5e", "#d23737"],
+    dataLabels: {
+      enabled: false,
+    },
+    stroke: {
+      curve: "smooth",
+    },
+    xaxis: {
+      categories: months,
+    },
+  };
+  const series2 = [
+    {
+      name: "Dobre recenzije",
+      data: goodReviews,
+    },
+    {
+      name: "Lose Recenzije",
+      data: badReviews,
     },
   ];
   return (
@@ -150,8 +170,8 @@ function StatisticDashboardTab({ businessPost }: Props) {
           <Chart options={mjeseci} height={350} type="area" series={pregledi} />
         </div>
         <div className="col-span-12 lg:col-span-6">
-          <div className=" rounded-2xl border p-3 sm:p-4 md:px-8 md:py-6 lg:px-10 lg:py-8">
-            <div className="mb-7 flex justify-between">
+          <div className="rounded-2xl border p-3 sm:p-4 md:px-8 md:py-6 lg:px-10 lg:py-8">
+            <div className="mb-7 flex">
               <h3 className="h3">Pregledi po kategorijama</h3>
             </div>
             <PieChart companyPost={businessPost} />

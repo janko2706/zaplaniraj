@@ -83,3 +83,21 @@
   height: 100%;
   user-select: none;
 }
+
+/* .reviewStars i {
+  display: inline-block;
+  width: 1.55rem;
+  height: 1.55rem;
+  color: slategray;
+}
+
+.reviewStars {
+  text-align: left;
+  direction: rtl;
+  margin-bottom: 0.7rem;
+}
+.reviewStars > i:hover,
+.reviewStars > i:hover ~ i {
+  cursor: pointer;
+  color: var(--tertiary);
+} */

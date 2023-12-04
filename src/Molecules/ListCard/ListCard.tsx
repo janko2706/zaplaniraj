@@ -121,7 +121,7 @@ const ListCard = ({ item, isFavorite, category }: CardProps) => {
         <div className="px-3 pb-5 pt-4 sm:px-4 md:px-5">
           <div className="flex flex-wrap items-center justify-start gap-5">
             <span className="text-xl font-medium text-primary">
-              €{priceRange[0]} / €{priceRange[1]}
+              od {priceRange[0]}€ do {priceRange[1]}€
             </span>
             <Link href="/property-details-1" className="btn-outline ">
               Read More

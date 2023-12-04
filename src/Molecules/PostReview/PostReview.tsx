@@ -32,7 +32,7 @@ function PostReview({
     return starsArray;
   };
   return (
-    <div className="mb-8 rounded-2xl bg-[var(--bg-2)] p-3 sm:p-4 lg:p-6">
+    <div className="mx-16 mb-8 rounded-2xl bg-[var(--bg-2)] p-3 sm:p-4 lg:p-6">
       <div className="flex flex-wrap items-center justify-between gap-4">
         <div className="flex items-center gap-5">
           <div className="flex-grow">
@@ -40,7 +40,10 @@ function PostReview({
           </div>
         </div>
         <div className="text-sm-end">
-          <p className="mb-1"> {format(dateOfReview, "dd/mm/yyyy")} </p>
+          <p className="mb-1">
+            {" "}
+            {format(new Date(dateOfReview), "dd/MM/yyyy")}{" "}
+          </p>
         </div>
       </div>
       <div className="my-6 border border-dashed"></div>

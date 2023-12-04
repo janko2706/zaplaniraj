@@ -15,6 +15,8 @@ export const useCompanyPost = () => {
 
   const { mutateAsync: createPost } =
     api.businessPost.createBuinessPost.useMutation();
+  const { mutateAsync: createPostPrice, isLoading: isCreatingPrice } =
+    api.businessPost.createPostPrice.useMutation();
   const { mutateAsync: deletePostImage } =
     api.businessPost.deleteImageFromPost.useMutation();
   const { mutateAsync: updatePost, isLoading: isUpdatePostLoading } =
@@ -28,5 +30,7 @@ export const useCompanyPost = () => {
     deletePostImage,
     isUpdatePostLoading,
     getPostsByCategory,
+    createPostPrice,
+    isCreatingPrice,
   };
 };
