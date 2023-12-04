@@ -111,6 +111,7 @@ function CompanyPostView({ companyPost }: Props) {
       unit: string;
       id: number;
       maximum: number;
+      companyPostId: number | null;
     }[]
   >(companyPost.prices);
 
@@ -134,6 +135,7 @@ function CompanyPostView({ companyPost }: Props) {
       if (result) {
         setCurrentPost({
           ...result,
+          prices,
         });
         toast.success("Promjene spremljene");
       }
