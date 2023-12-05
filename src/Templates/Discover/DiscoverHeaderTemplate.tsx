@@ -107,7 +107,7 @@ const DiscoverHeader = ({
       className={`fixed z-20 w-screen rounded-b-lg ${headerColor} shadow-md  lg:max-h-[20vmin]`}
     >
       <h1
-        className={`${headerFont} hidden w-full pt-3 text-center text-5xl  md:block md:text-8xl lg:block lg:pt-0 lg:text-8xl`}
+        className={`${headerFont} hidden w-full pt-3 text-center text-5xl  md:block md:text-8xl lg:block lg:pb-3 lg:pt-1 lg:text-8xl`}
       >
         {headerTitle}
       </h1>

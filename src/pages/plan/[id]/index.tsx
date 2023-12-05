@@ -464,23 +464,30 @@ const Index = () => {
                         "Spremi promjene"
                       )}
                     </button>
-                    <button
-                      type="button"
-                      onClick={() =>
-                        setData((prev) => {
-                          if (!prev) return;
-                          prev.progress =
-                            prev.progress === "COMPLETED"
-                              ? "INPROGRESS"
-                              : "COMPLETED";
-                        })
-                      }
-                      className="mt-10 flex w-full items-center justify-center rounded-md  bg-red-500 px-6 py-2 text-base font-medium text-white transition-all duration-300 ease-in-out hover:bg-red-600 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 "
-                    >
-                      {data?.progress === "COMPLETED"
-                        ? "Plan je jos u tijeku"
-                        : "Premjesti plan u zavrseno"}
-                    </button>
+                    <div className="mt-4 flex items-center">
+                      <input
+                        checked={data?.progress === "COMPLETED"}
+                        id="completed-checkbox"
+                        type="checkbox"
+                        value={"Testing value"}
+                        onClick={() =>
+                          setData((prev) => {
+                            if (!prev) return;
+                            prev.progress =
+                              prev.progress === "COMPLETED"
+                                ? "INPROGRESS"
+                                : "COMPLETED";
+                          })
+                        }
+                        className=" h-4 w-4 rounded border-gray-300 bg-gray-100 text-blue-600"
+                      />
+                      <label
+                        htmlFor="completed-checkbox"
+                        className="ms-2 text-sm font-medium text-gray-900 "
+                      >
+                        Zavrsi plan
+                      </label>
+                    </div>
                   </form>
                 </div>
               </div>

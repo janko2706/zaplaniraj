@@ -95,29 +95,6 @@ export const userRouter = createTRPCRouter({
       },
     });
   }),
-  getAllForPages: publicProcedure.query(async ({ ctx }) => {
-    const res = await ctx.prisma.user
-      .findMany({
-        where: {
-          isBussines: false,
-        },
-      })
-      .then((result) => {
-        return result.map((user) => {
-          return {
-            id: user.clerkId,
-          };
-        });
-      })
-      .catch((err) => {
-        throw new TRPCError({
-          message: `There was an error while getting all users: ${err} `,
-          code: "INTERNAL_SERVER_ERROR",
-        });
-      });
-
-    return res;
-  }),
   getUserByClerkId: privateProcedure.query(async ({ ctx }) => {
     const userId = ctx.userId;
     const res = await ctx.prisma.user.findFirst({

@@ -1,9 +1,11 @@
 import { motion } from "framer-motion";
+import Image from "next/image";
 import { type Dispatch, type SetStateAction } from "react";
 import LoadingSpinner from "~/Atoms/LoadingSpinner/LoadingSpinner";
 import ListCard from "~/Molecules/ListCard/ListCard";
 import Pagination from "~/Molecules/Pagination/Pagination";
 import { api } from "~/utils/api";
+import nothingHere from "~/Assets/VectorArt/nothingHere.jpg";
 
 type Props = {
   posts:
@@ -83,25 +85,37 @@ const DiscoverPosts = ({
               ))
             )}
           </motion.ul>
-          <Pagination
-            onClickLeft={() => {
-              if (currentPage === 1) return;
-              setSkip((prev) => prev - 10);
-              setCurrentPage((prev) => prev - 1);
-            }}
-            onClickRight={() => {
-              setSkip((prev) => prev + 10);
-              setCurrentPage((prev) => prev + 1);
-            }}
-            count={posts?.length ?? 1}
-            currentPage={currentPage}
-            onClickPage={(p) => {
-              if (currentPage !== p) {
-                setSkip(10 * (p - 1));
-                setCurrentPage(p);
-              }
-            }}
-          />
+          {!posts?.length ? (
+            <div className="flex w-full select-none flex-col items-center justify-center">
+              <Image
+                src={nothingHere}
+                alt={"No items in category"}
+                height={300}
+                width={300}
+              />
+              Nazalost ova kategorija je zasad prazna.
+            </div>
+          ) : (
+            <Pagination
+              onClickLeft={() => {
+                if (currentPage === 1) return;
+                setSkip((prev) => prev - 10);
+                setCurrentPage((prev) => prev - 1);
+              }}
+              onClickRight={() => {
+                setSkip((prev) => prev + 10);
+                setCurrentPage((prev) => prev + 1);
+              }}
+              count={posts?.length ?? 1}
+              currentPage={currentPage}
+              onClickPage={(p) => {
+                if (currentPage !== p) {
+                  setSkip(10 * (p - 1));
+                  setCurrentPage(p);
+                }
+              }}
+            />
+          )}
         </>
       ) : (
         <div className="my-10 flex w-full justify-center">

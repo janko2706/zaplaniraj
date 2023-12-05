@@ -6,7 +6,7 @@ import Profile from "~/Atoms/Dropdowns/Profile";
 import type { StaticImageData } from "next/image";
 import Image from "next/image";
 import { FaBars } from "react-icons/fa";
-import { SignUpButton } from "@clerk/nextjs";
+import { SignInButton, SignUpButton, useUser } from "@clerk/nextjs";
 import { useRouter } from "next/router";
 import { env } from "~/env.mjs";
 
@@ -164,7 +164,7 @@ const MenuItems: React.FC<MenuItemsProps> = ({ items, depthLevel }) => {
   }, [dropdown]);
   const linkCLasses =
     "flex items-center justify-between gap-1 rounded-xl p-2 hover:bg-primaryLight transition-all duration-300";
-
+  const { isSignedIn } = useUser();
   return (
     <li
       onMouseEnter={onMouseEnter}
@@ -192,10 +192,16 @@ const MenuItems: React.FC<MenuItemsProps> = ({ items, depthLevel }) => {
             depthLevel={depthLevel}
           />
         </>
-      ) : (
+      ) : items.title !== "Moj portal" ? (
         <Link href={items.url ?? ""} className={linkCLasses}>
           {items.title}
         </Link>
+      ) : (
+        isSignedIn && (
+          <Link href={items.url ?? ""} className={linkCLasses}>
+            {items.title}
+          </Link>
+        )
       )}
     </li>
   );

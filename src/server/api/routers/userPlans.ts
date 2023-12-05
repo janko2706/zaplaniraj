@@ -58,6 +58,7 @@ export const userPlansRouter = createTRPCRouter({
             clerkId: ctx.userId,
           },
         },
+        include: { businessesInPlan: true },
       })
       .catch(() => {
         throw new TRPCError({

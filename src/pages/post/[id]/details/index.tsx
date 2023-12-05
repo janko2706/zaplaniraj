@@ -6,6 +6,7 @@ import {
   CheckCircleIcon,
   PlusCircleIcon,
   StarIcon,
+  HeartIcon as HeartSolid,
 } from "@heroicons/react/20/solid";
 import {
   CalendarDaysIcon,
@@ -24,7 +25,7 @@ import type {
 } from "next";
 import { serverSideTranslations } from "next-i18next/serverSideTranslations";
 import Link from "next/link";
-import { FaFacebook, FaGlobe, FaInstagram, FaParking } from "react-icons/fa";
+import { FaFacebook, FaGlobe, FaInstagram } from "react-icons/fa";
 import "swiper/css";
 import "swiper/css/navigation";
 import { Navigation } from "swiper/modules";
@@ -43,6 +44,9 @@ type CustomDehydrateState = {
   };
 };
 
+const notifyAdd = () => toast.success("Dodano u favorite.");
+const notifyRemove = () => toast.error("Izbaceno iz favorita.");
+
 const Index = (props: InferGetStaticPropsType<typeof getStaticProps>) => {
   // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
   const postData: CustomDehydrateState = props.trpcState;
@@ -52,6 +56,8 @@ const Index = (props: InferGetStaticPropsType<typeof getStaticProps>) => {
   const { query, reload } = useRouter();
   const category = query.category;
 
+  const [openPlanModal, setOpenPlanModal] = useState<boolean>(false);
+  const [modalAction, setModalAction] = useState<"budget" | "post">("post");
   const [post, setPost] = useState<WholePostType | undefined>();
   const [calculatedPrice, setCalculatedPrice] = useState<number>(0);
   const [selectedPrice, setSelectedPrice] = useState<
@@ -64,7 +70,7 @@ const Index = (props: InferGetStaticPropsType<typeof getStaticProps>) => {
         onClick?: MouseEventHandler<HTMLLIElement> | undefined;
       }
     | undefined
-  >({ name: "Kakvu uslugu zelite?" });
+  >({ name: "Koju uslugu zelite?" });
   const { isSignedIn, user } = useUser();
 
   useEffect(() => {
@@ -94,6 +100,24 @@ const Index = (props: InferGetStaticPropsType<typeof getStaticProps>) => {
         toast.success("Recenzija poslana.");
       },
     });
+
+  const { mutateAsync: addToFavorites } = api.user.setFavorite.useMutation({
+    onSuccess: () => {
+      setFavorite(true);
+      notifyAdd();
+    },
+  });
+  const { data } = api.businessPost.getFavoritePosts.useQuery();
+
+  const { mutateAsync: removeFavorite } = api.user.removeFavorite.useMutation({
+    onSuccess: () => {
+      setFavorite(false);
+      notifyRemove();
+    },
+  });
+  const [favorite, setFavorite] = useState<boolean>(
+    data?.some((i) => i.id === post?.id) ?? false
+  );
 
   const postReviewAction = (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -197,22 +221,46 @@ const Index = (props: InferGetStaticPropsType<typeof getStaticProps>) => {
                       <h2 className="h2 mb-0 mt-4"> {post.title} </h2>
                       <ul className="flex items-center gap-3">
                         <li>
-                          <Link
-                            href="#"
+                          <button
+                            type="button"
                             className="link grid h-8 w-8 place-content-center rounded-full bg-[var(--primary-light)] text-primary hover:bg-primary hover:text-white"
                             data-tooltip-id="like-post"
+                            // eslint-disable-next-line @typescript-eslint/no-misused-promises
+                            onClick={async () => {
+                              if (favorite) {
+                                await removeFavorite({
+                                  postId: post.id ?? 0,
+                                });
+                                return;
+                              } else {
+                                await addToFavorites({
+                                  postId: post.id.toString() ?? "",
+                                });
+                                return;
+                              }
+                            }}
                           >
-                            <HeartIcon className="h-5 w-5" />
-                          </Link>
+                            {!favorite ? (
+                              <HeartIcon className={`h-5 w-5 `} />
+                            ) : (
+                              <HeartSolid
+                                className={`} h-5 w-5
+                                text-red-500`}
+                              />
+                            )}
+                          </button>
                         </li>
                         <li>
-                          <Link
-                            href="#"
+                          <button
                             data-tooltip-id="add-to-project"
                             className="link grid h-8 w-8 place-content-center rounded-full bg-[var(--primary-light)] text-primary hover:bg-primary hover:text-white"
+                            onClick={() => {
+                              setModalAction("post");
+                              setOpenPlanModal(true);
+                            }}
                           >
                             <PlusCircleIcon className="h-5 w-5" />
-                          </Link>
+                          </button>
                         </li>
 
                         <li>
@@ -289,39 +337,6 @@ const Index = (props: InferGetStaticPropsType<typeof getStaticProps>) => {
                         </p>
                       </li>
                     </ul>
-                    {/* <div className="my-8 border border-dashed"></div>
-                    <ul className="flex flex-wrap items-center gap-3">
-                      <li>
-                        <span className="block text-lg font-medium">
-                          Ukljuceno -
-                        </span>
-                      </li>
-                      {post.parkingPlaces ? (
-                        <li>
-                          <div
-                            data-tooltip-id="parking"
-                            className="flex h-10 w-fit items-center justify-center gap-2 rounded-full bg-bg2 px-2 text-primary"
-                          >
-                            {post.parkingPlaces} <span>-</span>
-                            <FaParking
-                              width={28}
-                              height={28}
-                              className="h-7 w-7"
-                            />
-                          </div>
-                        </li>
-                      ) : (
-                        <></>
-                      )}
-                    </ul>
-                    <Tooltip
-                      id="parking"
-                      style={tooltipStyle}
-                      offset={7}
-                      content={`Ukljuceno ${
-                        post.parkingPlaces ? post.parkingPlaces : 0
-                      } mjesta za parking.`}
-                    /> */}
                   </div>
                   <div className="mb-10 rounded-2xl bg-white p-3 sm:p-4 lg:p-6">
                     <h4 className="mb-5 text-2xl font-semibold">
@@ -399,7 +414,7 @@ const Index = (props: InferGetStaticPropsType<typeof getStaticProps>) => {
                         setSelected={setSelectedPrice}
                       />
                       {selectedPrice &&
-                        selectedPrice.name !== "Kakvu uslugu zelite?" && (
+                        selectedPrice.name !== "Koju uslugu zelite?" && (
                           <div className="mt-8 flex flex-col rounded-lg  bg-slate-100 p-2">
                             <div className="w-full">
                               <div className="m-5 flex flex-col gap-3">
@@ -441,8 +456,9 @@ const Index = (props: InferGetStaticPropsType<typeof getStaticProps>) => {
                                 />
                               </div>
                             </div>
+                            <hr className="border border-dashed border-slate-400" />
 
-                            <div className="mb-3 ml-4 mt-6 w-fit rounded-lg bg-primary px-4 py-1 text-xl text-white">
+                            <div className="mb-3 ml-4 mt-6 flex w-fit gap-4 rounded-lg bg-primary px-4 py-1 text-xl text-white">
                               Izracunata cijena: {calculatedPrice}€
                             </div>
                           </div>
@@ -451,6 +467,10 @@ const Index = (props: InferGetStaticPropsType<typeof getStaticProps>) => {
                         className="mt-10 rounded-lg bg-blue-500 px-3 py-2 text-white transition-all duration-300 ease-in-out hover:bg-blue-700 disabled:opacity-20 disabled:hover:bg-blue-300"
                         disabled={calculatedPrice === 0}
                         type="button"
+                        onClick={() => {
+                          setModalAction("budget");
+                          setOpenPlanModal(true);
+                        }}
                       >
                         Dodaj cijenu u plan
                       </button>
@@ -760,6 +780,16 @@ const Index = (props: InferGetStaticPropsType<typeof getStaticProps>) => {
             </div>
           </div>
         </div>
+        <PlansModal
+          selectedBudget={{
+            name: selectedPrice?.name ?? "",
+            price: calculatedPrice,
+          }}
+          action={modalAction}
+          open={openPlanModal}
+          setOpen={setOpenPlanModal}
+          postId={post.id}
+        />
       </>
     </MainTemplate>
   );
@@ -779,13 +809,14 @@ import {
 import { toast } from "react-toastify";
 import superjson from "superjson";
 import LoadingSpinner from "~/Atoms/LoadingSpinner/LoadingSpinner";
+import { HeroDropdown } from "~/Molecules/HeroSection/HeroDropdown/HeroDropdown";
 import useStatistics from "~/Organisms/CompanySpecific/useStatistics";
 import { appRouter } from "~/server/api/root";
 import { prisma } from "~/server/db";
 import { stripe } from "~/server/stripe/client";
 import { api } from "~/utils/api";
 import { getTranslationForStatistics } from "~/utils/translationHelpers";
-import { HeroDropdown } from "~/Molecules/HeroSection/HeroDropdown/HeroDropdown";
+import PlansModal from "~/Organisms/PlansModal/PlansModal";
 
 export const getStaticProps: GetStaticProps = async ({ locale, params }) => {
   const helpers = createServerSideHelpers({

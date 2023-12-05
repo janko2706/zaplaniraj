@@ -7,7 +7,6 @@ import {
   StarIcon,
 } from "@heroicons/react/20/solid";
 import useCompany from "~/hooks/company/useCompany";
-import { useTranslation } from "next-i18next";
 import StatisticDashboardTab from "~/Organisms/CompanySpecific/StatisticDashboardTab";
 import MyPlans from "~/Organisms/UserSpecific/MyPlans";
 
@@ -15,9 +14,6 @@ import FavoritesTab from "~/Organisms/UserSpecific/FavoritesTab";
 import PostReview from "~/Molecules/PostReview/PostReview";
 
 function useMenu() {
-  const { t } = useTranslation("common");
-  const company = useTranslation("dashboard");
-  const user = useTranslation("dashboard-user");
   const clerkUser = useUser();
   const { userCompany, companyPost } = useCompany({
     clerkId: clerkUser.user?.id ?? "",
@@ -25,16 +21,16 @@ function useMenu() {
 
   const menus = [
     {
-      title: t("menu-home"),
+      title: "Pocetna",
       url: "/",
     },
     {
-      title: t("menu-discover"),
+      title: "Istrazi",
       url: "/discover",
 
       submenu: [
         {
-          title: t("Category1"),
+          title: "Vjencanja",
           submenu: [
             {
               title: "Prostori",
@@ -42,11 +38,15 @@ function useMenu() {
             },
             {
               title: "Muzika",
-              url: "/discover/wedding?category=Music",
+              url: "/discover/wedding?category=Muzika",
+            },
+            {
+              title: "Haljine",
+              url: "/discover/wedding?category=Haljine",
             },
             {
               title: "Katering",
-              url: "/discover/wedding?category=Catering",
+              url: "/discover/wedding?category=Katering",
             },
             {
               title: "Transport",
@@ -54,16 +54,16 @@ function useMenu() {
             },
             {
               title: "Cvijece",
-              url: "/discover/wedding?category=Flowers",
+              url: "/discover/wedding?category=Cvijece",
             },
             {
               title: "Torte",
-              url: "/discover/wedding?category=Cakes",
+              url: "/discover/wedding?category=Torte",
             },
           ],
         },
         {
-          title: t("Category2"),
+          title: "Rodendani",
           submenu: [
             {
               title: "Prostori",
@@ -74,60 +74,72 @@ function useMenu() {
               url: "/discover/birthday?category=Torte",
             },
             {
+              title: "Katering",
+              url: "/discover/birthday?category=Katering",
+            },
+            {
               title: "Zabava",
               url: "/discover/birthday?category=Zabava",
             },
           ],
         },
         {
-          title: t("Category3"),
-          url: "/about-us",
+          title: "Sakramenti",
           submenu: [
             {
-              title: "Agent",
-              url: "/agent",
+              title: "Prostori",
+              url: "/discover/sacrament?category=Prostori",
+            },
+
+            {
+              title: "Muzika",
+              url: "/discover/sacrament?category=Muzika",
             },
             {
-              title: "Agent Details List",
-              url: "/agent-details-list",
+              title: "Katering",
+              url: "/discover/sacrament?category=Katering",
             },
           ],
         },
         {
-          title: t("Category4"),
-          url: "/payment-method",
+          title: "Slavlja",
           submenu: [
             {
-              title: "Agent",
-              url: "/agent",
+              title: "Prostori",
+              url: "/discover/celebration?category=Prostori",
+            },
+
+            {
+              title: "Muzika",
+              url: "/discover/celebration?category=Muzika",
             },
             {
-              title: "Agent Details List",
-              url: "/agent-details-list",
+              title: "Katering",
+              url: "/discover/celebration?category=Katering",
             },
           ],
         },
       ],
     },
     {
-      title: t("menu-dashboard"),
+      title: "Moj portal",
       url: userCompany ? `/company/dashboard` : `/user/dashboard`,
     },
   ];
   const userDashboardMenu = [
     {
-      title: user.t("menu-plans"),
+      title: "Moji planovi",
       icon: <PencilSquareIcon className="h-5 w-5" />,
       children: <MyPlans />,
     },
     {
-      title: user.t("menu-favorites"),
+      title: "Favoriti",
       icon: <HeartIcon className="h-5 w-5 text-red-500" />,
       // FAVORITES TAB
       children: <FavoritesTab />,
     },
     {
-      title: user.t("menu-settings"),
+      title: "Postavke",
       icon: <Cog6ToothIcon className="h-5 w-5" />,
       children: (
         <UserProfile
@@ -149,12 +161,12 @@ function useMenu() {
     children: JSX.Element;
   }[] = [
     {
-      title: company.t("menu-stats"),
+      title: "Statistika",
       icon: <ChartBarIcon className="h-5 w-5" />,
       children: <StatisticDashboardTab businessPost={companyPost} />,
     },
     {
-      title: company.t("menu-reviews"),
+      title: "Recenzije",
       icon: <StarIcon className="h-5 w-5" />,
       children: (
         <div className="mt-3 flex w-full flex-col">
@@ -178,7 +190,7 @@ function useMenu() {
       ),
     },
     {
-      title: company.t("menu-settings"),
+      title: "Postavke",
       icon: <Cog6ToothIcon className="h-5 w-5" />,
       children: (
         <UserProfile

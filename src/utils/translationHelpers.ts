@@ -2,6 +2,8 @@ export const getCategoryTranslation = (value: string) => {
   switch (value) {
     case "Venue":
       return "Prostori";
+    case "Dresses":
+      return "Haljine";
     case "Entertainment":
       return "Zabava";
     case "Flowers":
@@ -50,6 +52,8 @@ export const getTranslationForStatistics = (value: string) => {
 };
 export const getCategoryTranslationBackToEnglish = (value: string) => {
   switch (value) {
+    case "Haljine":
+      return "Dresses";
     case "Prostori":
       return "Venue";
     case "Zabava":

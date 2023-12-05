@@ -2,7 +2,7 @@ import { AiFillCar } from "react-icons/ai";
 import { FaGuitar, FaBreadSlice } from "react-icons/fa";
 import { LuFlower } from "react-icons/lu";
 import { BuildingOfficeIcon, CakeIcon } from "@heroicons/react/20/solid";
-import { GiClown } from "react-icons/gi";
+import { GiAmpleDress, GiClown } from "react-icons/gi";
 
 type Props = {
   replace: (url: string) => Promise<boolean>;
@@ -16,6 +16,12 @@ export const weddingCategories = ({ replace, iconClasses }: Props) => {
       icon: <BuildingOfficeIcon className={iconClasses} />,
       // eslint-disable-next-line @typescript-eslint/no-misused-promises
       onClick: async () => await replace("/discover/wedding?category=Prostori"),
+    },
+    {
+      name: "Haljine",
+      icon: <GiAmpleDress className={iconClasses} />,
+      // eslint-disable-next-line @typescript-eslint/no-misused-promises
+      onClick: async () => await replace("/discover/wedding?category=Haljine"),
     },
     {
       name: "Torte",

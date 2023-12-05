@@ -44,27 +44,4 @@ export const businessRouter = createTRPCRouter({
         return business;
       }
     }),
-  getAllForPages: publicProcedure.query(async ({ ctx }) => {
-    const res = await ctx.prisma.user
-      .findMany({
-        where: {
-          isBussines: true,
-        },
-      })
-      .then((result) => {
-        return result.map((user) => {
-          return {
-            id: user.clerkId,
-          };
-        });
-      })
-      .catch((err) => {
-        throw new TRPCError({
-          message: `There was an error while getting all posts: ${err} `,
-          code: "INTERNAL_SERVER_ERROR",
-        });
-      });
-
-    return res;
-  }),
 });
