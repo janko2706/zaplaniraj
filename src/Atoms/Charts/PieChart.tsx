@@ -1,7 +1,6 @@
 import type { ApexOptions } from "apexcharts";
 import React from "react";
 import dynamic from "next/dynamic";
-import LoadingSpinner from "../LoadingSpinner/LoadingSpinner";
 import type { WholePostType } from "~/utils/types";
 const Chart = dynamic(() => import("react-apexcharts"), { ssr: false });
 
@@ -10,13 +9,6 @@ type Props = {
 };
 
 function PieChart({ companyPost }: Props) {
-  if (!companyPost) {
-    return (
-      <div className="flex items-center justify-center">
-        <LoadingSpinner />
-      </div>
-    );
-  }
   const categoryArray: {
     name: string;
     percentage: number;
@@ -24,31 +16,31 @@ function PieChart({ companyPost }: Props) {
     tailwindColor: string;
   }[] = [
     {
-      percentage: companyPost.statistics.Weddings,
+      percentage: companyPost?.statistics.Weddings ?? 0,
       name: "Vjenjcanje",
       color: "#58A4F0",
       tailwindColor: "bg-[#58A4F0]",
     },
     {
-      percentage: companyPost.statistics.Sacraments,
+      percentage: companyPost?.statistics.Sacraments ?? 0,
       name: "Sakramenti",
       color: "#FFBE46",
       tailwindColor: "bg-[#FFBE46]",
     },
     {
-      percentage: companyPost.statistics.Celebrations,
+      percentage: companyPost?.statistics.Celebrations ?? 0,
       name: "Slavlja",
       color: "#D23737",
       tailwindColor: "bg-[#D23737]",
     },
     {
-      percentage: companyPost.statistics.Business,
+      percentage: companyPost?.statistics.Business ?? 0,
       name: "Poslovno",
       color: "#8A8DF5",
       tailwindColor: "bg-[#8A8DF5]",
     },
     {
-      percentage: companyPost.statistics.Birthdays,
+      percentage: companyPost?.statistics.Birthdays ?? 0,
       name: "Rodendani",
       color: "#619434",
       tailwindColor: "bg-[#619434]",
@@ -86,7 +78,6 @@ function PieChart({ companyPost }: Props) {
       <div className="col-span-2 flex items-center md:col-span-1">
         <ul className="flex w-full flex-col gap-4">
           {categoryArray.map((item, idx) => {
-            console.log(`h-2 w-2 rounded-full bg-${item.tailwindColor}`);
             return (
               <li key={idx} className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
@@ -96,9 +87,16 @@ function PieChart({ companyPost }: Props) {
                   {item.name}
                 </div>
                 <div>
-                  {Math.round(
-                    (item.percentage / companyPost.statistics.visitors) * 100
-                  )}
+                  {companyPost
+                    ? Math.round(
+                        (Number.isNaN(
+                          item.percentage / companyPost.statistics.visitors
+                        )
+                          ? 0
+                          : item.percentage / companyPost.statistics.visitors) *
+                          100
+                      )
+                    : 0}
                   %
                 </div>
               </li>

@@ -37,25 +37,20 @@ function CreatePlanModal({ open, setOpen, setPlans }: Props) {
       icon: <LuPartyPopper className={iconClasses} />,
     },
   ];
-  const PlanCategory = [
-    "VJENCANJE",
-    "RODENDAN",
-    "SAKRAMENT",
-    "SLAVLJE",
-  ] as const;
+
   const getEnumForCategory = (category: string) => {
     switch (category) {
       case "Vjenjcanje":
-        return PlanCategory[0];
+        return "VJENCANJE";
       case "Rodendan":
-        return PlanCategory[2];
+        return "RODENDAN";
       case "Sakrament":
-        return PlanCategory[1];
+        return "SAKRAMENT";
       case "Slavlje":
-        return PlanCategory[3];
+        return "SLAVLJE";
 
       default:
-        return PlanCategory[0];
+        return "SLAVLJE";
     }
   };
   const [name, setName] = useState<string>("");

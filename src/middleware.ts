@@ -6,6 +6,13 @@ export default authMiddleware({
     "/api/trpc/user.getUserOnboarding",
     "/api/trpc/bussines.getById",
     "/api/trpc/user.doesUserExist,bussines.getById",
+    "/discover/wedding",
+    "/discover/birthday",
+    "/discover/sacrament",
+    "/discover/celebration",
+    "/api/webhooks/stripe-webhook",
+    "/api/trpc/bussines.getById,businessPost.getPostByBusinessId,businessCategoryType.getAllEventCategories,businessPost.getPostByCategory,user.getUserOnboarding,user.doesUserExist,businessPost.getPostById",
+    "/api/trpc/businessPost.getPostByCategory",
   ],
 });
 

@@ -6,7 +6,7 @@ import DiscoverHeader from "~/Templates/Discover/DiscoverHeaderTemplate";
 import DiscoverPosts from "~/Templates/Discover/DiscoverPostsTemplate";
 import MainTemplate from "~/Templates/MainTemplate";
 import useDiscover from "../../../hooks/useDiscover";
-import { birthdayCategories } from "../../../utils/birthdayCategories";
+import { discoverCategories } from "../../../utils/discoverCategories";
 
 function Index() {
   const { query, replace } = useRouter();
@@ -41,7 +41,11 @@ function Index() {
     skip,
   } = useDiscover({
     categoryName: "Rodendani",
-    categories: birthdayCategories({ replace, iconClasses: "h-5 w-5" }),
+    categories: discoverCategories({
+      replace,
+      iconClasses: "h-5 w-5",
+      url: "birthday",
+    }),
   });
 
   useEffect(() => {
@@ -71,9 +75,11 @@ function Index() {
 
   useEffect(() => {
     setSelectedCategory(
-      birthdayCategories({ replace, iconClasses: "h-5 w-5" }).find(
-        (i) => i.name === ((category as string) ?? "Prostori")
-      )
+      discoverCategories({
+        replace,
+        iconClasses: "h-5 w-5",
+        url: "birthday",
+      }).find((i) => i.name === ((category as string) ?? "Prostori"))
     );
   }, [category]);
 
@@ -85,9 +91,10 @@ function Index() {
     >
       <>
         <DiscoverHeader
-          categories={birthdayCategories({
+          categories={discoverCategories({
             replace,
             iconClasses: "h-5 w-5",
+            url: "birthday",
           })}
           selectedCategory={selectedCategory}
           setSelectedCategory={setSelectedCategory}

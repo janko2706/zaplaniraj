@@ -1,18 +1,20 @@
 import React from "react";
 import type { GetStaticProps } from "next";
 import { serverSideTranslations } from "next-i18next/serverSideTranslations";
-import { useTranslation } from "next-i18next";
 import PortalTabs from "~/Organisms/PortalTabs/PortalTabs";
 import RootLayout from "~/Templates/PortalLayout/layout";
 import useMenu from "~/hooks/useMenu/useMenu";
+import { useRouter } from "next/router";
 
 function Dashboard() {
-  const { t } = useTranslation("common");
-
   const { menus, userDashboardMenu } = useMenu();
+  const { query } = useRouter();
   return (
-    <RootLayout isCompany={false} menus={menus} type={t("new-plan")}>
-      <PortalTabs tabs={userDashboardMenu} />
+    <RootLayout isCompany={false} menus={menus}>
+      <PortalTabs
+        tabs={userDashboardMenu}
+        defaultIndex={query.index ? Number(query.index) : 0}
+      />
     </RootLayout>
   );
 }

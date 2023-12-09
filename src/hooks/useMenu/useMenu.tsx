@@ -12,12 +12,30 @@ import MyPlans from "~/Organisms/UserSpecific/MyPlans";
 
 import FavoritesTab from "~/Organisms/UserSpecific/FavoritesTab";
 import PostReview from "~/Molecules/PostReview/PostReview";
+import SmallModal from "~/Atoms/SmallModal/SmallModal";
+import { useState } from "react";
+import { api } from "~/utils/api";
+import { useRouter } from "next/router";
+import { FaMoneyBill } from "react-icons/fa";
+import { discoverCategories } from "~/utils/discoverCategories";
 
 function useMenu() {
   const clerkUser = useUser();
   const { userCompany, companyPost } = useCompany({
     clerkId: clerkUser.user?.id ?? "",
   });
+  const { replace } = useRouter();
+
+  const { mutateAsync: deleteUser } = api.user.deleteUser.useMutation({
+    onSettled: async () => {
+      await clerkUser.user?.reload();
+      await replace("/");
+    },
+  });
+  const { data: billingPortalUrl } =
+    api.stripe.createBillingPortalSession.useQuery();
+
+  const [openDeleteModal, setOpenDeleteModal] = useState(false);
 
   const menus = [
     {
@@ -26,104 +44,70 @@ function useMenu() {
     },
     {
       title: "Istrazi",
-      url: "/discover",
+      url: "/discover/wedding",
 
       submenu: [
         {
           title: "Vjencanja",
-          submenu: [
-            {
-              title: "Prostori",
-              url: "/discover/wedding?category=Prostori",
-            },
-            {
-              title: "Muzika",
-              url: "/discover/wedding?category=Muzika",
-            },
-            {
-              title: "Haljine",
-              url: "/discover/wedding?category=Haljine",
-            },
-            {
-              title: "Katering",
-              url: "/discover/wedding?category=Katering",
-            },
-            {
-              title: "Transport",
-              url: "/discover/wedding?category=Transport",
-            },
-            {
-              title: "Cvijece",
-              url: "/discover/wedding?category=Cvijece",
-            },
-            {
-              title: "Torte",
-              url: "/discover/wedding?category=Torte",
-            },
-          ],
+          submenu: discoverCategories({
+            replace,
+            url: "not important",
+            iconClasses: "",
+          }).map((item) => {
+            return {
+              title: item.name,
+              url: `/discover/wedding?category=${item.name}`,
+            };
+          }),
         },
         {
           title: "Rodendani",
-          submenu: [
-            {
-              title: "Prostori",
-              url: "/discover/birthday?category=Prostori",
-            },
-            {
-              title: "Torte",
-              url: "/discover/birthday?category=Torte",
-            },
-            {
-              title: "Katering",
-              url: "/discover/birthday?category=Katering",
-            },
-            {
-              title: "Zabava",
-              url: "/discover/birthday?category=Zabava",
-            },
-          ],
+          submenu: discoverCategories({
+            replace,
+            url: "not important",
+            iconClasses: "",
+          }).map((item) => {
+            return {
+              title: item.name,
+              url: `/discover/birthday?category=${item.name}`,
+            };
+          }),
         },
         {
           title: "Sakramenti",
-          submenu: [
-            {
-              title: "Prostori",
-              url: "/discover/sacrament?category=Prostori",
-            },
-
-            {
-              title: "Muzika",
-              url: "/discover/sacrament?category=Muzika",
-            },
-            {
-              title: "Katering",
-              url: "/discover/sacrament?category=Katering",
-            },
-          ],
+          submenu: discoverCategories({
+            replace,
+            url: "not important",
+            iconClasses: "",
+          }).map((item) => {
+            return {
+              title: item.name,
+              url: `/discover/sacrament?category=${item.name}`,
+            };
+          }),
         },
         {
           title: "Slavlja",
-          submenu: [
-            {
-              title: "Prostori",
-              url: "/discover/celebration?category=Prostori",
-            },
-
-            {
-              title: "Muzika",
-              url: "/discover/celebration?category=Muzika",
-            },
-            {
-              title: "Katering",
-              url: "/discover/celebration?category=Katering",
-            },
-          ],
+          submenu: discoverCategories({
+            replace,
+            url: "not important",
+            iconClasses: "",
+          }).map((item) => {
+            return {
+              title: item.name,
+              url: `/discover/celebration?category=${item.name}`,
+            };
+          }),
         },
       ],
     },
     {
       title: "Moj portal",
-      url: userCompany ? `/company/dashboard` : `/user/dashboard`,
+      url: clerkUser.isSignedIn
+        ? userCompany
+          ? `/company/dashboard`
+          : `/user/dashboard`
+        : "signIn",
     },
   ];
   const userDashboardMenu = [
@@ -142,16 +126,41 @@ function useMenu() {
       title: "Postavke",
       icon: <Cog6ToothIcon className="h-5 w-5" />,
       children: (
-        <UserProfile
-          appearance={{
-            elements: {
-              rootBox: "w-full ",
-              pageScrollBox: "w-full ",
-              card: "w-full",
-              navbar: "hidden",
-            },
-          }}
-        />
+        <div className="relative w-full">
+          <UserProfile
+            appearance={{
+              elements: {
+                rootBox: "w-full bg-dark overflow-hidden",
+                profileSection__danger: "hidden",
+                pageScrollBox: "w-full pb-32",
+                card: "w-full",
+                navbar: "hidden",
+                navbarMobileMenuButton: "hidden",
+              },
+            }}
+          />
+          <div className=" absolute bottom-[3rem] right-[3rem] mr-[1.75rem]  md:bottom-[2rem] md:right-[4.75rem] ">
+            <button
+              type="button"
+              className="rounded-2xl bg-red-400 px-4 py-3 text-white transition-all duration-300 ease-in-out hover:bg-red-700"
+              onClick={() => setOpenDeleteModal((prev) => !prev)}
+            >
+              Izbrisi racun
+            </button>
+            <SmallModal
+              onConfirm={async () => {
+                await deleteUser();
+              }}
+              title={"Izbrisi racun"}
+              subText={
+                "Ova akcija ce izbisati sve unesene podatke te je nepovratljiva, jeste li sigurni?"
+              }
+              confirmButtonText={"Izbrisi"}
+              open={openDeleteModal}
+              setOpen={setOpenDeleteModal}
+            />
+          </div>
+        </div>
       ),
     },
   ];
@@ -169,7 +178,7 @@ function useMenu() {
       title: "Recenzije",
       icon: <StarIcon className="h-5 w-5" />,
       children: (
-        <div className="mt-3 flex w-full flex-col">
+        <div className="mt-3 flex max-h-[40rem] w-full flex-col overflow-y-auto ">
           {companyPost?.reviews.map((item, idx) => {
             return (
               <PostReview
@@ -193,17 +202,58 @@ function useMenu() {
       title: "Postavke",
       icon: <Cog6ToothIcon className="h-5 w-5" />,
       children: (
-        <UserProfile
-          appearance={{
-            elements: {
-              rootBox: "w-full bg-dark overflow-hidden",
-              pageScrollBox: "w-full ",
-              card: "w-full",
-              navbar: "hidden",
-              navbarMobileMenuButton: "hidden",
-            },
-          }}
-        />
+        <div className="relative w-full">
+          <UserProfile
+            appearance={{
+              elements: {
+                rootBox: "w-full bg-dark overflow-hidden",
+                profileSection__danger: "hidden",
+                pageScrollBox: "w-full pb-32",
+                card: "w-full",
+                navbar: "hidden",
+                navbarMobileMenuButton: "hidden",
+              },
+            }}
+          />
+          <div className=" absolute bottom-[3rem] right-[3rem] mr-[1.75rem]  md:bottom-[2rem] md:right-[4.75rem] ">
+            <button
+              type="button"
+              className="rounded-2xl bg-red-400 px-4 py-3 text-white transition-all duration-300 ease-in-out hover:bg-red-700"
+              onClick={() => setOpenDeleteModal((prev) => !prev)}
+            >
+              Izbrisi racun
+            </button>
+            <SmallModal
+              onConfirm={async () => {
+                await deleteUser();
+              }}
+              title={"Izbrisi racun"}
+              subText={
+                "Ova akcija ce izbisati sve unesene podatke te je nepovratljiva, jeste li sigurni?"
+              }
+              confirmButtonText={"Izbrisi"}
+              open={openDeleteModal}
+              setOpen={setOpenDeleteModal}
+            />
+          </div>
+        </div>
+      ),
+    },
+    {
+      title: "Placanja i racuni",
+      icon: <FaMoneyBill className="h-5 w-5" />,
+      children: (
+        <div className="relative flex w-full items-start justify-center">
+          <button
+            className="btn btn-primary mt-20"
+            type="button" // eslint-disable-next-line @typescript-eslint/no-misused-promises
+            onClick={async () =>
+              await replace(billingPortalUrl?.billingPortalUrl ?? "")
+            }
+          >
+            Vas portal placanja
+          </button>
+        </div>
       ),
     },
   ];

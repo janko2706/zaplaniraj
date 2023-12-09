@@ -9,6 +9,7 @@ import { FaBars } from "react-icons/fa";
 import { SignInButton, SignUpButton, useUser } from "@clerk/nextjs";
 import { useRouter } from "next/router";
 import { env } from "~/env.mjs";
+import { AnimatePresence, motion } from "framer-motion";
 
 type Props = {
   user: {
@@ -18,6 +19,18 @@ type Props = {
   };
   bgColor?: string;
   appLogo: StaticImageData;
+  userCompany:
+    | {
+        id: string;
+        typeOfBusinessId: number;
+        name: string;
+        stripeId: string | null;
+        hasPost: boolean | null;
+        postIsLive: boolean | null;
+        freeTrial: boolean;
+        companyPostId: number | null;
+      }
+    | undefined;
   menus: (
     | {
         title: string;
@@ -38,7 +51,13 @@ type Props = {
       }
   )[];
 };
-const DesktopHeader = ({ user, appLogo, menus, bgColor }: Props) => {
+const DesktopHeader = ({
+  user,
+  appLogo,
+  menus,
+  bgColor,
+  userCompany,
+}: Props) => {
   const [menuOpen, setMenuOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
 
@@ -87,12 +106,12 @@ const DesktopHeader = ({ user, appLogo, menus, bgColor }: Props) => {
                 type="button"
                 className=" rounded-3xl bg-slate-200 px-4 py-3 text-sm hover:bg-blue-300 "
               >
-                Nemas racun?
+                Registriraj se!
               </button>
             </SignUpButton>
           )}
 
-          <Profile user={user} />
+          <Profile user={user} userCompany={userCompany} />
         </div>
         <div className="lg:order-1">
           <button
@@ -164,7 +183,6 @@ const MenuItems: React.FC<MenuItemsProps> = ({ items, depthLevel }) => {
   }, [dropdown]);
   const linkCLasses =
     "flex items-center justify-between gap-1 rounded-xl p-2 hover:bg-primaryLight transition-all duration-300";
-  const { isSignedIn } = useUser();
   return (
     <li
       onMouseEnter={onMouseEnter}
@@ -186,22 +204,26 @@ const MenuItems: React.FC<MenuItemsProps> = ({ items, depthLevel }) => {
               <ChevronDownIcon height={20} width={20} />
             )}
           </span>
-          <Dropdown
-            dropdown={dropdown}
-            submenus={items.submenu}
-            depthLevel={depthLevel}
-          />
+          <AnimatePresence mode="wait">
+            {dropdown && (
+              <Dropdown
+                dropdown={dropdown}
+                submenus={items.submenu}
+                depthLevel={depthLevel}
+              />
+            )}
+          </AnimatePresence>
         </>
-      ) : items.title !== "Moj portal" ? (
+      ) : items.url !== "signIn" ? (
         <Link href={items.url ?? ""} className={linkCLasses}>
           {items.title}
         </Link>
       ) : (
-        isSignedIn && (
-          <Link href={items.url ?? ""} className={linkCLasses}>
+        <SignInButton>
+          <Link href={"/"} className={linkCLasses}>
             {items.title}
           </Link>
-        )
+        </SignInButton>
       )}
     </li>
   );
@@ -222,14 +244,20 @@ const Dropdown: React.FC<DropdownProps> = ({
       ? "static lg:absolute left-full z-10 bg-white min-w-[200px] top-0"
       : "top-full static lg:absolute min-w-[200px] left-0 z-10 bg-white";
   return (
-    <ul
-      className={`my-dropdown static shadow-md duration-300 ${dropdownClass} ${
+    <motion.ul
+      initial={{ scaleY: 0, y: -100 }}
+      animate={{
+        scaleY: 1,
+        y: 0,
+        transition: { duration: 0.1, type: "tween" },
+      }}
+      className={`static mt-5 block shadow-md duration-300 lg:mt-0 ${dropdownClass} ${
         dropdown ? "mt-5 block lg:mt-0" : "hidden"
       }`}
     >
       {submenus.map((submenu, index) => (
         <MenuItems depthLevel={depthLevel} items={submenu} key={index} />
       ))}
-    </ul>
+    </motion.ul>
   );
 };

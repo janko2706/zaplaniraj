@@ -2,17 +2,18 @@ import { Menu, Transition } from "@headlessui/react";
 import { Fragment } from "react";
 import Image from "next/image";
 import type { StaticImageData } from "next/image";
-import {
-  UserIcon,
-  CalenderIcon,
-  HeartIcon,
-  InfoIcon,
-  LogOutIcon,
-} from "../Icons/Icons";
+import { UserIcon, HeartIcon, InfoIcon, LogOutIcon } from "../Icons/Icons";
 import { CgLogIn } from "react-icons/cg";
 import { SignInButton, SignOutButton } from "@clerk/nextjs";
 import { env } from "~/env.mjs";
 import { useRouter } from "next/router";
+import {
+  Cog6ToothIcon,
+  PencilSquareIcon,
+  StarIcon,
+  ChartBarIcon,
+} from "@heroicons/react/24/outline";
+import Link from "next/link";
 
 type Props = {
   user: {
@@ -20,9 +21,21 @@ type Props = {
     imageUrl: string | StaticImageData;
     isSingnedIn?: boolean;
   };
+  userCompany:
+    | {
+        id: string;
+        typeOfBusinessId: number;
+        name: string;
+        stripeId: string | null;
+        hasPost: boolean | null;
+        postIsLive: boolean | null;
+        freeTrial: boolean;
+        companyPostId: number | null;
+      }
+    | undefined;
 };
 
-export default function Profile({ user }: Props) {
+export default function Profile({ user, userCompany }: Props) {
   const { replace } = useRouter();
   return (
     <div className="z-20 text-left">
@@ -69,55 +82,112 @@ export default function Profile({ user }: Props) {
               {user.isSingnedIn && (
                 <Menu.Item>
                   {({ active }) => (
-                    <button
+                    <Link
                       className={`${
                         active ? "bg-gray-200 text-gray-800" : ""
                       } group mt-2 flex w-full items-center gap-2 rounded-md px-2 py-2 text-sm`}
+                      href={
+                        userCompany ? "/company/dashboard" : "/user/dashboard"
+                      }
                     >
                       <UserIcon />
-                      My Account
-                    </button>
+                      Moj Portal
+                    </Link>
                   )}
                 </Menu.Item>
               )}
+              {user.isSingnedIn &&
+                (!userCompany ? (
+                  <Menu.Item>
+                    {({ active }) => (
+                      <Link
+                        href={
+                          userCompany ? "/company/dashboard" : "/user/dashboard"
+                        }
+                        className={`${
+                          active ? "bg-gray-200 text-gray-800" : ""
+                        } group flex w-full items-center gap-2 rounded-md px-2 py-2 text-sm`}
+                      >
+                        <PencilSquareIcon className="h-5 w-5" />
+                        Moji planovi
+                      </Link>
+                    )}
+                  </Menu.Item>
+                ) : (
+                  <Menu.Item>
+                    {({ active }) => (
+                      <Link
+                        href={
+                          userCompany ? "/company/dashboard" : "/user/dashboard"
+                        }
+                        className={`${
+                          active ? "bg-gray-200 text-gray-800" : ""
+                        } group flex w-full items-center gap-2 rounded-md px-2 py-2 text-sm`}
+                      >
+                        <ChartBarIcon className="h-5 w-5" />
+                        Statistika
+                      </Link>
+                    )}
+                  </Menu.Item>
+                ))}
               {user.isSingnedIn && (
                 <Menu.Item>
                   {({ active }) => (
-                    <button
+                    <Link
+                      href={
+                        userCompany
+                          ? "/company/dashboard?index=1"
+                          : "/user/dashboard?index=1"
+                      }
                       className={`${
                         active ? "bg-gray-200 text-gray-800" : ""
-                      } group flex w-full items-center gap-2 rounded-md px-2 py-2 text-sm`}
+                      } group flex w-full items-center gap-2 rounded-md  px-2 py-2 text-sm`}
                     >
-                      <CalenderIcon />
-                      My Bookings
-                    </button>
+                      {userCompany ? (
+                        <>
+                          <StarIcon className="h-5 w-5" />
+                          Recenzije
+                        </>
+                      ) : (
+                        <>
+                          <HeartIcon />
+                          Favoriti
+                        </>
+                      )}
+                    </Link>
                   )}
                 </Menu.Item>
               )}
               {user.isSingnedIn && (
                 <Menu.Item>
                   {({ active }) => (
-                    <button
+                    <Link
+                      href={
+                        userCompany
+                          ? "/company/dashboard?index=2"
+                          : "/user/dashboard?index=2"
+                      }
                       className={`${
                         active ? "bg-gray-200 text-gray-800" : ""
                       } group mb-2 flex w-full items-center gap-2 rounded-md border-b border-dashed px-2 py-2 text-sm`}
                     >
-                      <HeartIcon />
-                      Wishlist
-                    </button>
+                      <Cog6ToothIcon className="h-5 w-5" />
+                      Postavke
+                    </Link>
                   )}
                 </Menu.Item>
               )}
               <Menu.Item>
                 {({ active }) => (
-                  <button
+                  <Link
+                    href={"/faq"}
                     className={`${
                       active ? "bg-gray-200 text-gray-800" : ""
                     } group mt-2 flex w-full items-center gap-2 rounded-md px-2 py-2 text-sm`}
                   >
                     <InfoIcon />
-                    Help
-                  </button>
+                    Pomoc
+                  </Link>
                 )}
               </Menu.Item>
               <Menu.Item>

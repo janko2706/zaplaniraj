@@ -1,5 +1,5 @@
 import { SignInButton, SignOutButton, useUser } from "@clerk/nextjs";
-import { CakeIcon, UserIcon } from "@heroicons/react/20/solid";
+import { CakeIcon, ChevronDownIcon, UserIcon } from "@heroicons/react/20/solid";
 import {
   ArrowRightOnRectangleIcon,
   Bars3Icon,
@@ -18,6 +18,7 @@ import { useEffect, useState } from "react";
 import { CgRing } from "react-icons/cg";
 import { FaChurch } from "react-icons/fa";
 import { LuPartyPopper } from "react-icons/lu";
+import Accordion from "~/Atoms/Accordion/Accordion";
 type Props = {
   appLogo: StaticImageData;
   userCompany: Business | undefined;
@@ -49,7 +50,7 @@ const MobileMenu = ({ appLogo, userCompany }: Props) => {
         </li>
         <li>
           <Link
-            href={`${userCompany ? `/company/dashboard` : `/user/dashboard`}`}
+            href={userCompany ? `/company/dashboard` : `/user/dashboard`}
             className={`flex flex-col items-center gap-1 rounded-md px-3 py-2 ${
               path ==
                 `${userCompany ? `/company/dashboard` : `/user/dashboard`}` &&
@@ -104,72 +105,96 @@ const MobileMenu = ({ appLogo, userCompany }: Props) => {
                 </Link>
               </li>
               <li>
-                <Link
-                  href={`${
-                    userCompany ? `/company/dashboard` : `/user/dashboard`
-                  }`}
-                  className={`flex items-center gap-2 rounded-md px-6 py-3 duration-300 ${
-                    path ==
-                      `${
-                        userCompany ? `/company/dashboard` : `/user/dashboard`
-                      }` && "bg-primary text-white"
-                  }`}
-                >
-                  <ClipboardDocumentListIcon className="h-5 w-5" />
-                  Moj Portal
-                </Link>
+                {user.isSignedIn ? (
+                  <Link
+                    href={`${
+                      userCompany ? `/company/dashboard` : `/user/dashboard`
+                    }`}
+                    className={`flex items-center gap-2 rounded-md px-6 py-3 duration-300 ${
+                      path ==
+                        `${
+                          userCompany ? `/company/dashboard` : `/user/dashboard`
+                        }` && "bg-primary text-white"
+                    }`}
+                  >
+                    {" "}
+                    <ClipboardDocumentListIcon className="h-5 w-5" />
+                    Moj Portal
+                  </Link>
+                ) : (
+                  <SignInButton>
+                    <div className="flex items-center gap-2 rounded-md px-6 py-3 duration-300">
+                      <ClipboardDocumentListIcon className="h-5 w-5" />
+                      Moj Portal
+                    </div>
+                  </SignInButton>
+                )}
               </li>
-              <li>
-                <Link
-                  href="/discover/wedding?category=Prostori"
-                  className={`flex items-center gap-2 rounded-md px-6 py-3 duration-300 ${
-                    path == "/discover/wedding" && "bg-primary text-white"
-                  }`}
-                >
-                  <CgRing className="h-5 w-5" />
-                  Vjenjcanja
-                </Link>
-              </li>
-              <li>
-                <Link
-                  href="/discover/birthday?category=Prostori"
-                  className={`flex items-center gap-2 rounded-md px-6 py-3 duration-300 ${
-                    path == "/discover/birthday" && "bg-primary text-white"
-                  }`}
-                >
-                  <CakeIcon className="h-5 w-5" />
-                  Rodendani
-                </Link>
-              </li>
-              <li>
-                <Link
-                  href="/discover/sacrament?category=Prostori"
-                  className={`flex items-center gap-2 rounded-md px-6 py-3 duration-300 ${
-                    path == "/sacrament" && "bg-primary text-white"
-                  }`}
-                >
-                  <FaChurch className="h-5 w-5" />
-                  Sakramenti
-                </Link>
-              </li>
-              <li>
-                <Link
-                  href="/vendor-reviews"
-                  className={`flex items-center gap-2 rounded-md px-6 py-3 duration-300 ${
-                    path == "/vendor-reviews" && "bg-primary text-white"
-                  }`}
-                >
-                  <LuPartyPopper className="h-5 w-5" />
-                  Slavlja
-                </Link>
-              </li>
+              <Accordion
+                buttonContent={(open) => (
+                  <div
+                    className={`flex items-center gap-2 rounded-md px-6 py-3 duration-300 ${
+                      path.includes("discover") && "bg-primary text-white"
+                    }`}
+                  >
+                    <ChevronDownIcon
+                      className={`h-5 w-5 duration-300 sm:h-6 sm:w-6 ${
+                        open ? "rotate-180" : ""
+                      }`}
+                    />
+                    <p>Istrazi </p>
+                  </div>
+                )}
+                initialOpen={false}
+              >
+                <ul className="pl-4">
+                  <li>
+                    <Link
+                      href="/discover/wedding"
+                      className={`flex items-center gap-2 rounded-md px-6 py-3 duration-300 `}
+                    >
+                      <CgRing className="h-5 w-5" />
+                      Vjenjcanja
+                    </Link>
+                  </li>
+                  <li>
+                    <Link
+                      href="/discover/birthday"
+                      className={`flex items-center gap-2 rounded-md px-6 py-3 duration-300`}
+                    >
+                      <CakeIcon className="h-5 w-5" />
+                      Rodendani
+                    </Link>
+                  </li>
+                  <li>
+                    <Link
+                      href="/discover/sacrament"
+                      className={`flex items-center gap-2 rounded-md px-6 py-3 duration-300`}
+                    >
+                      <FaChurch className="h-5 w-5" />
+                      Sakramenti
+                    </Link>
+                  </li>
+                  <li>
+                    <Link
+                      href="/discover/celebration"
+                      className={`flex items-center gap-2 rounded-md px-6 py-3 duration-300`}
+                    >
+                      <LuPartyPopper className="h-5 w-5" />
+                      Slavlja
+                    </Link>
+                  </li>
+                </ul>
+              </Accordion>
 
               <li>
                 <Link
-                  href="/vendor-settings"
-                  className={`flex items-center gap-2 rounded-md px-6 py-3 duration-300 ${
-                    path == "/vendor-settings" && "bg-primary text-white"
-                  }`}
+                  href={
+                    userCompany
+                      ? `/company/dashboard?index=2`
+                      : `/user/dashboard?index=2`
+                  }
+                  className={`flex items-center gap-2 rounded-md px-6 py-3 duration-300`}
                 >
                   <Cog6ToothIcon className="h-5 w-5" />
                   Postavke
@@ -181,14 +206,14 @@ const MobileMenu = ({ appLogo, userCompany }: Props) => {
             <li>
               {!user.isSignedIn ? (
                 <SignInButton>
-                  <div className="flex items-center gap-2 rounded-md px-6 py-3">
+                  <div className="flex cursor-pointer items-center gap-2 rounded-md px-6 py-3">
                     <UserIcon className="h-5 w-5" />
                     Prijava
                   </div>
                 </SignInButton>
               ) : (
                 <SignOutButton>
-                  <div className="flex items-center gap-2 rounded-md px-6 py-3">
+                  <div className="flex cursor-pointer items-center gap-2 rounded-md px-6 py-3">
                     <ArrowRightOnRectangleIcon className="h-5 w-5" />
                     Odjava
                   </div>

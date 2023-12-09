@@ -402,7 +402,7 @@ const Index = (props: InferGetStaticPropsType<typeof getStaticProps>) => {
                   ) : (
                     <></>
                   )}
-                  {post.prices.length && (
+                  {post.prices.length ? (
                     <div className="mb-10 rounded-2xl bg-white p-3 sm:p-4 lg:p-6">
                       <h4 className="mb-5 text-2xl font-semibold">
                         Izracunaj cijenu usluge
@@ -475,78 +475,9 @@ const Index = (props: InferGetStaticPropsType<typeof getStaticProps>) => {
                         Dodaj cijenu u plan
                       </button>
                     </div>
-                  )}
-
-                  {post.reviews && post.reviews.length ? (
-                    <div className="mb-10 rounded-2xl bg-white p-3 sm:p-4 lg:mb-14 lg:px-5 lg:py-8">
-                      <div className="mb-10 flex flex-wrap items-center justify-between gap-4">
-                        <div className="flex items-center gap-2">
-                          <h3 className=" mb-0">
-                            ({post.statistics.numberOfReviews} recenzija)
-                          </h3>
-                          <div className="flex items-center gap-1">
-                            <h3 className="text-2xl">Prosjek: </h3>{" "}
-                            {starsArray.map((color, idx) => {
-                              let newColor = color.color;
-                              if (idx < post.statistics.averageReviewGrade) {
-                                newColor = "text-yellow-300";
-                              }
-                              return (
-                                <i
-                                  key={idx}
-                                  className={`h-4 w-4 ${newColor} transition-all duration-200 ease-in-out hover:cursor-pointer`}
-                                >
-                                  <StarIcon />
-                                </i>
-                              );
-                            })}
-                          </div>
-                        </div>
-                      </div>
-                      <Swiper
-                        spaceBetween={16}
-                        centeredSlides
-                        centeredSlidesBounds
-                        breakpoints={{
-                          1000: {
-                            slidesPerView: 1,
-                          },
-                        }}
-                        navigation={{
-                          nextEl: ".btn-next",
-                          prevEl: ".btn-prev",
-                        }}
-                        modules={[Navigation]}
-                        className="swiper "
-                      >
-                        <div className="swiper-wrapper ">
-                          {post.reviews.map((item, idx) => {
-                            return (
-                              <SwiperSlide className="swiper-slide " key={idx}>
-                                <PostReview
-                                  key={idx}
-                                  reviewerName={item.userName}
-                                  dateOfReview={item.createdAt}
-                                  numberOfStars={item.starts}
-                                  reviewText={item.reviewText}
-                                  reviewLikes={item.likes}
-                                />
-                              </SwiperSlide>
-                            );
-                          })}
-                        </div>
-                        <button className="btn-prev absolute left-4 top-[45%] z-[1] flex h-8 w-8 items-center justify-center rounded-full bg-white duration-300 hover:bg-primary hover:text-white">
-                          <ChevronLeftIcon className="h-5 w-5" />
-                        </button>
-                        <button className="btn-next absolute right-4 top-[45%] z-[1] flex h-8 w-8 items-center justify-center rounded-full bg-white duration-300 hover:bg-primary hover:text-white">
-                          <ChevronRightIcon className="h-5 w-5" />
-                        </button>
-                      </Swiper>
-                    </div>
                   ) : (
                     <></>
                   )}
-
                   {user &&
                   !post.reviews.some((e) => e.userName === user.fullName) ? (
                     <div className="mb-10 lg:mb-14">
@@ -639,78 +570,77 @@ const Index = (props: InferGetStaticPropsType<typeof getStaticProps>) => {
               </div>
 
               <div className="col-span-12 xl:col-span-4">
-                {/* TODO PUT PRICING CALCULATOR HERE */}
-                {/* <div className="relative mb-6 pb-0">
-                  <div className="rounded-2xl bg-white px-6 py-8">
-                    <p className="mb-3 text-lg font-medium"> Cijena </p>
-                    <div className="mb-6 flex items-start gap-2">
-                      <div className="flex items-center gap-3">
-                        <i className="las la-tag text-2xl"></i>
-                        <p className="mb-0"> Od </p>
-                        <h3 className="h3 mb-0"> {post.priceRangeMin}€ </h3>
-                        <p className="mb-0"> Do </p>
-                        <h3 className="h3 mb-0"> {post.priceRangeMax}€ </h3>
+                {post.reviews &&
+                  (post.reviews.length ? (
+                    <div className="mb-10 rounded-2xl bg-white p-3 sm:p-4 lg:mb-14 lg:px-5 lg:py-8">
+                      <div className="mb-10 flex flex-wrap items-center justify-between gap-4">
+                        <div className="flex items-center gap-2">
+                          <h3 className=" mb-0">
+                            ({post.statistics.numberOfReviews} recenzija)
+                          </h3>
+                          <div className="flex items-center gap-1">
+                            <h3 className="text-2xl">Prosjek: </h3>{" "}
+                            {starsArray.map((color, idx) => {
+                              let newColor = color.color;
+                              if (idx < post.statistics.averageReviewGrade) {
+                                newColor = "text-yellow-300";
+                              }
+                              return (
+                                <i
+                                  key={idx}
+                                  className={`h-4 w-4 ${newColor} transition-all duration-200 ease-in-out hover:cursor-pointer`}
+                                >
+                                  <StarIcon />
+                                </i>
+                              );
+                            })}
+                          </div>
+                        </div>
                       </div>
+                      <Swiper
+                        spaceBetween={16}
+                        centeredSlides
+                        centeredSlidesBounds
+                        breakpoints={{
+                          1000: {
+                            slidesPerView: 1,
+                          },
+                        }}
+                        navigation={{
+                          nextEl: ".btn-next",
+                          prevEl: ".btn-prev",
+                        }}
+                        modules={[Navigation]}
+                        className="swiper "
+                      >
+                        <div className="swiper-wrapper ">
+                          {post.reviews.map((item, idx) => {
+                            return (
+                              <SwiperSlide className="swiper-slide " key={idx}>
+                                <PostReview
+                                  key={idx}
+                                  reviewerName={item.userName}
+                                  dateOfReview={item.createdAt}
+                                  numberOfStars={item.starts}
+                                  reviewText={item.reviewText}
+                                  reviewLikes={item.likes}
+                                />
+                              </SwiperSlide>
+                            );
+                          })}
+                        </div>
+                        <button className="btn-prev absolute left-4 top-[45%] z-[1] flex h-8 w-8 items-center justify-center rounded-full bg-white duration-300 hover:bg-primary hover:text-white">
+                          <ChevronLeftIcon className="h-5 w-5" />
+                        </button>
+                        <button className="btn-next absolute right-4 top-[45%] z-[1] flex h-8 w-8 items-center justify-center rounded-full bg-white duration-300 hover:bg-primary hover:text-white">
+                          <ChevronRightIcon className="h-5 w-5" />
+                        </button>
+                      </Swiper>
                     </div>
+                  ) : (
+                    <></>
+                  ))}
 
-                    <Tab.Group>
-                      <Tab.List className="about-tab mb-7 flex gap-3">
-                        <Tab
-                          className={({ selected }) =>
-                            classNames(
-                              "focus:outline-none",
-                              selected ? "font-medium text-primary" : ""
-                            )
-                          }
-                        >
-                          Booking Form
-                        </Tab>
-                        <span>|</span>
-                        <Tab
-                          className={({ selected }) =>
-                            classNames(
-                              "focus:outline-none",
-                              selected ? "font-medium text-primary" : ""
-                            )
-                          }
-                        >
-                          Enquiry Form
-                        </Tab>
-                      </Tab.List>
-                      <Tab.Panels className="tab-content mb-6 lg:mb-8">
-                        <Tab.Panel>
-                          <CalendarComponent column />
-                        </Tab.Panel>
-                        <Tab.Panel>
-                          <form className="flex flex-col gap-5">
-                            <input
-                              type="text"
-                              placeholder="Name..."
-                              className="w-full rounded-full border bg-[var(--bg-1)] px-3 py-2 focus:outline-none md:px-4 md:py-3"
-                            />
-                            <input
-                              type="email"
-                              placeholder="Email..."
-                              className="w-full rounded-full border bg-[var(--bg-1)] px-3 py-2 focus:outline-none md:px-4 md:py-3"
-                            />
-                            <textarea
-                              rows={6}
-                              placeholder="Message..."
-                              className="w-full rounded-3xl border bg-[var(--bg-1)] px-3 py-2 focus:outline-none md:px-4 md:py-3"
-                            ></textarea>
-                          </form>
-                        </Tab.Panel>
-                      </Tab.Panels>
-                    </Tab.Group>
-
-                    <Link
-                      href="#"
-                      className="link :bg-primary-400 mb-6 inline-flex w-full items-center justify-center gap-2 rounded-full bg-primary px-6 py-3 font-medium text-white hover:text-white"
-                    >
-                      <span className="inline-block"> Proceed Booking </span>
-                    </Link>
-                  </div>
-                </div> */}
                 <div className="rounded-2xl bg-white px-6 py-8">
                   <h2 className="mb-4 text-center text-4xl font-semibold">
                     <span className="text-2xl font-normal">Vlasnik: </span>{" "}

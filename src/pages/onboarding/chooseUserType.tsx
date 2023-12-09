@@ -18,7 +18,7 @@ export default function UserType() {
           await router.replace({
             pathname: `user/dashboard`,
           });
-          toast.success(`Welcome to your event planner!`);
+          toast.success(`Dobrodosli u Zaplaniraj`);
         });
 
         break;

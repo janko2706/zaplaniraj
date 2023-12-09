@@ -40,7 +40,7 @@ export const businessPostRouter = createTRPCRouter({
 
       if (!post) {
         throw new TRPCError({
-          code: "INTERNAL_SERVER_ERROR",
+          code: "NOT_FOUND",
           message: "No business post found!",
         });
       } else {

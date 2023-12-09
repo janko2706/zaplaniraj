@@ -1,4 +1,7 @@
-// retrieves a Stripe customer id for a given user if it exists or creates a new one
+// import { PrismaClient } from "@prisma/client";
+// import Stripe from "stripe";
+
+// // // retrieves a Stripe customer id for a given user if it exists or creates a new one
 // export const getOrCreateStripeCustomerIdForUser = async ({
 //   stripe,
 //   prisma,
@@ -22,7 +25,7 @@
 
 //   // create a new customer
 //   const customer = await stripe.customers.create({
-//     email: '',
+//     email: "",
 //     name: user.name ?? undefined,
 //     // use metadata to link this Stripe customer to internal user id
 //     metadata: {

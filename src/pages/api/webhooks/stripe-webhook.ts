@@ -1,14 +1,10 @@
 /* eslint-disable @typescript-eslint/no-unsafe-call */
 /* eslint-disable @typescript-eslint/no-unsafe-assignment */
+import { buffer } from "micro";
 import type { NextApiRequest, NextApiResponse } from "next";
 import type Stripe from "stripe";
-import { buffer } from "micro";
-// import {
-//   handleInvoicePaid,
-//   handleSubscriptionCanceled,
-//   handleSubscriptionCreatedOrUpdated,
-// } from "../../server/stripe/stripe-webhook-handlers";
 import { stripe } from "../../../server/stripe/client";
+import { prisma } from "~/server/db";
 
 // Stripe requires the raw body to construct the event.
 export const config = {
@@ -41,8 +37,18 @@ export default async function handler(
           break;
         case "customer.subscription.updated":
           // Used to provision services as they are updated.
-          console.log("subscription updated");
-
+          const business = await prisma.business.update({
+            where: { stripeId: event.data.object.customer as string },
+            data: { user: { update: { onboarding: "done" } }, hasPost: true },
+          });
+          await prisma.companyPost.create({
+            data: {
+              title: business.name,
+              isLive: false,
+              statistics: { create: {} },
+              business: { connect: { id: business.id } },
+            },
+          });
           break;
         case "invoice.payment_failed":
           // If the payment fails or the customer does not have a valid payment method,

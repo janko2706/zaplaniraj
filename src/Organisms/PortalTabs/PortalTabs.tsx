@@ -6,13 +6,14 @@ import { Transition } from "@headlessui/react";
 
 type Props = {
   tabs: { title: string; icon: JSX.Element; children?: JSX.Element }[];
+  defaultIndex: number;
 };
 
-export default function PortalTabs({ tabs }: Props) {
+export default function PortalTabs({ tabs, defaultIndex }: Props) {
   const tabsRef = useRef<HTMLDivElement>(null);
 
   return (
-    <Tab.Group>
+    <Tab.Group defaultIndex={defaultIndex}>
       {({ selectedIndex }) => (
         <div className={` bg-dark`}>
           {/* Buttons */}

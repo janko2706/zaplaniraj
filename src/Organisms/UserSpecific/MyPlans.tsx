@@ -40,16 +40,16 @@ function MyPlans() {
 
   const getPlanIcon = (category: string) => {
     switch (category) {
-      case "BIRTHDAY":
+      case "RODENDAN":
         return <FaBirthdayCake className={`${iconClasses}`} />;
 
-      case "WEDDING":
+      case "VJENCANJE":
         return <CgRing className={`${iconClasses}`} />;
 
-      case "CELEBRATION":
+      case "SLAVLJE":
         return <LuPartyPopper className={`${iconClasses}`} />;
 
-      case "SACRAMENT":
+      case "SAKRAMENT":
         return <FaChurch className={`${iconClasses}`} />;
       default:
         return <LuPartyPopper className={`${iconClasses}`} />;

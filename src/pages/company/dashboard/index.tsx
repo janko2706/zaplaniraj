@@ -6,10 +6,12 @@ import { useTranslation } from "next-i18next";
 import PortalTabs from "~/Organisms/PortalTabs/PortalTabs";
 import useMenu from "~/hooks/useMenu/useMenu";
 import RootLayout from "~/Templates/PortalLayout/layout";
+import { useRouter } from "next/router";
 
 function Dashboard() {
   const { t } = useTranslation("common");
   const { menus, companyDashboardMenu, userCompany, companyPost } = useMenu();
+  const { query } = useRouter();
 
   return (
     <RootLayout
@@ -17,10 +19,12 @@ function Dashboard() {
       hasPost={userCompany?.companyPostId ? true : false}
       business={userCompany}
       menus={menus}
-      isCompany={userCompany?.companyPostId ? true : false}
-      type={userCompany?.hasPost ? t("edit-post") : t("new-post")}
+      isCompany={userCompany ? true : false}
     >
-      <PortalTabs tabs={companyDashboardMenu} />
+      <PortalTabs
+        tabs={companyDashboardMenu}
+        defaultIndex={query.index ? Number(query.index) : 0}
+      />
     </RootLayout>
   );
 }

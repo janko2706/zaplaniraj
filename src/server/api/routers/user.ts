@@ -6,6 +6,7 @@ import {
   publicProcedure,
 } from "~/server/api/trpc";
 import { prisma } from "~/server/db";
+import { clerkClient } from "@clerk/nextjs/server";
 
 export const userRouter = createTRPCRouter({
   setOnboarding: privateProcedure
@@ -94,6 +95,26 @@ export const userRouter = createTRPCRouter({
         isBussines: false,
       },
     });
+  }),
+  deleteUser: privateProcedure.mutation(async ({ ctx }) => {
+    const userId = ctx.userId;
+    try {
+      await ctx.prisma.userPlan.deleteMany({
+        where: { user: { clerkId: userId } },
+      });
+
+      await ctx.prisma.user.delete({
+        where: {
+          clerkId: userId,
+        },
+      });
+      await clerkClient.users.deleteUser(userId);
+    } catch (_error) {
+      throw new TRPCError({
+        code: "INTERNAL_SERVER_ERROR",
+        message: "Error deleting user",
+      });
+    }
   }),
   getUserByClerkId: privateProcedure.query(async ({ ctx }) => {
     const userId = ctx.userId;

@@ -24,7 +24,7 @@ export interface WholePostType extends CompanyPost {
   prices: PostPrice[];
 }
 export interface PostForUserPlan extends CompanyPost {
-  business?: BussinesForPLan | null;
+  business?: BussinesForPlan | null;
 }
 
 export interface CompanyPostWihtoutDate extends CompanyPost {
@@ -38,7 +38,7 @@ export interface CompanyPostWihtoutDate extends CompanyPost {
   prices: PostPrice[];
 }
 
-interface BussinesForPLan extends Business {
+export interface BussinesForPlan extends Business {
   user?: User | null;
   typeOfBusiness: BusinessTypeCategory;
 }

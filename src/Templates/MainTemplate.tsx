@@ -40,6 +40,7 @@ function MainTemplate(props: Props) {
           bgColor={props.bgColorDesktop}
           user={user}
           appLogo={AppLogo}
+          userCompany={props.userCompany}
         />
         <MobileMenu appLogo={AppLogo} userCompany={props.userCompany} />
 

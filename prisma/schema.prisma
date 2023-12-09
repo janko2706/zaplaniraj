@@ -97,7 +97,7 @@ model Business {
   typeOfBusiness   BusinessTypeCategory @relation(fields: [typeOfBusinessId], references: [id])
   typeOfBusinessId Int
   name             String
-  stripeId         String?
+  stripeId         String?              @unique
   hasPost          Boolean?             @default(false)
   postIsLive       Boolean?             @default(false)
   freeTrial        Boolean

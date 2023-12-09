@@ -1,21 +1,26 @@
 import React, { useEffect, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { CheckIcon, PencilIcon } from "@heroicons/react/24/outline";
+import {
+  BuildingOfficeIcon,
+  CakeIcon,
+  CheckIcon,
+  PencilIcon,
+} from "@heroicons/react/24/outline";
 import avatarPlaceholder from "@assets/avatar-placeholder.png";
 import MainTemplate from "~/Templates/MainTemplate";
 import { useUser } from "@clerk/nextjs";
-import type { Business } from "@prisma/client";
-import { useRouter } from "next/router";
-import type { WholePostType } from "~/utils/types";
-import { FaCircle } from "react-icons/fa";
+import type { BussinesForPlan, WholePostType } from "~/utils/types";
+import { FaBreadSlice, FaCircle, FaGuitar } from "react-icons/fa";
 import Modal from "~/Atoms/Modal/Modal";
 import { useCompanyPost } from "~/Organisms/CompanySpecific/useCompanyPost";
 import { toast } from "react-toastify";
+import { AiFillCar } from "react-icons/ai";
+import { GiClown, GiAmpleDress } from "react-icons/gi";
+import { LuFlower } from "react-icons/lu";
 
 type Props = {
   children: JSX.Element;
-  type: string;
   isCompany?: boolean;
   menus: (
     | {
@@ -39,7 +44,7 @@ type Props = {
 } & (
   | {
       isCompany: true;
-      business?: Business;
+      business?: BussinesForPlan;
       hasPost: boolean;
       post?: WholePostType;
     }
@@ -48,21 +53,10 @@ type Props = {
 
 function RootLayout(props: Props) {
   const user = useUser();
-  const router = useRouter();
   const [liveModalOpen, setLiveModalOpen] = useState(false);
   const [post, setPost] = useState<WholePostType>();
   const [isLive, setIsLive] = useState<boolean>(false);
   const { updatePost } = useCompanyPost();
-
-  const shouldHidePostLink = (): boolean => {
-    if (props.isCompany) {
-      if (props.hasPost === true) {
-        return false;
-      }
-      return true;
-    }
-    return true;
-  };
   const isPostLiveText = (isLive: boolean): string => {
     if (props.isCompany && props.hasPost) {
       if (isLive === true) {
@@ -110,6 +104,29 @@ function RootLayout(props: Props) {
       }
     }
   };
+  const getCategoryIcon = (categoryValue: string) => {
+    switch (categoryValue) {
+      case "Transport":
+        return <AiFillCar className="h-10 w-10" />;
+      case "Venue":
+        return <BuildingOfficeIcon className="h-10 w-10" />;
+      case "Flowers":
+        return <LuFlower className="h-10 w-10" />;
+      case "Cakes":
+        return <CakeIcon className="h-10 w-10" />;
+      case "Music":
+        return <FaGuitar className="h-10 w-10" />;
+      case "Catering":
+        return <FaBreadSlice className="h-10 w-10" />;
+      case "Entertainment":
+        return <GiClown className="h-10 w-10" />;
+      case "Dresses":
+        return <GiAmpleDress className="h-10 w-10" />;
+
+      default:
+        return <BuildingOfficeIcon className="h-10 w-10" />;
+    }
+  };
 
   return (
     <>
@@ -143,7 +160,8 @@ function RootLayout(props: Props) {
                 </div>
               </div>
               {props.isCompany ? (
-                <div className="line-clamp-1 rounded-none bg-dark text-center font-mono text-4xl font-semibold tracking-normal text-white">
+                <div className="line-clamp-1 flex items-center gap-5 rounded-none bg-dark text-center font-mono text-4xl font-semibold tracking-normal text-white">
+                  {getCategoryIcon(props.business?.typeOfBusiness.value ?? "")}
                   {props.business?.name.toLocaleUpperCase() ?? ""}
                 </div>
               ) : (
@@ -151,14 +169,15 @@ function RootLayout(props: Props) {
                   {user.user?.firstName}&lsquo;s Portal
                 </div>
               )}
+
               <div
                 className={`flex gap-4 ${
-                  shouldHidePostLink() ? "hidden" : ""
+                  props.isCompany && props.hasPost ? "" : "hidden"
                 } `}
               >
                 <button
                   type="button"
-                  className={"btn-primary"}
+                  className={`btn btn-primary`}
                   onClick={(e) => {
                     e.preventDefault();
                     setLiveModalOpen((prev) => !prev);
@@ -168,12 +187,8 @@ function RootLayout(props: Props) {
                   {isPostLiveText(isLive)}
                 </button>
 
-                <Link
-                  href={props.isCompany ? `/company/post` : ""}
-                  locale={router.locale}
-                  className="btn-primary"
-                >
-                  <PencilIcon className="h-5 w-5" /> {props.type}
+                <Link href={`/company/post`} className="btn-primary">
+                  <PencilIcon className="h-5 w-5" /> Uredi oglas
                 </Link>
               </div>
             </div>

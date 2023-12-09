@@ -1,3 +1,4 @@
+import Link from "next/link";
 import React from "react";
 
 function Footer() {
@@ -5,7 +6,7 @@ function Footer() {
     <footer className="bg-slate-200 pt-6 text-center text-neutral-600  lg:text-left">
       <div className="mx-6 py-10 text-center md:text-left">
         <div className="grid-1 grid gap-8 md:grid-cols-2 lg:grid-cols-4">
-          <div className="">
+          <div>
             <h6 className="mb-4 flex items-center justify-center font-semibold uppercase md:justify-start">
               ZAplaniraj
             </h6>
@@ -17,44 +18,39 @@ function Footer() {
               pretvorite svoje ideje u stvarnost.
             </p>
           </div>
-          <div className="">
+          <div>
             <h6 className="mb-4 flex justify-center font-semibold uppercase md:justify-start">
               Istrazi
             </h6>
             <p className="mb-4">
-              <a href="#!" className="text-neutral-600 ">
+              <Link href="/discover/wedding" className="text-neutral-600 ">
                 Vjenjcanja
-              </a>
+              </Link>
             </p>
             <p className="mb-4">
-              <a href="#!" className="text-neutral-600 ">
+              <Link href="/discover/birthday" className="text-neutral-600 ">
                 Rodendani
-              </a>
+              </Link>
             </p>
             <p className="mb-4">
-              <a href="#!" className="text-neutral-600 ">
+              <Link href="/discover/sacrament" className="text-neutral-600 ">
                 Sakramenti
-              </a>
+              </Link>
             </p>
             <p>
-              <a href="#!" className="text-neutral-600 ">
+              <Link href="/discover/celebration" className="text-neutral-600 ">
                 Slavlja
-              </a>
+              </Link>
             </p>
           </div>
-          <div className="">
+          <div>
             <h6 className="mb-4 flex justify-center font-semibold uppercase md:justify-start">
               Korisni linkovi
             </h6>
             <p className="mb-4">
-              <a href="#!" className="text-neutral-600 ">
-                Cijena
-              </a>
-            </p>
-            <p className="mb-4">
-              <a href="#!" className="text-neutral-600">
-                postavke
-              </a>
+              <Link href="/faq" className="text-neutral-600 ">
+                Najcesca pitanja
+              </Link>
             </p>
           </div>
           <div>
@@ -73,7 +69,10 @@ function Footer() {
               </svg>
               info@just-pine.com
             </p>
-            <p className="mb-4 flex items-center justify-center md:justify-start">
+            <a
+              href="tel:+385 99-216-6806"
+              className="mb-4 flex items-center justify-center md:justify-start"
+            >
               <svg
                 xmlns="http://www.w3.org/2000/svg"
                 viewBox="0 0 24 24"
@@ -87,15 +86,19 @@ function Footer() {
                 />
               </svg>
               +385 99-216-6806
-            </p>
+            </a>
           </div>
         </div>
       </div>
 
       <div className="0 bg-primaryBlue p-6 text-center text-white">
-        <span>© 2023 Copyright: </span>
-        <a className="font-bold text-white " href="https://just-pine.hr/">
-          JUST <span className="text-green-600">PINE</span>
+        <span> 2023 Developed by: </span>
+        <a
+          className="font-bold text-slate-400 "
+          target="_blank"
+          href="https://just-pine.hr/"
+        >
+          JUST-<span className="text-green-600">PINE</span>
         </a>
       </div>
     </footer>
