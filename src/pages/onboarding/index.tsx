@@ -1,9 +1,8 @@
 import { AnimatePresence } from "framer-motion";
-import UserType from "./chooseUserType";
-import { useOnboarding } from "~/hooks/onboarding/useOnboarding";
-import { useEffect } from "react";
-import { toast } from "react-toastify";
 import { useRouter } from "next/router";
+import { useEffect } from "react";
+import { useOnboarding } from "~/hooks/onboarding/useOnboarding";
+import UserType from "./chooseUserType";
 
 export default function Index() {
   const { createUser, doesUserExists, getUserOnboarding } = useOnboarding();
@@ -13,7 +12,7 @@ export default function Index() {
     void (() => {
       if (doesUserExists.data === 300) {
         void (async () => {
-          await createUser().catch((err) => toast.error(`${err}`));
+          await createUser().catch((err) => console.error(`${err}`));
         })();
       } else if (doesUserExists.data === 200) {
         if (getUserOnboarding.data) {

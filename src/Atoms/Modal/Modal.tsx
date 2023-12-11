@@ -63,6 +63,10 @@ export default function Modal({
                             ? "Vas oglas nece biti vidljiv drugim korisnicima dok ga ponovo ne objavite ovdje!"
                             : "Objavite Vas oglas kako bi ga drugi korisnici mogli vidjeti."}
                         </p>
+                        <p className="text-sm text-gray-500">
+                          {!isPostLive &&
+                            "Potrebno je do 5 minuta kako bi projmene bile vidjlive."}
+                        </p>
                       </div>
                     </div>
                   </div>

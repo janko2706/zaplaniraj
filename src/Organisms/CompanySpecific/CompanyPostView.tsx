@@ -6,19 +6,18 @@ import {
   XCircleIcon,
 } from "@heroicons/react/20/solid";
 import { useRouter } from "next/router";
-import { type FormEvent, useState, useId } from "react";
-import CreatableSelect from "react-select/creatable";
-import Select, { type MultiValue } from "react-select";
+import { useId, useState, type FormEvent, useEffect } from "react";
+import Select from "react-select";
 import { toast } from "react-toastify";
 import { Tooltip } from "react-tooltip";
+import { useImmer } from "use-immer";
 import Accordion from "~/Atoms/Accordion/Accordion";
+import LoadingSpinner from "~/Atoms/LoadingSpinner/LoadingSpinner";
 import RangeSliderComponent from "~/Atoms/RangeSlider/RangeSlider";
 import Map from "~/Molecules/Map/Map";
-import { useCompanyPost } from "./useCompanyPost";
 import Uploader from "~/Molecules/Uploader/Uploader";
 import { type CompanyPostWihtoutDate } from "~/utils/types";
-import LoadingSpinner from "~/Atoms/LoadingSpinner/LoadingSpinner";
-import { useImmer } from "use-immer";
+import { useCompanyPost } from "./useCompanyPost";
 
 const tooltipStyle = {
   backgroundColor: "#3539E9",
@@ -90,7 +89,6 @@ function CompanyPostView({ companyPost }: Props) {
     }));
   };
 
-  const tagSelectId = useId();
   const categorySelectId = useId();
   const onPlacesSelect = (
     address: string,
@@ -168,8 +166,12 @@ function CompanyPostView({ companyPost }: Props) {
     }));
   }
 
+  useEffect(() => {
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  }, [isUpdatePostLoading]);
+
   return (
-    <div className="bg-[var(--bg-2)] px-3 py-[30px] lg:py-[60px]">
+    <div className="h-full bg-[var(--bg-2)] px-3 py-[30px] lg:py-[60px]">
       <button
         className="rounded-full p-2 transition-all hover:bg-gray-400"
         type="button"
@@ -243,10 +245,11 @@ function CompanyPostView({ companyPost }: Props) {
                     content="Ukratko predstaviti Vase poslovanje."
                   />
                   <textarea
-                    rows={5}
+                    rows={4}
                     className="w-full rounded-md border p-2 focus:outline-none "
                     placeholder="Opis.."
                     value={currentPost.companyDescription ?? ""}
+                    maxLength={150}
                     onChange={(e) =>
                       setCurrentPost((prev) => ({
                         ...prev,
@@ -254,6 +257,8 @@ function CompanyPostView({ companyPost }: Props) {
                       }))
                     }
                   ></textarea>
+                  <div>{currentPost.companyDescription?.length} / 150</div>
+
                   <p className="mb-4 mt-6 flex items-center gap-3 text-xl font-medium">
                     Osvrt o usluzi :
                     <QuestionMarkCircleIcon
@@ -269,6 +274,7 @@ function CompanyPostView({ companyPost }: Props) {
                   />
                   <textarea
                     value={currentPost.serviceDescription ?? ""}
+                    maxLength={150}
                     rows={2}
                     className="w-full rounded-md border p-2 focus:outline-none "
                     placeholder="Opis.."
@@ -279,6 +285,7 @@ function CompanyPostView({ companyPost }: Props) {
                       }))
                     }
                   ></textarea>
+                  <div>{currentPost.serviceDescription?.length} / 150</div>
                   <p className="mb-4 mt-6 flex gap-3 text-xl font-medium">
                     Kategorije :
                     <QuestionMarkCircleIcon
@@ -343,7 +350,7 @@ function CompanyPostView({ companyPost }: Props) {
                     removeFromPictures={removeFromPictures}
                     deleteImageInDB={deleteImageInDB}
                     imageUrls={currentPost.pictures?.split(",")}
-                    maximumImages={10}
+                    maximumImages={6}
                   />
                 </div>
               </div>
@@ -616,36 +623,7 @@ function CompanyPostView({ companyPost }: Props) {
                     }));
                   }}
                 />
-                <p className="mb-4 mt-6 text-xl font-medium">
-                  Kljucne rijeci :
-                </p>
-                <CreatableSelect
-                  id={tagSelectId}
-                  instanceId={tagSelectId}
-                  isMulti
-                  isClearable
-                  value={
-                    currentPost.tags !== ""
-                      ? currentPost.tags
-                          ?.split(",")
-                          .map((item) => ({ label: item, value: item }))
-                      : []
-                  }
-                  placeholder="Npr. romanticno, cvijece, zabavan prostor, itd..."
-                  onChange={(
-                    e: MultiValue<{ label: string; value: string }>
-                  ) => {
-                    const newTags = [
-                      ...e.map((item) => {
-                        return item.value;
-                      }),
-                    ];
-                    setCurrentPost((prev) => ({
-                      ...prev,
-                      tags: newTags.toString(),
-                    }));
-                  }}
-                />
+
                 <p className="mb-4 mt-6 text-xl font-medium">
                   Parking mjesta :
                 </p>

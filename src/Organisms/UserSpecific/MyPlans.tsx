@@ -129,6 +129,7 @@ function MyPlans() {
                       text={"Napravi novi plan"}
                       className="flex h-fit w-fit items-center justify-center gap-3 rounded-xl border border-primary p-3 text-primary transition-all duration-300 ease-in-out hover:bg-primary hover:text-white"
                     >
+
                       <PlusCircleIcon className="h-10 w-10 " />
                     </Button>
                   </div>
@@ -155,7 +156,7 @@ function MyPlans() {
                         })
                     ) : (
                       <div className="mt-10 flex justify-center text-lg">
-                        No completed plans yet...
+                        Zavrsite plan, kako bi se pojavio ovdje.
                       </div>
                     )}
                   </Spotlight>

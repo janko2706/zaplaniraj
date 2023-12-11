@@ -63,7 +63,6 @@ export default function Language() {
                       await push({ pathname, query }, undefined, {
                         locale: "en-US",
                       });
-                      reload();
                     })();
                   }}
                   className={`${
@@ -84,7 +83,6 @@ export default function Language() {
                       await push({ pathname, query }, undefined, {
                         locale: "de-DE",
                       });
-                      reload();
                     })();
                   }}
                   className={`${
@@ -107,7 +105,6 @@ export default function Language() {
                       await push({ pathname, query }, undefined, {
                         locale: "hr",
                       });
-                      reload();
                     })();
                   }}
                   className={`${
@@ -121,6 +118,11 @@ export default function Language() {
                 </button>
               </Menu.Item>
             </div>
+            <p className="bg-slate-100 p-1 text-center text-xs text-red-400">
+              Currently only Croatian is available!
+              <br />
+              Thank you for your patience.
+            </p>
           </Menu.Items>
         </Transition>
       </Menu>

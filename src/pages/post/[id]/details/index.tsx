@@ -8,6 +8,7 @@ import {
   StarIcon,
   HeartIcon as HeartSolid,
 } from "@heroicons/react/20/solid";
+import { MdAlternateEmail } from "react-icons/md";
 import {
   CalendarDaysIcon,
   ChevronLeftIcon,
@@ -24,7 +25,7 @@ import type {
   InferGetStaticPropsType,
 } from "next";
 import Link from "next/link";
-import { FaFacebook, FaGlobe, FaInstagram } from "react-icons/fa";
+import { FaFacebook, FaGlobe, FaInstagram, FaPhone } from "react-icons/fa";
 import "swiper/css";
 import "swiper/css/navigation";
 import { Navigation } from "swiper/modules";
@@ -645,7 +646,8 @@ const Index = (props: InferGetStaticPropsType<typeof getStaticProps>) => {
                     <span className="text-2xl font-normal">Vlasnik: </span>{" "}
                     {post.business?.name ?? ""}
                   </h2>
-                  <ul className="flex flex-wrap justify-center gap-3">
+                  <ul className="mb-4 flex justify-center gap-3">
+                    {" "}
                     {post.website ? (
                       <li>
                         <Link
@@ -687,13 +689,54 @@ const Index = (props: InferGetStaticPropsType<typeof getStaticProps>) => {
                     )}
                   </ul>
                   <div className="my-7 border border-dashed"></div>
+                  <div className="flex flex-col justify-start">
+                    <h2 className="pb-3 text-xl italic">Kontakt</h2>
+                    <ul className="flex flex-wrap justify-between gap-3 ">
+                      {post.contactPhones ? (
+                        post.contactPhones.split(",").map((item, index) => {
+                          return (
+                            <li key={index}>
+                              <a
+                                href={`tel:${item}`}
+                                className="link flex w-fit items-center gap-3 rounded-full bg-[var(--primary-light)] px-4 text-primary duration-300 hover:bg-primary hover:text-white"
+                              >
+                                <FaPhone className=" text-xl" />
+                                {item}
+                              </a>
+                            </li>
+                          );
+                        })
+                      ) : (
+                        <></>
+                      )}
+                      {post.contactEmails ? (
+                        post.contactEmails.split(",").map((item, index) => {
+                          return (
+                            <li key={index}>
+                              <a
+                                href={`mailto:${item}`}
+                                className="link flex w-fit items-center gap-3 rounded-full bg-[var(--primary-light)] px-4 text-primary duration-300 hover:bg-primary hover:text-white"
+                              >
+                                <MdAlternateEmail className=" text-xl" />
+                                {item}
+                              </a>
+                            </li>
+                          );
+                        })
+                      ) : (
+                        <></>
+                      )}
+                    </ul>
+                  </div>
+
+                  <div className="my-7 border border-dashed"></div>
                   <ul className="max-text-30 mx-auto mb-10 flex flex-col gap-4">
                     <li>
                       <div className="flex items-center gap-2">
                         <CalendarDaysIcon className="h-5 w-5 text-primary" />
                         <p className="mb-0">
                           {" "}
-                          Joined in{" "}
+                          Pridruzio se{" "}
                           {format(
                             new Date(
                               post.business?.user?.createdAt ?? "10/10/2023"

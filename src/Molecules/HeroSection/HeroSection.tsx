@@ -1,20 +1,20 @@
-import {
-  CalendarDaysIcon,
-  MagnifyingGlassIcon,
-} from "@heroicons/react/20/solid";
-import Image from "next/image";
+import { MagnifyingGlassIcon } from "@heroicons/react/20/solid";
 import Link from "next/link";
-import { useState } from "react";
+import {
+  LegacyRef,
+  MutableRefObject,
+  RefObject,
+  useEffect,
+  useRef,
+  useState,
+} from "react";
+import Confetti from "react-confetti";
 import { CgDollar, CgRing } from "react-icons/cg";
 import { FaBirthdayCake, FaChurch } from "react-icons/fa";
 import { LuPartyPopper } from "react-icons/lu";
-import { useParallax } from "react-scroll-parallax";
-import heroImage from "../../Assets/HeroAssets/heroImage.png";
 import { HeroDropdown } from "./HeroDropdown/HeroDropdown";
 
 function HeroSection() {
-  const calendar = useParallax<HTMLDivElement>({ speed: -10 });
-  const celebration = useParallax<HTMLImageElement>({ speed: 40 });
   const dropdownIconClasses = "h-5 w-5 text-black";
   const dropdownIconClassesBudget = "h-4 w-4 text-black";
 
@@ -81,24 +81,43 @@ function HeroSection() {
   const [selectedCategory, setSelectedCategory] = useState(categories[0]);
   const [selectedArea, setSelectedArea] = useState(areas[0]);
   const [selectedBudget, setSelectedBudget] = useState(priceRange[1]);
+  const [confettiWidth, setConfettiWidth] = useState(0);
+  const [confettiHeight, setConfettiHeight] = useState(0);
+  const mainRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (mainRef !== null) {
+      setConfettiHeight(mainRef.current?.clientHeight ?? 0);
+      setConfettiWidth(mainRef.current?.clientWidth ?? 0);
+    }
+  }, [mainRef]);
 
   return (
-    <section className="relative border-t bg-[var(--bg-1)] lg:border-t-0">
-      <div ref={calendar.ref}>
+    <section
+      className="relative border-t bg-[var(--bg-1)] lg:border-t-0"
+      ref={mainRef}
+    >
+      <Confetti
+        height={confettiHeight}
+        width={confettiWidth}
+        numberOfPieces={100}
+        opacity={0.7}
+      />
+      {/* <div ref={calendar.ref}>
         <CalendarDaysIcon
           width={508}
           height={500}
           className="absolute right-0 top-0 hidden w-[20%]  text-slate-400  xl:block"
         />
-      </div>
-      <Image
+      </div> */}
+      {/* <Image
         ref={celebration.ref}
         className="absolute left-0 top-[70%] z-10 hidden w-[25%] lg:block"
         src={heroImage}
         width={808}
         height={642}
         alt="image"
-      />
+      /> */}
 
       <div className="h-full px-3 pb-16 pt-[70px] sm:pt-[100px] md:pt-[150px] xl:pt-[180px]">
         <div className="container ">
