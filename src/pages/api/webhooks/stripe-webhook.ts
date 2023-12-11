@@ -13,6 +13,10 @@ export const config = {
   },
 };
 
+type stripeCustomer = {
+  customer?: string;
+};
+
 const webhookSecret =
   "whsec_6c046cfc11f7713b6201e3f1b50a840f19e33dbad981786f2ebb3bb5b0003e57";
 
@@ -37,8 +41,9 @@ export default async function handler(
           break;
         case "customer.subscription.updated":
           // Used to provision services as they are updated.
+          const stripeCustomer: stripeCustomer = event.data.object;
           const business = await prisma.business.update({
-            where: { stripeId: event.data.object.customer as string },
+            where: { stripeId: stripeCustomer.customer },
             data: { user: { update: { onboarding: "done" } }, hasPost: true },
           });
           await prisma.companyPost.create({
