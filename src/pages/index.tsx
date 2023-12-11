@@ -1,6 +1,5 @@
 import { useUser } from "@clerk/nextjs";
 import type { GetStaticProps } from "next";
-import { serverSideTranslations } from "next-i18next/serverSideTranslations";
 import { useRouter } from "next/router";
 import { useEffect } from "react";
 import HeroSection from "~/Molecules/HeroSection/HeroSection";
@@ -15,7 +14,6 @@ export default function Home() {
   const router = useRouter();
   const { getUserOnboarding, doesUserExists } = useHome();
   const { menus, userCompany } = useMenu();
-
 
   useEffect(() => {
     if (user.isSignedIn) {
@@ -101,7 +99,7 @@ import superjson from "superjson";
 import { appRouter } from "~/server/api/root";
 import { prisma } from "~/server/db";
 
-export const getStaticProps: GetStaticProps = async ({ locale }) => {
+export const getStaticProps: GetStaticProps = async ({}) => {
   const ssg = createServerSideHelpers({
     router: appRouter,
     ctx: {
@@ -115,11 +113,6 @@ export const getStaticProps: GetStaticProps = async ({ locale }) => {
   await ssg.user.getUserOnboarding.prefetch();
   return {
     props: {
-      ...(await serverSideTranslations(locale ?? "hr", [
-        "frontPage",
-        "common",
-        "dashboard",
-      ])),
       trpcState: ssg.dehydrate(),
     },
   };

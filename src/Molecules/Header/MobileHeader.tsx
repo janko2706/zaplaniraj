@@ -13,7 +13,7 @@ import type { Business } from "@prisma/client";
 import type { StaticImageData } from "next/image";
 import Image from "next/image";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { useRouter } from "next/router";
 import { useEffect, useState } from "react";
 import { CgRing } from "react-icons/cg";
 import { FaChurch } from "react-icons/fa";
@@ -26,7 +26,7 @@ type Props = {
 
 const MobileMenu = ({ appLogo, userCompany }: Props) => {
   const [isOpen, setIsOpen] = useState(false);
-  const path = usePathname();
+  const { pathname: path } = useRouter();
   const toggleOffCanvas = () => {
     setIsOpen((prevState) => !prevState);
   };
@@ -134,7 +134,7 @@ const MobileMenu = ({ appLogo, userCompany }: Props) => {
                 buttonContent={(open) => (
                   <div
                     className={`flex items-center gap-2 rounded-md px-6 py-3 duration-300 ${
-                      path.includes("discover") && "bg-primary text-white"
+                      path.indexOf("discover") !== -1 && "bg-primary text-white"
                     }`}
                   >
                     <ChevronDownIcon

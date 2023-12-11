@@ -1,4 +1,3 @@
-import { serverSideTranslations } from "next-i18next/serverSideTranslations";
 import React from "react";
 import CompanyPostView from "~/Organisms/CompanySpecific/CompanyPostView";
 import RootLayout from "~/Templates/PortalLayout/layout";
@@ -35,7 +34,7 @@ import type { CompanyPostWihtoutDate } from "~/utils/types";
 
 export const getServerSideProps: GetServerSideProps<{
   post: CompanyPostWihtoutDate;
-}> = (async ({ locale, req }) => {
+}> = (async ({ req }) => {
   const { userId } = getAuth(req);
   if (!userId)
     return {
@@ -76,10 +75,6 @@ export const getServerSideProps: GetServerSideProps<{
 
   return {
     props: {
-      ...(await serverSideTranslations(locale ?? "hr", [
-        "common",
-        "dashboard",
-      ])),
       post,
     },
   };

@@ -1,6 +1,4 @@
 import React from "react";
-import type { GetStaticProps } from "next";
-import { serverSideTranslations } from "next-i18next/serverSideTranslations";
 import PortalTabs from "~/Organisms/PortalTabs/PortalTabs";
 import RootLayout from "~/Templates/PortalLayout/layout";
 import useMenu from "~/hooks/useMenu/useMenu";
@@ -20,14 +18,3 @@ function Dashboard() {
 }
 
 export default Dashboard;
-
-export const getStaticProps: GetStaticProps = async ({ locale }) => {
-  return {
-    props: {
-      ...(await serverSideTranslations(locale ?? "hr", [
-        "common",
-        "dashboard-user",
-      ])),
-    },
-  };
-};

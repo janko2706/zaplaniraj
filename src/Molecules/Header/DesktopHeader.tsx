@@ -1,15 +1,15 @@
-import Link from "next/link";
-import { useEffect, useRef, useState } from "react";
+import { SignInButton, SignUpButton } from "@clerk/nextjs";
 import { ChevronDownIcon, ChevronRightIcon } from "@heroicons/react/24/outline";
-import Language from "~/Atoms/Dropdowns/Language";
-import Profile from "~/Atoms/Dropdowns/Profile";
+import { AnimatePresence, motion } from "framer-motion";
 import type { StaticImageData } from "next/image";
 import Image from "next/image";
-import { FaBars } from "react-icons/fa";
-import { SignInButton, SignUpButton, useUser } from "@clerk/nextjs";
+import Link from "next/link";
 import { useRouter } from "next/router";
+import { useEffect, useRef, useState } from "react";
+import { FaBars } from "react-icons/fa";
+import Language from "~/Atoms/Dropdowns/Language";
+import Profile from "~/Atoms/Dropdowns/Profile";
 import { env } from "~/env.mjs";
-import { AnimatePresence, motion } from "framer-motion";
 
 type Props = {
   user: {

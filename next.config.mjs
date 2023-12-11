@@ -7,15 +7,12 @@
  * for Docker builds.
  */
 
-import pkg from "./next-i18next.config.js";
-const { i18n } = pkg;
 await import("./src/env.mjs");
 
 /** @type {import("next").NextConfig} */
 
 const config = {
   reactStrictMode: false,
-  i18n,
   webpack: (config) => {
     let modularizeImports = null;
     if (config) {

@@ -1,15 +1,14 @@
-import { type AppType } from "next/app";
-import { api } from "~/utils/api";
-import "~/styles/globals.css";
 import { ClerkProvider } from "@clerk/nextjs";
 import { DefaultSeo } from "next-seo";
-import "react-toastify/dist/ReactToastify.css";
-import { ToastContainer } from "react-toastify";
-import { appWithTranslation } from "next-i18next";
+import { type AppType } from "next/app";
 import { ParallaxProvider } from "react-scroll-parallax";
+import { ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
+import "~/styles/globals.css";
+import { api } from "~/utils/api";
 // Import Swiper styles
-import "swiper/css/navigation";
 import "swiper/css";
+import "swiper/css/navigation";
 import "../pages/discover/Discover.css";
 
 const MyApp: AppType = ({ Component, pageProps }) => {
@@ -35,4 +34,4 @@ const MyApp: AppType = ({ Component, pageProps }) => {
   );
 };
 
-export default api.withTRPC(appWithTranslation(MyApp));
+export default api.withTRPC(MyApp);

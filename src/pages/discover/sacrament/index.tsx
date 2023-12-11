@@ -1,5 +1,3 @@
-import type { GetStaticProps } from "next";
-import { serverSideTranslations } from "next-i18next/serverSideTranslations";
 import { useRouter } from "next/router";
 import { useEffect } from "react";
 import DiscoverHeader from "~/Templates/Discover/DiscoverHeaderTemplate";
@@ -129,8 +127,3 @@ function Index() {
   );
 }
 export default Index;
-export const getStaticProps: GetStaticProps = async ({ locale }) => ({
-  props: {
-    ...(await serverSideTranslations(locale ?? "hr", ["common", "dashboard"])),
-  },
-});

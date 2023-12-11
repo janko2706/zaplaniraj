@@ -1,5 +1,4 @@
 import { ChevronDownIcon } from "@heroicons/react/20/solid";
-import React, { useState } from "react";
 import Accordion from "~/Atoms/Accordion/Accordion";
 import MainTemplate from "~/Templates/MainTemplate";
 import useMenu from "~/hooks/useMenu/useMenu";

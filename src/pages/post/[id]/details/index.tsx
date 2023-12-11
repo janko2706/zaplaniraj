@@ -23,7 +23,6 @@ import type {
   GetStaticProps,
   InferGetStaticPropsType,
 } from "next";
-import { serverSideTranslations } from "next-i18next/serverSideTranslations";
 import Link from "next/link";
 import { FaFacebook, FaGlobe, FaInstagram } from "react-icons/fa";
 import "swiper/css";
@@ -748,7 +747,7 @@ import { api } from "~/utils/api";
 import { getTranslationForStatistics } from "~/utils/translationHelpers";
 import PlansModal from "~/Organisms/PlansModal/PlansModal";
 
-export const getStaticProps: GetStaticProps = async ({ locale, params }) => {
+export const getStaticProps: GetStaticProps = async ({ params }) => {
   const helpers = createServerSideHelpers({
     router: appRouter,
     ctx: {
@@ -763,10 +762,6 @@ export const getStaticProps: GetStaticProps = async ({ locale, params }) => {
 
   return {
     props: {
-      ...(await serverSideTranslations(locale ?? "hr", [
-        "common",
-        "dashboard",
-      ])),
       trpcState: helpers.dehydrate(),
       id,
     },
@@ -774,53 +769,9 @@ export const getStaticProps: GetStaticProps = async ({ locale, params }) => {
   };
 };
 
-export const getStaticPaths: GetStaticPaths = async () => {
-  // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-  const result: {
-    result: {
-      data?: {
-        json: { id: string }[];
-      };
-    };
-  } = await fetch(
-    "https://zaplaniraj.vercel.app/api/trpc/businessPost.getAllPostsForPages"
-  ).then((res) => {
-    return res.json();
-  });
-  if (!result?.result?.data) {
-    return {
-      paths: [],
-      fallback: true,
-    };
-  }
-
-  const userData = result.result.data.json;
-  const engPaths = userData.map((item) => {
-    return {
-      params: {
-        id: item.id,
-      },
-      locale: "en-US",
-    };
-  });
-  const hrPaths = userData.map((item) => {
-    return {
-      params: {
-        id: item.id,
-      },
-      locale: "hr",
-    };
-  });
-  const dePaths = userData.map((item) => {
-    return {
-      params: {
-        id: item.id,
-      },
-      locale: "de-DE",
-    };
-  });
+export const getStaticPaths: GetStaticPaths = () => {
   return {
-    paths: [...engPaths, ...dePaths, ...hrPaths],
-    fallback: true,
+    paths: [],
+    fallback: "blocking",
   };
 };

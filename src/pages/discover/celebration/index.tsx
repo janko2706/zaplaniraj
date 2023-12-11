@@ -1,12 +1,10 @@
-import type { GetStaticProps } from "next";
-import { serverSideTranslations } from "next-i18next/serverSideTranslations";
 import { useRouter } from "next/router";
 import { useEffect } from "react";
 import DiscoverHeader from "~/Templates/Discover/DiscoverHeaderTemplate";
 import DiscoverPosts from "~/Templates/Discover/DiscoverPostsTemplate";
 import MainTemplate from "~/Templates/MainTemplate";
-import useDiscover from "../../../hooks/useDiscover";
 import { discoverCategories } from "~/utils/discoverCategories";
+import useDiscover from "../../../hooks/useDiscover";
 
 function Index() {
   const { query, replace } = useRouter();
@@ -129,8 +127,3 @@ function Index() {
   );
 }
 export default Index;
-export const getStaticProps: GetStaticProps = async ({ locale }) => ({
-  props: {
-    ...(await serverSideTranslations(locale ?? "hr", ["common", "dashboard"])),
-  },
-});

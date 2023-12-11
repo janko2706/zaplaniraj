@@ -2,7 +2,6 @@ import {
   CalendarDaysIcon,
   MagnifyingGlassIcon,
 } from "@heroicons/react/20/solid";
-import { useTranslation } from "next-i18next";
 import Image from "next/image";
 import Link from "next/link";
 import { useState } from "react";
@@ -14,7 +13,6 @@ import heroImage from "../../Assets/HeroAssets/heroImage.png";
 import { HeroDropdown } from "./HeroDropdown/HeroDropdown";
 
 function HeroSection() {
-  const { t } = useTranslation("frontPage");
   const calendar = useParallax<HTMLDivElement>({ speed: -10 });
   const celebration = useParallax<HTMLImageElement>({ speed: 40 });
   const dropdownIconClasses = "h-5 w-5 text-black";
@@ -106,12 +104,12 @@ function HeroSection() {
         <div className="container ">
           <div className="relative z-10  text-center ">
             <h1 className=" text-6xl font-semibold  text-neutral-700">
-              {t("Hero-main1")}{" "}
-              <span className="text-purple-800"> {t("Hero-bold")} </span>
-              {t("Hero-main2")}
+              Organiziraj svoj{" "}
+              <span className="text-purple-800"> nezaboravan </span>
+              provod
             </h1>
             <p className="mx-auto mt-4 max-w-[600px] text-xl text-gray-500 md:mt-9">
-              {t("Hero-sub")}
+              Odabir lokacije, hrane, muzike i fotografa nikada nisu bili lakši.
             </p>
             <div className="relative z-30 mx-auto mt-12 flex max-w-[1060px] flex-wrap items-center justify-center gap-3 rounded-xl bg-white p-4 shadow-lg lg:p-5">
               <HeroDropdown

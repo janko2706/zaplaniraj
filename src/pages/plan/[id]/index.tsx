@@ -1,8 +1,7 @@
 import { RadioGroup } from "@headlessui/react";
 import { PlusIcon, TrashIcon } from "@heroicons/react/20/solid";
+import { format } from "date-fns";
 import isEqual from "lodash/isEqual";
-import type { GetStaticPaths, GetStaticProps } from "next";
-import { serverSideTranslations } from "next-i18next/serverSideTranslations";
 import Head from "next/head";
 import { useRouter } from "next/router";
 import { useEffect } from "react";
@@ -15,7 +14,6 @@ import {
   getCategoryTranslation,
   getEventTypeTranslation,
 } from "~/utils/translationHelpers";
-import { format } from "date-fns";
 import usePlan from "../../../hooks/usePlan";
 
 const colorsForBg = [
@@ -470,7 +468,7 @@ const Index = () => {
                         id="completed-checkbox"
                         type="checkbox"
                         value={"Testing value"}
-                        onClick={() =>
+                        onChange={() =>
                           setData((prev) => {
                             if (!prev) return;
                             prev.progress =
@@ -500,35 +498,3 @@ const Index = () => {
 };
 
 export default Index;
-
-export const getStaticProps: GetStaticProps = async ({ locale }) => ({
-  props: {
-    ...(await serverSideTranslations(locale ?? "hr", ["common"])),
-  },
-});
-
-export const getStaticPaths: GetStaticPaths = () => {
-  return {
-    paths: [
-      {
-        params: {
-          id: "id",
-        },
-        locale: "hr",
-      },
-      {
-        params: {
-          id: "id",
-        },
-        locale: "en-US",
-      },
-      {
-        params: {
-          id: "id",
-        },
-        locale: "de-DE",
-      },
-    ],
-    fallback: true,
-  };
-};
