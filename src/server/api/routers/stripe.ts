@@ -36,7 +36,7 @@ export const stripeRouter = createTRPCRouter({
       const checkoutSession = await stripe.checkout.sessions.create({
         customer: newStripeCustomer.id,
         mode: "subscription",
-        billing_address_collection: "auto",
+        billing_address_collection: "required",
         customer_update: { name: "auto", address: "auto" },
         tax_id_collection: {
           enabled: true,

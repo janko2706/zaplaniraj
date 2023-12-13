@@ -17,13 +17,13 @@ type stripeCustomer = {
   customer?: string;
 };
 
-const webhookSecret =
-  "whsec_6c046cfc11f7713b6201e3f1b50a840f19e33dbad981786f2ebb3bb5b0003e57";
+const webhookSecret = process.env.STRIPE_WEBHOOK_SECRET;
 
 export default async function handler(
   req: NextApiRequest,
   res: NextApiResponse
 ) {
+  if (!webhookSecret) return;
   if (req.method === "POST") {
     const buf: Buffer = await buffer(req);
     const sig = req.headers["stripe-signature"];
