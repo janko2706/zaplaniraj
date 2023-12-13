@@ -8,7 +8,7 @@ import HRFlag from "@assets/Flags/hr.svg";
 import { useRouter } from "next/router";
 
 export default function Language() {
-  const { locale, push, pathname, query, reload } = useRouter();
+  const { locale, push, pathname, query } = useRouter();
 
   const switchFlagonLocaleChange = (locale: string): string => {
     switch (locale) {

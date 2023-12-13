@@ -28,7 +28,7 @@ function RecommendedIndex() {
       <div className="container">
         <div className="mx-auto flex max-w-[570px] flex-col items-center px-3 text-center">
           <h2 className="h2 mt-3 pb-8 pt-5 text-neutral-600 lg:pb-14">
-            Preporuceni prostori
+            Novo-dodani prostori
           </h2>
         </div>
         <div>

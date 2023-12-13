@@ -18,6 +18,7 @@ import { api } from "~/utils/api";
 import { useRouter } from "next/router";
 import { FaMoneyBill } from "react-icons/fa";
 import { discoverCategories } from "~/utils/discoverCategories";
+import LoadingSpinner from "~/Atoms/LoadingSpinner/LoadingSpinner";
 
 function useMenu() {
   const clerkUser = useUser();
@@ -26,16 +27,17 @@ function useMenu() {
   });
   const { replace } = useRouter();
 
-  const { mutateAsync: deleteUser } = api.user.deleteUser.useMutation({
-    onSettled: async () => {
-      await clerkUser.user?.reload();
-      await replace("/");
-    },
-  });
-  const { data: billingPortalUrl } =
-    api.stripe.createBillingPortalSession.useQuery();
+  const { mutateAsync: deleteUser, isLoading: isDeletingUser } =
+    api.user.deleteUser.useMutation({
+      onSettled: async () => {
+        await clerkUser.user?.reload();
+        await replace("/");
+      },
+    });
 
   const [openDeleteModal, setOpenDeleteModal] = useState(false);
+  const { data: billingPortalUrl } =
+    api.stripe.createBillingPortalSession.useQuery();
 
   const menus = [
     {
@@ -179,18 +181,20 @@ function useMenu() {
       icon: <StarIcon className="h-5 w-5" />,
       children: (
         <div className="mt-3 flex max-h-[40rem] w-full flex-col overflow-y-auto ">
-          {companyPost?.reviews.map((item, idx) => {
-            return (
-              <PostReview
-                key={idx}
-                reviewerName={item.userName}
-                dateOfReview={item.createdAt}
-                numberOfStars={item.starts}
-                reviewText={item.reviewText}
-                reviewLikes={item.likes}
-              />
-            );
-          }) ?? (
+          {companyPost?.reviews.length ? (
+            companyPost?.reviews.map((item, idx) => {
+              return (
+                <PostReview
+                  key={idx}
+                  reviewerName={item.userName}
+                  dateOfReview={item.createdAt}
+                  numberOfStars={item.starts}
+                  reviewText={item.reviewText}
+                  reviewLikes={item.likes}
+                />
+              );
+            })
+          ) : (
             <p className="mt-8 text-center text-base text-black">
               Trenutno nemate recenzija...
             </p>
@@ -203,6 +207,11 @@ function useMenu() {
       icon: <Cog6ToothIcon className="h-5 w-5" />,
       children: (
         <div className="relative w-full">
+          {isDeletingUser && (
+            <div className="absolute top-0 z-50 flex h-full w-full items-center justify-center bg-black bg-opacity-50">
+              <LoadingSpinner spinnerHeight="h-20" spinnerWidth="w-20" />
+            </div>
+          )}
           <UserProfile
             appearance={{
               elements: {

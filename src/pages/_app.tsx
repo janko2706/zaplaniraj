@@ -3,6 +3,7 @@ import { DefaultSeo } from "next-seo";
 import { type AppType } from "next/app";
 import { ParallaxProvider } from "react-scroll-parallax";
 import { ToastContainer } from "react-toastify";
+import { Analytics } from "@vercel/analytics/react";
 import "react-toastify/dist/ReactToastify.css";
 import "~/styles/globals.css";
 import { api } from "~/utils/api";
@@ -30,6 +31,7 @@ const MyApp: AppType = ({ Component, pageProps }) => {
       <ParallaxProvider scrollAxis="vertical">
         <Component {...pageProps} />
       </ParallaxProvider>
+      <Analytics />
     </ClerkProvider>
   );
 };

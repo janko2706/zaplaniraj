@@ -36,11 +36,8 @@ export default async function handler(
       // Handle the event
       switch (event.type) {
         case "customer.subscription.created":
-          // Used to provision services as they are added to a subscription.
-          console.log("subscription created");
           break;
         case "customer.subscription.updated":
-          // Used to provision services as they are updated.
           const stripeCustomer: stripeCustomer = event.data.object;
           const business = await prisma.business.update({
             where: { stripeId: stripeCustomer.customer },
@@ -66,6 +63,13 @@ export default async function handler(
           // handle subscription cancelled automatically based
           // upon your subscription settings.
           console.log("subscription deleted");
+
+          break;
+        case "billing_portal.session.created":
+          // handle subscription cancelled automatically based
+          // upon your subscription settings.
+          const stripeCustomers: stripeCustomer = event.data.object;
+          console.log(stripeCustomers);
 
           break;
         default:

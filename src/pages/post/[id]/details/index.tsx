@@ -28,11 +28,13 @@ import Link from "next/link";
 import { FaFacebook, FaGlobe, FaInstagram, FaPhone } from "react-icons/fa";
 import "swiper/css";
 import "swiper/css/navigation";
+import ImageViewer from "react-simple-image-viewer";
 import { Navigation } from "swiper/modules";
 import PostReview from "~/Molecules/PostReview/PostReview";
 import MainTemplate from "~/Templates/MainTemplate";
 import useMenu from "~/hooks/useMenu/useMenu";
 import type { WholePostType } from "~/utils/types";
+import { AiOutlineClose, AiOutlineLeft, AiOutlineRight } from "react-icons/ai";
 
 type CustomDehydrateState = {
   json: {
@@ -51,9 +53,21 @@ const Index = (props: InferGetStaticPropsType<typeof getStaticProps>) => {
   // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
   const postData: CustomDehydrateState = props.trpcState;
 
+  const [currentImage, setCurrentImage] = useState(0);
+  const [isViewerOpen, setIsViewerOpen] = useState(false);
+  const openImageViewer = useCallback((index: number) => {
+    setCurrentImage(index);
+    setIsViewerOpen(true);
+  }, []);
+
+  const closeImageViewer = () => {
+    setCurrentImage(0);
+    setIsViewerOpen(false);
+  };
+
   const { updateStatistics } = useStatistics();
 
-  const { query, reload } = useRouter();
+  const { query, reload, route } = useRouter();
   const category = query.category;
 
   const [openPlanModal, setOpenPlanModal] = useState<boolean>(false);
@@ -85,7 +99,7 @@ const Index = (props: InferGetStaticPropsType<typeof getStaticProps>) => {
       if (!category) return;
       void (async () => {
         await updateStatistics({
-          id: post?.statisticId ?? 0,
+          id: post.statisticId,
           month,
           category: getTranslationForStatistics(category as string),
         });
@@ -128,6 +142,11 @@ const Index = (props: InferGetStaticPropsType<typeof getStaticProps>) => {
         reviewText: reviewText,
         userName: user && user.fullName ? user.fullName : userName,
       }))();
+  };
+
+  const copyToClipboard = async () => {
+    await navigator.clipboard.writeText(window.location.hostname + route);
+    toast.success("Link kopiran.");
   };
 
   const [starsArray, setStarsArray] = useState<{ color: string }[]>([
@@ -182,7 +201,11 @@ const Index = (props: InferGetStaticPropsType<typeof getStaticProps>) => {
                       pictures.map((item, idx) => {
                         if (item === "") return;
                         return (
-                          <SwiperSlide className="swiper-slide " key={idx}>
+                          <SwiperSlide
+                            className="swiper-slide "
+                            key={idx}
+                            onClick={() => openImageViewer(idx)}
+                          >
                             <div className="block">
                               <Image
                                 width={500}
@@ -220,57 +243,61 @@ const Index = (props: InferGetStaticPropsType<typeof getStaticProps>) => {
                     <div className="mb-8 flex flex-wrap items-center justify-between gap-3">
                       <h2 className="h2 mb-0 mt-4"> {post.title} </h2>
                       <ul className="flex items-center gap-3">
-                        <li>
-                          <button
-                            type="button"
-                            className="link grid h-8 w-8 place-content-center rounded-full bg-[var(--primary-light)] text-primary hover:bg-primary hover:text-white"
-                            data-tooltip-id="like-post"
-                            // eslint-disable-next-line @typescript-eslint/no-misused-promises
-                            onClick={async () => {
-                              if (favorite) {
-                                await removeFavorite({
-                                  postId: post.id ?? 0,
-                                });
-                                return;
-                              } else {
-                                await addToFavorites({
-                                  postId: post.id.toString() ?? "",
-                                });
-                                return;
-                              }
-                            }}
-                          >
-                            {!favorite ? (
-                              <HeartIcon className={`h-5 w-5 `} />
-                            ) : (
-                              <HeartSolid
-                                className={`} h-5 w-5
+                        {isSignedIn && (
+                          <>
+                            <li>
+                              <button
+                                type="button"
+                                className="link grid h-8 w-8 place-content-center rounded-full bg-[var(--primary-light)] text-primary hover:bg-primary hover:text-white"
+                                data-tooltip-id="like-post"
+                                // eslint-disable-next-line @typescript-eslint/no-misused-promises
+                                onClick={async () => {
+                                  if (favorite) {
+                                    await removeFavorite({
+                                      postId: post.id ?? 0,
+                                    });
+                                    return;
+                                  } else {
+                                    await addToFavorites({
+                                      postId: post.id.toString() ?? "",
+                                    });
+                                    return;
+                                  }
+                                }}
+                              >
+                                {!favorite ? (
+                                  <HeartIcon className={`h-5 w-5 `} />
+                                ) : (
+                                  <HeartSolid
+                                    className={`} h-5 w-5
                                 text-red-500`}
-                              />
-                            )}
-                          </button>
-                        </li>
+                                  />
+                                )}
+                              </button>
+                            </li>
+                            <li>
+                              <button
+                                data-tooltip-id="add-to-project"
+                                className="link grid h-8 w-8 place-content-center rounded-full bg-[var(--primary-light)] text-primary hover:bg-primary hover:text-white"
+                                onClick={() => {
+                                  setModalAction("post");
+                                  setOpenPlanModal(true);
+                                }}
+                              >
+                                <PlusCircleIcon className="h-5 w-5" />
+                              </button>
+                            </li>
+                          </>
+                        )}
                         <li>
-                          <button
-                            data-tooltip-id="add-to-project"
-                            className="link grid h-8 w-8 place-content-center rounded-full bg-[var(--primary-light)] text-primary hover:bg-primary hover:text-white"
-                            onClick={() => {
-                              setModalAction("post");
-                              setOpenPlanModal(true);
-                            }}
-                          >
-                            <PlusCircleIcon className="h-5 w-5" />
-                          </button>
-                        </li>
-
-                        <li>
-                          <Link
-                            href="#"
+                          <div
+                            // eslint-disable-next-line @typescript-eslint/no-misused-promises
+                            onClick={async () => copyToClipboard()}
                             className="link grid h-8 w-8 place-content-center rounded-full bg-[var(--primary-light)] text-primary hover:bg-primary hover:text-white"
                             data-tooltip-id="share-post"
                           >
                             <ShareIcon className="h-5 w-5" />
-                          </Link>
+                          </div>
                         </li>
                       </ul>
                       <Tooltip
@@ -561,10 +588,12 @@ const Index = (props: InferGetStaticPropsType<typeof getStaticProps>) => {
                       </div>
                     </div>
                   ) : (
-                    <div className="mb-10 flex items-center gap-6 rounded-2xl bg-white p-3 sm:p-4 lg:mb-14 lg:px-5 lg:py-8">
-                      <CheckCircleIcon className="h-10 w-10 text-green-400" />
-                      Hvala na recenziji.
-                    </div>
+                    isSignedIn && (
+                      <div className="mb-10 flex items-center gap-6 rounded-2xl bg-white p-3 sm:p-4 lg:mb-14 lg:px-5 lg:py-8">
+                        <CheckCircleIcon className="h-10 w-10 text-green-400" />
+                        Hvala na recenziji.
+                      </div>
+                    )
                   )}
                 </div>
               </div>
@@ -690,7 +719,7 @@ const Index = (props: InferGetStaticPropsType<typeof getStaticProps>) => {
                   </ul>
                   <div className="my-7 border border-dashed"></div>
                   <div className="flex flex-col justify-start">
-                    <h2 className="pb-3 text-xl italic">Kontakt</h2>
+                    <h2 className="pb-5 text-center text-xl italic">Kontakt</h2>
                     <ul className="flex flex-wrap justify-between gap-3 ">
                       {post.contactPhones ? (
                         post.contactPhones.split(",").map((item, index) => {
@@ -762,6 +791,23 @@ const Index = (props: InferGetStaticPropsType<typeof getStaticProps>) => {
           setOpen={setOpenPlanModal}
           postId={post.id}
         />
+        {isViewerOpen && (
+          <div className="z-50">
+            <ImageViewer
+              src={pictures ? pictures : []}
+              currentIndex={currentImage}
+              onClose={closeImageViewer}
+              closeComponent={
+                <AiOutlineClose className="h-10 w-10 rounded-full bg-white text-red-500" />
+              }
+              leftArrowComponent={<AiOutlineLeft />}
+              rightArrowComponent={<AiOutlineRight />}
+              backgroundStyle={{
+                backgroundColor: "rgba(0,0,0,1)",
+              }}
+            />
+          </div>
+        )}
       </>
     </MainTemplate>
   );
@@ -777,6 +823,7 @@ import {
   useState,
   type FormEvent,
   type MouseEventHandler,
+  useCallback,
 } from "react";
 import { toast } from "react-toastify";
 import superjson from "superjson";
@@ -808,7 +855,6 @@ export const getStaticProps: GetStaticProps = async ({ params }) => {
       trpcState: helpers.dehydrate(),
       id,
     },
-    revalidate: 1,
   };
 };
 

@@ -1,13 +1,6 @@
 import { MagnifyingGlassIcon } from "@heroicons/react/20/solid";
 import Link from "next/link";
-import {
-  LegacyRef,
-  MutableRefObject,
-  RefObject,
-  useEffect,
-  useRef,
-  useState,
-} from "react";
+import { useEffect, useRef, useState } from "react";
 import Confetti from "react-confetti";
 import { CgDollar, CgRing } from "react-icons/cg";
 import { FaBirthdayCake, FaChurch } from "react-icons/fa";

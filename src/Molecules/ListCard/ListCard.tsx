@@ -1,10 +1,10 @@
-import Image from "next/image";
-import Link from "next/link";
-import { HeartIcon as HeartIconOutline } from "@heroicons/react/24/outline";
-import { type MouseEvent, useState } from "react";
+import { useUser } from "@clerk/nextjs";
 import { HeartIcon, MapPinIcon } from "@heroicons/react/20/solid";
-import { toast } from "react-toastify";
+import { HeartIcon as HeartIconOutline } from "@heroicons/react/24/outline";
+import Image from "next/image";
 import { useRouter } from "next/router";
+import { useState, type MouseEvent } from "react";
+import { toast } from "react-toastify";
 import { api } from "~/utils/api";
 
 const notifyAdd = () => toast.success("Dodano u favorite.");
@@ -48,6 +48,7 @@ const ListCard = ({ item, isFavorite, category }: CardProps) => {
     }
   };
   const { replace } = useRouter();
+  const { isSignedIn } = useUser();
   return (
     <div
       key={id}
@@ -60,17 +61,19 @@ const ListCard = ({ item, isFavorite, category }: CardProps) => {
         })();
       }}
     >
-      <button
-        // eslint-disable-next-line @typescript-eslint/no-misused-promises
-        onClick={handleFavorite}
-        className="absolute  right-4 top-4 z-10 inline-block rounded-full bg-slate-100 p-2.5 text-primary transition-all duration-300 hover:shadow-lg "
-      >
-        {favorite ? (
-          <HeartIcon className="h-8 w-8 text-red-500" />
-        ) : (
-          <HeartIconOutline className="h-8 w-8 text-red-500" />
-        )}
-      </button>
+      {isSignedIn && (
+        <button
+          // eslint-disable-next-line @typescript-eslint/no-misused-promises
+          onClick={handleFavorite}
+          className="absolute  right-4 top-4 z-10 inline-block rounded-full bg-slate-100 p-2.5 text-primary transition-all duration-300 hover:shadow-lg "
+        >
+          {favorite ? (
+            <HeartIcon className="h-8 w-8 text-red-500" />
+          ) : (
+            <HeartIconOutline className="h-8 w-8 text-red-500" />
+          )}
+        </button>
+      )}
       <div className=" relative flex w-full justify-center  rounded-2xl lg:w-fit lg:justify-normal">
         {img ? (
           <Image
@@ -89,12 +92,9 @@ const ListCard = ({ item, isFavorite, category }: CardProps) => {
       </div>
       <div className="flex w-full flex-col justify-between lg:m-5">
         <div>
-          <Link
-            href={`/post/${id}/details`}
-            className="line-clamp-2 max-w-[18rem] truncate pl-4 text-2xl font-medium text-neutral-700 lg:max-w-[40rem]"
-          >
+          <div className="line-clamp-2 max-w-[18rem] truncate pl-4 text-2xl font-medium text-neutral-700 lg:max-w-[40rem]">
             {title}
-          </Link>
+          </div>
           <div className="mb-3 mt-2 flex items-center gap-1 pl-4 pt-3">
             <i className="las la-map-marker-alt text-lg text-[#9C742B]"></i>
             <span className="inline-flex gap-3">
@@ -123,9 +123,21 @@ const ListCard = ({ item, isFavorite, category }: CardProps) => {
             <span className="text-xl font-medium text-primary">
               od {priceRange[0]}€ do {priceRange[1]}€
             </span>
-            <Link href="/property-details-1" className="btn-outline ">
-              Read More
-            </Link>
+            <button
+              type="button"
+              onClick={(e) => {
+                e.stopPropagation();
+                e.preventDefault();
+                void (async () => {
+                  await replace(
+                    `/post/${item.id}/details?category=${category}`
+                  );
+                })();
+              }}
+              className="btn-outline "
+            >
+              Istrazi
+            </button>
           </div>
         </div>
       </div>

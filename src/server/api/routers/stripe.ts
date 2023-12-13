@@ -36,7 +36,13 @@ export const stripeRouter = createTRPCRouter({
       const checkoutSession = await stripe.checkout.sessions.create({
         customer: newStripeCustomer.id,
         mode: "subscription",
+        billing_address_collection: "auto",
+        customer_update: { name: "auto", address: "auto" },
+        tax_id_collection: {
+          enabled: true,
+        },
         currency: "EUR",
+        locale: "hr",
         line_items: [
           {
             price: input.priceId,
@@ -68,6 +74,7 @@ export const stripeRouter = createTRPCRouter({
       await stripe.billingPortal.sessions.create({
         customer: company.stripeId,
         return_url: `${env.NEXT_PUBLIC_WEBSITE_URL}/`,
+        locale: "hr",
       });
 
     if (!stripeBillingPortalSession) {

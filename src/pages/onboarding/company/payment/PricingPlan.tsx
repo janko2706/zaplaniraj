@@ -19,12 +19,12 @@ function PricingPlan() {
   const router = useRouter();
   const pricingOptions = [
     {
-      name: "Classic",
-      price: 4,
+      name: "Mjesecno",
+      price: "4€ mjesecno",
       features: [
-        "First month free",
-        "Twice weekly email newsletter",
-        "Weekly email newsletter",
+        "Reklamacija kroz platformu.",
+        "Analitika svih pregleda Vaseg oglasa.",
+        "Uvid u recenzije.",
       ],
       onClick: async () => {
         const result = await createCheckoutSession({
@@ -37,12 +37,12 @@ function PricingPlan() {
       },
     },
     {
-      name: "Pro",
-      price: 7,
+      name: "Godisnje",
+      price: "4€ godisnje",
       features: [
-        "First month free",
-        "Twice weekly email newsletter",
-        "Weekly email newsletter",
+        "Reklamacija kroz platformu.",
+        "Analitika svih pregleda Vaseg oglasa.",
+        "Uvid u recenzije.",
       ],
       onClick: async () => {
         const result = await createCheckoutSession({
@@ -92,7 +92,7 @@ export default PricingPlan;
 
 type PricingCardProps = {
   name: string;
-  price: number;
+  price: string;
   features: string[];
   onClick: () => Promise<void>;
 };
@@ -101,13 +101,11 @@ const PricingCard = ({ name, price, features, onClick }: PricingCardProps) => {
   return (
     <motion.div
       variants={STAGGER_CHILD_VARIANTS}
-      className="rounded-lg border-t-4 border-blue-400 bg-white p-5 shadow"
+      className="rounded-lg border border-t-8 border-slate-400 bg-slate-200 bg-opacity-10 p-5 shadow backdrop-blur-3xl transition-all duration-200 ease-in-out hover:bg-opacity-40 "
     >
       <p className=" text-3xl font-medium uppercase text-black">{name}</p>
 
-      <p className="mt-4 text-2xl  font-medium text-gray-600">
-        {price} € per month
-      </p>
+      <p className="mt-4 text-2xl  font-medium text-gray-600">{price}</p>
 
       <div className="mt-8">
         <ul className="grid grid-cols-1 gap-4">
@@ -130,12 +128,12 @@ const PricingCard = ({ name, price, features, onClick }: PricingCardProps) => {
 
       <div className="mt-8">
         <button
-          className="w-full rounded-lg bg-gray-400 px-3 py-2 text-white transition-all duration-300 hover:bg-blue-500"
+          className="w-full rounded-lg bg-gray-400 px-3 py-2 text-white transition-all duration-300 ease-in-out hover:bg-blue-500"
           onClick={() => {
             void (async () => await onClick())();
           }}
         >
-          Start free trial
+          Pretplati se
         </button>
       </div>
     </motion.div>

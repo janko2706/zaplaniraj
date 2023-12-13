@@ -102,12 +102,40 @@ export const userRouter = createTRPCRouter({
       await ctx.prisma.userPlan.deleteMany({
         where: { user: { clerkId: userId } },
       });
-
-      await ctx.prisma.user.delete({
-        where: {
-          clerkId: userId,
-        },
+      const business = await ctx.prisma.business.findFirst({
+        where: { user: { clerkId: userId } },
+        include: { companyPost: { select: { statisticId: true } } },
       });
+
+      if (
+        business &&
+        business.companyPostId &&
+        business.stripeId &&
+        business.companyPost &&
+        business.companyPost.statisticId
+      ) {
+        await ctx.prisma.postPrice.deleteMany({
+          where: { companyPostId: business.companyPostId },
+        });
+        await ctx.prisma.review.deleteMany({
+          where: {
+            companyPostId: business.companyPostId,
+          },
+        });
+        await ctx.prisma.statistic.delete({
+          where: { id: business.companyPost.statisticId },
+        });
+        await ctx.stripe.customers.del(business.stripeId);
+        await ctx.prisma.business.delete({
+          where: { id: business.id },
+        });
+      } else {
+        await ctx.prisma.user.delete({
+          where: {
+            clerkId: userId,
+          },
+        });
+      }
       await clerkClient.users.deleteUser(userId);
     } catch (_error) {
       throw new TRPCError({

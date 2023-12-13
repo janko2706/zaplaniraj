@@ -153,15 +153,6 @@ export const businessPostRouter = createTRPCRouter({
         return post;
       }
     }),
-  getAllPostsForPages: publicProcedure.query(async ({ ctx }) => {
-    const posts = (await ctx.prisma.companyPost.findMany()).map((item) => {
-      return {
-        id: item.id,
-      };
-    });
-
-    return posts;
-  }),
   getPostById: publicProcedure
     .input(
       z.object({
