@@ -7,7 +7,6 @@ import Link from "next/link";
 import { useRouter } from "next/router";
 import { useEffect, useRef, useState } from "react";
 import { FaBars } from "react-icons/fa";
-import Language from "~/Atoms/Dropdowns/Language";
 import Profile from "~/Atoms/Dropdowns/Profile";
 import { env } from "~/env.mjs";
 
