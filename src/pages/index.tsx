@@ -33,11 +33,14 @@ export default function Home() {
               await router.replace(`/onboarding`);
             })();
             break;
-          case getUserOnboarding.data:
+          case "businessDetails":
             void (async () => {
-              await router.replace(
-                `/onboarding/company/${getUserOnboarding.data}`
-              );
+              await router.replace(`/onboarding/company`);
+            })();
+            break;
+          case "payment":
+            void (async () => {
+              await router.replace(`/onboarding/company/payment`);
             })();
             break;
 

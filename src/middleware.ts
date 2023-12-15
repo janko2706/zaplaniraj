@@ -10,6 +10,8 @@ export default authMiddleware({
     "/discover/birthday",
     "/discover/sacrament",
     "/discover/celebration",
+    "/faq",
+    "/pricing",
     "/api/webhooks/stripe-webhook",
     "/api/trpc/businessPost.getPostById",
     "/api/trpc/businessPost.getPostByCategory",

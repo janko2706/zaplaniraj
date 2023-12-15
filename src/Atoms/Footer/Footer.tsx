@@ -47,9 +47,12 @@ function Footer() {
             <h6 className="mb-4 flex justify-center font-semibold uppercase md:justify-start">
               Korisni linkovi
             </h6>
-            <p className="mb-4">
+            <p className="mb-4 flex flex-col gap-2">
               <Link href="/faq" className="text-neutral-600 ">
                 Najcesca pitanja
+              </Link>
+              <Link href="/pricing" className="text-neutral-600 ">
+                Cjenik
               </Link>
             </p>
           </div>

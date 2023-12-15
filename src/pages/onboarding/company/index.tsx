@@ -1,12 +1,12 @@
-import { SignOutButton } from "@clerk/nextjs";
 import { ArrowLeftIcon } from "@heroicons/react/20/solid";
 import { AnimatePresence } from "framer-motion";
-import React from "react";
 import { useRouter } from "next/router";
-import ChooseCategory from "./chooseCategory";
+import { useOnboarding } from "~/hooks/onboarding/useOnboarding";
+import ChooseCategory from "../../../Organisms/ChooseCategory/chooseCategory";
 
 function Index() {
   const router = useRouter();
+  const { setOnboarding } = useOnboarding();
 
   return (
     <div className="mx-auto flex h-screen max-w-3xl flex-col items-center justify-center overflow-x-hidden">
@@ -23,16 +23,17 @@ function Index() {
         />
       </div>
       <AnimatePresence mode="wait">
-        <SignOutButton>
-          <button
-            className="group absolute left-2 top-10 z-40 rounded-full p-2 transition-all hover:bg-gray-400 sm:left-10"
-            onClick={() => {
-              router.back();
-            }}
-          >
-            <ArrowLeftIcon className="h-8 w-8 text-gray-500 group-hover:text-gray-800 group-active:scale-90" />
-          </button>
-        </SignOutButton>
+        <button
+          className="group absolute left-2 top-10 z-40 rounded-full p-2 transition-all hover:bg-gray-400 sm:left-10"
+          onClick={() => {
+            void (async () => {
+              await setOnboarding({ onboardingLevel: "welcome" });
+              await router.replace("/onboarding");
+            })();
+          }}
+        >
+          <ArrowLeftIcon className="h-8 w-8 text-gray-500 group-hover:text-gray-800 group-active:scale-90" />
+        </button>
         <ChooseCategory key="next" />
       </AnimatePresence>
     </div>

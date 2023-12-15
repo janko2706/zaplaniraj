@@ -2,7 +2,7 @@ import { AnimatePresence } from "framer-motion";
 import { useRouter } from "next/router";
 import { useEffect } from "react";
 import { useOnboarding } from "~/hooks/onboarding/useOnboarding";
-import UserType from "./chooseUserType";
+import UserType from "../../Organisms/UserType/chooseUserType";
 
 export default function Index() {
   const { createUser, doesUserExists, getUserOnboarding } = useOnboarding();
@@ -23,6 +23,11 @@ export default function Index() {
               })();
               break;
             case "welcome":
+              break;
+            case "businessDetails":
+              void (async () => {
+                await replace(`/onboarding/company`);
+              })();
               break;
             case getUserOnboarding.data:
               void (async () => {

@@ -1,9 +1,9 @@
-import React, { useEffect } from "react";
-import { ArrowLeftIcon } from "@heroicons/react/20/solid";
+import { SignOutButton } from "@clerk/nextjs";
 import { AnimatePresence } from "framer-motion";
 import { useRouter } from "next/router";
-import PricingPlan from "./PricingPlan";
+import { useEffect } from "react";
 import { toast } from "react-toastify";
+import PricingPlan from "../../../../Organisms/PricingPlan/PricingPlan";
 
 function Index() {
   const router = useRouter();
@@ -16,7 +16,7 @@ function Index() {
   return (
     <div className="mx-auto flex h-screen max-w-4xl flex-col items-center justify-center overflow-x-hidden">
       <div
-        className="absolute inset-x-0 top-10 -z-10 flex transform-gpu justify-center overflow-hidden blur-3xl"
+        className="absolute inset-x-0 top-32 -z-10 flex transform-gpu justify-center overflow-hidden blur-3xl"
         aria-hidden="true"
       >
         <div
@@ -28,14 +28,15 @@ function Index() {
         />
       </div>
       <AnimatePresence mode="wait">
-        <button
-          className="group absolute left-2 top-10 z-40 rounded-full p-2 transition-all hover:bg-gray-400 sm:left-10"
-          onClick={() => {
-            router.back();
+        <SignOutButton
+          signOutCallback={async () => {
+            await router.replace("/");
           }}
         >
-          <ArrowLeftIcon className="h-8 w-8 text-gray-500 group-hover:text-gray-800 group-active:scale-90" />
-        </button>
+          <button className="group absolute left-2 top-10 z-40 rounded-full p-2 transition-all hover:bg-gray-400 hover:text-white sm:left-10">
+            Odjava
+          </button>
+        </SignOutButton>
         <PricingPlan />
       </AnimatePresence>
     </div>

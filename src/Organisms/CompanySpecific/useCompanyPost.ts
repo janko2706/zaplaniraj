@@ -12,9 +12,6 @@ export const useCompanyPost = () => {
   });
   const eventCategories =
     api.businessCategoryType.getAllEventCategories.useQuery();
-
-  const { mutateAsync: createPost } =
-    api.businessPost.createBuinessPost.useMutation();
   const { mutateAsync: createPostPrice, isLoading: isCreatingPrice } =
     api.businessPost.createPostPrice.useMutation();
   const { mutateAsync: deletePostImage } =
@@ -23,7 +20,6 @@ export const useCompanyPost = () => {
     api.businessPost.updatePost.useMutation();
   return {
     businessPost,
-    createPost,
     userBusiness,
     eventCategories,
     updatePost,

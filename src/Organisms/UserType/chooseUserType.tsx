@@ -23,10 +23,14 @@ export default function UserType() {
 
         break;
       case "company":
-        await setOnboarding({ onboardingLevel: "isBussines" });
-        await router.push({
-          pathname: "/onboarding/company",
-        });
+        try {
+          await setOnboarding({ onboardingLevel: "isBussines" });
+          await router.push({
+            pathname: "/onboarding/company",
+          });
+        } catch (error) {
+          toast.error("Molimo osvjezite strnicu te probajte ponovo");
+        }
         break;
       default:
         break;

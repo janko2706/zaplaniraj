@@ -131,11 +131,6 @@ export default function ChooseCategory() {
           <p>Dalje</p>
           <ArrowRightIcon className="pointer-events-none ml-3  h-5 w-5 " />
         </button>
-
-        <h1 className="pt-10">
-          Nema vase kategorije? Odaberite opciju &quot;Ostalo&quot;, te cemo ju
-          mi ubrzo dodati!
-        </h1>
       </motion.div>
     </motion.div>
   );

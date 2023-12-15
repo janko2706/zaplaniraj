@@ -32,6 +32,18 @@ export const userRouter = createTRPCRouter({
         });
       }
 
+      if (input.onboardingLevel === "welcome") {
+        return ctx.prisma.user.update({
+          where: {
+            id: user.id,
+          },
+          data: {
+            onboarding: "welcome",
+            isBussines: false,
+          },
+        });
+      }
+
       if (input.onboardingLevel === "isBussines") {
         return ctx.prisma.user.update({
           where: {
@@ -114,6 +126,11 @@ export const userRouter = createTRPCRouter({
         business.companyPost &&
         business.companyPost.statisticId
       ) {
+        await ctx.stripe.customers.del(business.stripeId);
+        const testStatsDelete = await ctx.prisma.statistic.delete({
+          where: { id: business.companyPost.statisticId },
+        });
+        console.log("Stats delete result", testStatsDelete);
         await ctx.prisma.postPrice.deleteMany({
           where: { companyPostId: business.companyPostId },
         });
@@ -121,13 +138,6 @@ export const userRouter = createTRPCRouter({
           where: {
             companyPostId: business.companyPostId,
           },
-        });
-        await ctx.prisma.statistic.delete({
-          where: { id: business.companyPost.statisticId },
-        });
-        await ctx.stripe.customers.del(business.stripeId);
-        await ctx.prisma.business.delete({
-          where: { id: business.id },
         });
       } else {
         await ctx.prisma.user.delete({

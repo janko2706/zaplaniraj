@@ -96,7 +96,7 @@ const DesktopHeader = ({
           }}
         />
         <div className="flex items-center gap-2 lg:order-2">
-          <Language />
+          {/* <Language /> */}
           {!user.isSingnedIn && (
             <SignUpButton
               mode="modal"
@@ -109,6 +109,16 @@ const DesktopHeader = ({
                 Registriraj se!
               </button>
             </SignUpButton>
+          )}
+          {!user.isSingnedIn && (
+            <SignInButton mode="modal">
+              <button
+                type="button"
+                className=" rounded-3xl bg-slate-200 px-4 py-3 text-sm hover:bg-blue-300 "
+              >
+                Prijava
+              </button>
+            </SignInButton>
           )}
 
           <Profile user={user} userCompany={userCompany} />

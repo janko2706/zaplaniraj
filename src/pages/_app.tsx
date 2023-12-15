@@ -4,6 +4,7 @@ import { type AppType } from "next/app";
 import { ParallaxProvider } from "react-scroll-parallax";
 import { ToastContainer } from "react-toastify";
 import { Analytics } from "@vercel/analytics/react";
+import { SpeedInsights } from "@vercel/speed-insights/next";
 import "react-toastify/dist/ReactToastify.css";
 import "~/styles/globals.css";
 import { api } from "~/utils/api";
@@ -32,6 +33,7 @@ const MyApp: AppType = ({ Component, pageProps }) => {
         <Component {...pageProps} />
       </ParallaxProvider>
       <Analytics />
+      <SpeedInsights />
     </ClerkProvider>
   );
 };

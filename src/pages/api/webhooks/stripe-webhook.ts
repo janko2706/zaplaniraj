@@ -35,8 +35,6 @@ export default async function handler(
 
       // Handle the event
       switch (event.type) {
-        case "customer.subscription.created":
-          break;
         case "customer.subscription.updated":
           const stripeCustomer: stripeCustomer = event.data.object;
           const business = await prisma.business.update({
@@ -52,27 +50,8 @@ export default async function handler(
             },
           });
           break;
-        case "invoice.payment_failed":
-          // If the payment fails or the customer does not have a valid payment method,
-          //  an invoice.payment_failed event is sent, the subscription becomes past_due.
-          // Use this webhook to notify your user that their payment has
-          // failed and to retrieve new card details.
-          // Can also have Stripe send an email to the customer notifying them of the failure. See settings: https://dashboard.stripe.com/settings/billing/automatic
-          break;
-        case "customer.subscription.deleted":
-          // handle subscription cancelled automatically based
-          // upon your subscription settings.
-          console.log("subscription deleted");
-
-          break;
-        case "billing_portal.session.created":
-          // handle subscription cancelled automatically based
-          // upon your subscription settings.
-          const stripeCustomers: stripeCustomer = event.data.object;
-          console.log(stripeCustomers);
-
-          break;
         default:
+          break;
         // Unexpected event type
       }
 
