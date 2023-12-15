@@ -127,10 +127,9 @@ export const userRouter = createTRPCRouter({
         business.companyPost.statisticId
       ) {
         await ctx.stripe.customers.del(business.stripeId);
-        const testStatsDelete = await ctx.prisma.statistic.delete({
+        await ctx.prisma.statistic.delete({
           where: { id: business.companyPost.statisticId },
         });
-        console.log("Stats delete result", testStatsDelete);
         await ctx.prisma.postPrice.deleteMany({
           where: { companyPostId: business.companyPostId },
         });
