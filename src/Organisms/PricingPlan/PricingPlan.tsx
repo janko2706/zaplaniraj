@@ -24,7 +24,7 @@ function PricingPlan() {
       ],
       onClick: async () => {
         const result = await createCheckoutSession({
-          priceId: "price_1NnKsCLlVV4ETbZO1222v7qx",
+          priceId: "price_1OOQ4FLlVV4ETbZO7XlwFwUB",
           businessId: getBusinessById.data?.id ?? "",
         });
         if (result) {
@@ -44,7 +44,7 @@ function PricingPlan() {
       ],
       onClick: async () => {
         const result = await createCheckoutSession({
-          priceId: "price_1NqBSiLlVV4ETbZOx8mtxMDa",
+          priceId: "price_1OOQ2qLlVV4ETbZOLmSfIcva",
           businessId: getBusinessById.data?.id ?? "",
         });
         if (result) {

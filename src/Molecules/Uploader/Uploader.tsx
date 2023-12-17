@@ -49,7 +49,7 @@ const Uploader = ({
   }
 
   const handleUploadFile = (files: FileList) => {
-    if (files.length && files[0] && files[0].size < 10000000) {
+    if (files.length && files[0] && files[0].size < 7000000) {
       setImageFile(files[0]);
     } else {
       toast.error("Slika je prevelika!");
@@ -145,7 +145,7 @@ const Uploader = ({
                   Click to upload
                 </p>
                 <p className="text-xs text-gray-500 ">
-                  PNG, JPG (MAX. {maximumImages})
+                  PNG, JPG (MAX. {maximumImages} slika / 7MB)
                 </p>
               </div>
               <input
