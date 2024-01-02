@@ -8,6 +8,7 @@ type Props = {
   confirmButtonText: string;
   open: boolean;
   setOpen: React.Dispatch<SetStateAction<boolean>>;
+  terms?: boolean;
 };
 
 export default function SmallModal({
@@ -16,6 +17,7 @@ export default function SmallModal({
   setOpen,
   title,
   subText,
+  terms,
   confirmButtonText,
 }: Props) {
   const cancelButtonRef = useRef(null);
@@ -62,7 +64,78 @@ export default function SmallModal({
                         {title}
                       </Dialog.Title>
                       <div className="mt-2">
-                        <p className=" text-sm text-gray-500">{subText}</p>
+                        {!terms ? (
+                          <p className=" text-sm text-gray-500">{subText}</p>
+                        ) : (
+                          <p className=" text-sm text-gray-500">
+                            1. Uvod <br /> Ovi opći uvjeti korištenja (u
+                            daljnjem tekstu: Uvjeti) reguliraju korištenje
+                            platforme Zaplaniraj (u daljnjem tekstu: Platforma)
+                            koju pruža JUST PINE. <br /> 2. Definicije
+                            <br /> U ovim Uvjetima, osim ako iz konteksta
+                            proizlazi drugačije, sljedeći pojmovi imaju sljedeće
+                            značenje:
+                            <br /> &bull; &quot;Korisnik&quot; je svaka osoba
+                            koja koristi Platformu, bez obzira na to je li
+                            registriran ili ne.
+                            <br /> &bull; &quot;Registrirani korisnik&quot; je
+                            korisnik koji je kreirao korisnički račun na
+                            Platformi. <br /> &bull; &quot;Događaj&quot; je bilo
+                            koji događaj koji korisnik planira putem Platforme,
+                            poput vjenčanja, rođendana, krizme, itd. <br />
+                            3. Pristup i korištenje Platforme <br />
+                            Pristup Platformi je besplatan. Međutim, neki
+                            dijelovi Platforme mogu biti dostupni samo
+                            registriranim korisnicima. <br />
+                            Registracija na Platformu je jednostavna i
+                            besplatna. Korisnik mora unijeti svoje osobne
+                            podatke, kao što su e-mail adresa i lozinka. <br />
+                            Korisnik je odgovoran za održavanje tajnosti svoje
+                            lozinke. Korisnik je također odgovoran za sve
+                            aktivnosti koje se obavljaju putem njegovog
+                            korisničkog računa.
+                            <br /> 4. Prava i obveze korisnika <br />
+                            Korisnik se obvezuje koristiti Platformu u skladu s
+                            ovim Uvjetima. <br />
+                            Korisnik ima pravo: <br /> &bull; koristiti
+                            Platformu za planiranje događaja
+                            <br /> &bull; pristupati i pregledavati sadržaj
+                            Platforme <br /> ostavljati komentare na sadržaj
+                            Platforme <br /> Korisnik je dužan: <br /> &bull;
+                            koristiti Platformu na način koji ne krši prava
+                            trećih osoba ne objavljivati sadržaj koji je
+                            uvredljiv, diskriminirajući ili na bilo koji drugi
+                            način štetan <br /> &bull; ne objavljivati sadržaj
+                            koji je zaštićen autorskim pravima ili drugim
+                            pravima intelektualnog vlasništva <br /> &bull; ne
+                            objavljivati sadržaj koji je lažan ili obmanjujući
+                            <br /> 5. Prava i obveze JUST PINE-a <br />
+                            JUST PINE ima pravo: <br /> &bull; mijenjati sadržaj
+                            Platforme <br /> &bull; blokirati korisnike koji
+                            krše ove Uvjete <br /> &bull; obrisati sadržaj koji
+                            je uvredljiv, diskriminirajući ili na bilo koji
+                            drugi način štetan <br /> &bull; obrisati sadržaj
+                            koji je zaštićen autorskim pravima ili drugim
+                            pravima intelektualnog vlasništva <br /> &bull;
+                            obrisati sadržaj koji je lažan ili obmanjujući{" "}
+                            <br />
+                            JUST PINE nije odgovoran za bilo kakvu štetu koja
+                            može nastati korisniku ili trećim osobama
+                            korištenjem Platforme. <br />
+                            6. Završne odredbe <br />
+                            Ovi Uvjeti su na snazi od datuma njihove objave.
+                            JUST PINE zadržava pravo mijenjati ove Uvjete u bilo
+                            kojem trenutku. <br />
+                            Korisnici su dužni redovito pregledavati ove Uvjete
+                            kako bi bili upoznati s eventualnim izmjenama.
+                            <br /> U slučaju bilo kakvih sporova između JUST
+                            PINE i korisnika primjenjuje se hrvatsko pravo.
+                            <br /> 7. Kontakt
+                            <br /> Za sve dodatne informacije ili upite,
+                            korisnici se mogu obratiti JUST PINE na adresu
+                            bogovicjan@gmail.com/info@just-pine.hr.
+                          </p>
+                        )}
                       </div>
                     </div>
                   </div>

@@ -1,0 +1,12 @@
+//robots.txt
+
+# Block all crawlers for restricted pages (only accessible while logged in)
+User-agent: *
+Disallow: /company
+Disallow: /user
+Disallow: /onboarding
+Disallow: /plan
+
+# Allow all crawlers
+User-agent: *
+Allow: /
