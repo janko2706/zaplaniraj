@@ -20,7 +20,7 @@ const MyApp: AppType = ({ Component, pageProps }) => {
         openGraph={{
           type: "website",
           locale: "hr_HR",
-          url: "https://www.za-planiraj.hr/",
+          url: "https://www.zaplaniraj.hr/",
           siteName: "ZAplaniraj",
           description:
             "Platforma za organiziranje dogadaja poput vjenjcanja, prvih pricesti, krizma, rodendana, itd.",
@@ -31,9 +31,9 @@ const MyApp: AppType = ({ Component, pageProps }) => {
       <ToastContainer position="top-right" />
       <ParallaxProvider scrollAxis="vertical">
         <Component {...pageProps} />
+        <Analytics />
+        <SpeedInsights />
       </ParallaxProvider>
-      <Analytics />
-      <SpeedInsights />
     </ClerkProvider>
   );
 };

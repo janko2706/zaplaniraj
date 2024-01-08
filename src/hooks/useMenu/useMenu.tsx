@@ -36,8 +36,8 @@ function useMenu() {
     });
 
   const [openDeleteModal, setOpenDeleteModal] = useState(false);
-  const { data: billingPortalUrl } =
-    api.stripe.createBillingPortalSession.useQuery();
+  const { mutateAsync: billingPortalUrl } =
+    api.stripe.createBillingPortalSession.useMutation();
 
   const menus = [
     {
@@ -256,9 +256,10 @@ function useMenu() {
           <button
             className="btn btn-primary mt-20"
             type="button" // eslint-disable-next-line @typescript-eslint/no-misused-promises
-            onClick={async () =>
-              await replace(billingPortalUrl?.billingPortalUrl ?? "")
-            }
+            onClick={async () => {
+              const newUrl = await billingPortalUrl();
+              await replace(newUrl.billingPortalUrl ?? "");
+            }}
           >
             Vas portal placanja
           </button>

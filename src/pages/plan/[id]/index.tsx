@@ -1,5 +1,9 @@
 import { RadioGroup } from "@headlessui/react";
-import { PlusIcon, TrashIcon } from "@heroicons/react/20/solid";
+import {
+  PlusIcon,
+  QuestionMarkCircleIcon,
+  TrashIcon,
+} from "@heroicons/react/20/solid";
 import { format } from "date-fns";
 import isEqual from "lodash/isEqual";
 import Head from "next/head";
@@ -15,6 +19,7 @@ import {
   getEventTypeTranslation,
 } from "~/utils/translationHelpers";
 import usePlan from "../../../hooks/usePlan";
+import { Tooltip } from "react-tooltip";
 
 const colorsForBg = [
   "bg-white",
@@ -73,6 +78,11 @@ const Index = () => {
     setData(result);
     setNewResult(result);
   }, [result, setData, setNewResult]);
+  const tooltipStyle = {
+    backgroundColor: "#3539E9",
+    color: "#fff",
+    borderRadius: "10px",
+  };
   const warningText = "Sve nespremljene promjene ce biti odbacene!";
   useEffect(() => {
     const handleWindowClose = (e: BeforeUnloadEvent) => {
@@ -198,9 +208,19 @@ const Index = () => {
               {/* TODOS */}
               <div className="mx-auto max-w-2xl  px-4 pb-16 pt-10 sm:px-6 lg:grid lg:max-w-7xl lg:grid-cols-3 lg:grid-rows-[auto,auto,1fr] lg:gap-x-8 lg:px-8 lg:pb-24 lg:pt-16">
                 <div className="h-full lg:col-span-2 lg:row-span-3 lg:border-r lg:border-gray-200">
-                  <h1 className="text-2xl font-bold tracking-tight text-gray-900 sm:text-3xl">
+                  <h1 className="flex items-center gap-4 text-2xl font-bold tracking-tight text-gray-900 sm:text-3xl">
                     {data?.name ?? ""} - TODOs
+                    <QuestionMarkCircleIcon
+                      className="h-6 w-6 text-primary"
+                      data-tooltip-id="todo-tooltip"
+                    />
                   </h1>
+                  <Tooltip
+                    id={"todo-tooltip"}
+                    style={tooltipStyle}
+                    offset={7}
+                    content="Prvo dodajte poslovanja u plan"
+                  />
                   <div className="h-full overflow-y-scroll p-3 transition-shadow duration-300 ease-in-out hover:shadow-md">
                     {categories?.map((cat, idx) => {
                       return (data?.businessesInPlan ?? []).filter(
@@ -314,7 +334,7 @@ const Index = () => {
                               await onCreateBudgetItem();
                             }}
                           >
-                            <PlusIcon className="h-4 w-4" /> Novo placanje
+                            <PlusIcon className="h-4 w-4" /> Nova cijena
                           </button>
                         </>
                       </div>
@@ -324,7 +344,7 @@ const Index = () => {
                   <div className="mt-6">
                     <h3 className="sr-only">Dates</h3>
                     <h3 className="text-sm font-medium text-gray-900">
-                      Datumi
+                      Vazni datumi
                     </h3>
                     <hr />
                     <div className="mt-4 flex items-center ">

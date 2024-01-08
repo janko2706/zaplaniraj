@@ -59,7 +59,7 @@ export const stripeRouter = createTRPCRouter({
 
       return { checkoutUrl: checkoutSession.url };
     }),
-  createBillingPortalSession: privateProcedure.query(async ({ ctx }) => {
+  createBillingPortalSession: privateProcedure.mutation(async ({ ctx }) => {
     const { stripe } = ctx;
 
     const company = await ctx.prisma.business.findFirst({

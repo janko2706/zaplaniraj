@@ -40,7 +40,7 @@ export default function Profile({ user, userCompany }: Props) {
   return (
     <div className="z-20 text-left">
       <Menu as="div" className="relative top-1 inline-block md:top-[2px]">
-        <Menu.Button className="flex items-center justify-center rounded-full focus:outline-none">
+        <Menu.Button className="gradient-border flex items-center justify-center rounded-full focus:outline-none">
           <Image
             className="rounded-full"
             src={user.imageUrl}

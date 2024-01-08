@@ -81,7 +81,7 @@ function RecommendedIndex() {
                         />
                       );
                     })}
-                    <div className="mt-10 flex justify-center">
+                    <div className="mt-6 flex justify-center">
                       <Link
                         href={`discover/${getTranslationForRouter(
                           cat

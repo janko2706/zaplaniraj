@@ -400,7 +400,11 @@ export const businessPostRouter = createTRPCRouter({
       },
       select: { favorites: true },
     });
-    if (!userFavorties?.favorites?.split(",").map(Number)) return [];
+    if (
+      !userFavorties?.favorites?.split(",").map(Number) ||
+      userFavorties?.favorites?.split(",").map(Number).includes(NaN)
+    )
+      return [];
     const favorites = await ctx.prisma.companyPost.findMany({
       where: {
         id: { in: userFavorties?.favorites?.split(",").map(Number) },

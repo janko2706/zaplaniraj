@@ -9,7 +9,7 @@ type PricingCardProps = {
 };
 const STAGGER_CHILD_VARIANTS = {
   hidden: { y: 100 },
-  show: { y: 0, transition: { duration: 0.4, type: "spring" } },
+  show: { y: 0, transition: { duration: 0.4, type: "ease" } },
 };
 const PricingCard = ({
   name,

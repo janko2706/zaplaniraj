@@ -346,23 +346,25 @@ const Index = (props: InferGetStaticPropsType<typeof getStaticProps>) => {
                         <></>
                       )}
 
-                      <li className="text-lg text-primary">•</li>
-                      <li>
-                        <p className="mb-0 flex items-center gap-1">
-                          <ClockIcon className="h-5 w-5 text-[var(--tertiary)]" />
-                          <span className="clr-neutral-500">
-                            Najranije dostupno:
-                          </span>
-                          {post.earlisetAvailable
-                            ? format(
-                                new Date(
-                                  post.earlisetAvailable ?? "20/02/2024"
-                                ),
-                                "dd / MM / yyy"
-                              )
-                            : ""}
-                        </p>
-                      </li>
+                      {post.earlisetAvailable && (
+                        <li className="text-lg text-primary">•</li>
+                      )}
+                      {post.earlisetAvailable ? (
+                        <li>
+                          <p className="mb-0 flex items-center gap-1">
+                            <ClockIcon className="h-5 w-5 text-[var(--tertiary)]" />
+                            <span className="clr-neutral-500">
+                              Najranije dostupno:
+                            </span>
+                            {format(
+                              new Date(post.earlisetAvailable ?? "20/02/2024"),
+                              "dd / MM / yyy"
+                            )}
+                          </p>
+                        </li>
+                      ) : (
+                        ""
+                      )}
                     </ul>
                   </div>
                   <div className="mb-10 rounded-2xl bg-white p-3 sm:p-4 lg:p-6">

@@ -50,12 +50,9 @@ const PlanCard = ({ name, icon, id, router, deletePlan }: PropsCard) => {
               >
                 <TrashIcon className="w-7transition-all h-7 duration-300 hover:text-red-500 lg:h-5 lg:w-5" />
               </button>
-              <Link
-                href="#"
-                className="btn-outline z-50 shrink-0 font-semibold text-primary"
-              >
-                Manage Plan
-              </Link>
+              <div className="btn-outline z-50 shrink-0 font-semibold text-primary">
+                Uredi
+              </div>
             </div>
           </div>
           <SmallModal
