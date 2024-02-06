@@ -3,10 +3,10 @@ import { DefaultSeo } from "next-seo";
 import { type AppType } from "next/app";
 import { ParallaxProvider } from "react-scroll-parallax";
 import { ToastContainer } from "react-toastify";
-import { Analytics } from "@vercel/analytics/react";
-import { SpeedInsights } from "@vercel/speed-insights/next";
 import "react-toastify/dist/ReactToastify.css";
 import "~/styles/globals.css";
+import { useReportWebVitals } from "next/web-vitals";
+
 import { api } from "~/utils/api";
 // Import Swiper styles
 import "swiper/css";
@@ -14,6 +14,9 @@ import "swiper/css/navigation";
 import "../pages/discover/Discover.css";
 
 const MyApp: AppType = ({ Component, pageProps }) => {
+  useReportWebVitals((metric) => {
+    console.log(metric);
+  });
   return (
     <ClerkProvider {...pageProps}>
       <DefaultSeo
@@ -31,9 +34,15 @@ const MyApp: AppType = ({ Component, pageProps }) => {
       <ToastContainer position="top-right" />
       <ParallaxProvider scrollAxis="vertical">
         <Component {...pageProps} />
-        <Analytics />
-        <SpeedInsights />
       </ParallaxProvider>
+      {/* <ProgressBar
+        height="4px"
+        color="#fffd00"
+        delay={500}
+        style="left:0px;"
+        options={{ showSpinner: true }}
+        shallowRouting
+      /> */}
     </ClerkProvider>
   );
 };

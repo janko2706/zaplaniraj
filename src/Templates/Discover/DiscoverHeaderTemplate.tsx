@@ -104,7 +104,7 @@ const DiscoverHeader = ({
 }: Props) => {
   return (
     <div
-      className={`fixed z-20 w-screen rounded-b-lg ${headerColor} shadow-md  lg:max-h-[20vmin]`}
+      className={`fixed z-20 w-screen rounded-b-lg ${headerColor} shadow-md  lg:max-h-[100%]`}
     >
       <h1
         className={`${headerFont} hidden w-full pt-3 text-center text-5xl  md:block md:text-8xl lg:block lg:pb-3 lg:pt-1 lg:text-8xl`}

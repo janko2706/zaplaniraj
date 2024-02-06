@@ -119,7 +119,14 @@ function PlansModal({ open, setOpen, action, postId, selectedBudget }: Props) {
                                 icon: <></>,
                                 id: item.id,
                               };
-                            }) ?? []
+                            }) ?? [
+                              {
+                                name: "Nemate dostupnih planova!",
+                                onClick: () => 0,
+                                icon: <></>,
+                                id: "null",
+                              },
+                            ]
                           }
                           selected={selected}
                           setSelected={setSelected}
@@ -132,7 +139,7 @@ function PlansModal({ open, setOpen, action, postId, selectedBudget }: Props) {
                 <div className="bg-gray-50 px-4 py-3 sm:flex sm:flex-row-reverse sm:px-6">
                   <button
                     type="button"
-                    disabled={!selected?.id}
+                    disabled={!selected?.id || selected.id === "null"}
                     className={`inline-flex w-full justify-center rounded-md bg-green-400 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-green-300  disabled:opacity-20 disabled:hover:bg-green-400 sm:ml-3 sm:w-auto`}
                     // eslint-disable-next-line @typescript-eslint/no-misused-promises
                     onClick={submitAction}

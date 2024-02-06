@@ -73,13 +73,13 @@ const DesktopHeader = ({
 
   return (
     <header
-      className={`sticky top-0 z-30 hidden h-[75px]  align-middle lg:block ${
+      className={`sticky top-0 z-30 hidden h-[75px] align-middle lg:block ${
         bgColor ?? "bg-white"
       }  ${
         scrolled && "z-50   border-0  bg-opacity-70 shadow-md backdrop-blur "
       } duration-300`}
     >
-      <div className="container relative  flex h-full items-center justify-between  px-3 py-2 lg:px-0 lg:py-0">
+      <div className="container relative  flex h-full max-w-5xl items-center  justify-between px-3 py-2 lg:px-0 lg:py-0">
         <Image
           width={100}
           height={100}

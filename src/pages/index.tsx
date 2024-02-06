@@ -16,6 +16,42 @@ export default function Home() {
   const router = useRouter();
   const { getUserOnboarding, doesUserExists } = useHome();
   const { menus, userCompany } = useMenu();
+  const featuresArray = [
+    {
+      text: "Moderan te lako razumljiv dizajn.",
+      icon: <MdDesignServices className="text-5xl text-purple-900" />,
+      parallaxValuesAndGrid: {
+        classNames: "col-span-3 row-span-2 h-full  rounded-2xl bg-[#b9c8dc]",
+      },
+    },
+    {
+      text: "Sve za planiranje na jednom mjestu!",
+      icon: <MdNextPlan className="text-5xl text-purple-900" />,
+
+      parallaxValuesAndGrid: {
+        classNames:
+          "col-span-2 col-start-4 row-span-3 rounded-2xl bg-[#a088b891]",
+      },
+    },
+    {
+      text: "Zauvijek besplatno!",
+      icon: <FaFreeCodeCamp className="text-5xl text-purple-900" />,
+
+      parallaxValuesAndGrid: {
+        classNames:
+          "col-span-2 row-span-3 row-start-3 rounded-2xl bg-[#a088b891]",
+      },
+    },
+    {
+      text: "Budite spremni za Vase sljedeci slavlje!",
+      icon: <MdCelebration className="text-5xl text-purple-900" />,
+
+      parallaxValuesAndGrid: {
+        classNames:
+          "col-span-3 col-start-3 row-span-2 row-start-4 rounded-2xl bg-[#99abc49f]",
+      },
+    },
+  ];
 
   useEffect(() => {
     if (user.isSignedIn) {
@@ -60,7 +96,7 @@ export default function Home() {
           {/* HERO SECTION */}
           <div className="  w-full bg-slate-100">
             <HeroSection />
-            <section className="mb-10 mt-10 lg:mt-20 ">
+            <section className="z-50 mb-10 mt-10 overflow-visible lg:mt-20">
               <div className="mb-5 flex justify-center lg:mt-28">
                 <p className="rounded-full bg-purple-400 bg-opacity-50 px-4 py-2">
                   znacajke
@@ -69,61 +105,40 @@ export default function Home() {
               <h2 className="h2 mt-1 pb-8 pt-2 text-center text-neutral-600 lg:pb-14">
                 Sto nas cini posebnima?
               </h2>
-              <div className="hidden h-full max-h-[1000px] min-h-[700px] w-full justify-center lg:flex">
-                <div className="  mx-5 grid min-h-[700px] w-full  max-w-7xl grid-cols-5 grid-rows-5 gap-10 text-white">
-                  <Parallax
-                    className="col-span-3 row-span-2 h-full  rounded-2xl bg-[#99abc4]"
-                    opacity={[0.5, 1.2]}
-                    speed={10}
-                  >
-                    <div className="m-6 mb-2 h-3/4 rounded-2xl bg-white"></div>
-                    <p className=" text-center text-lg font-normal">
-                      Moderan te lako razumljiv dizajn
-                    </p>
-                  </Parallax>
-                  <Parallax
-                    className="col-span-2 col-start-4 row-span-3 rounded-2xl bg-[#233756]"
-                    opacity={[0.5, 1.2]}
-                    speed={20}
-                  >
-                    <div className="m-6 mb-2 h-3/4 rounded-2xl bg-white"></div>
-                    <p className=" text-center text-lg font-normal">
-                      Moderan te lako razumljiv dizajn
-                    </p>
-                  </Parallax>
-                  <Parallax
-                    className="col-span-2 row-span-3 row-start-3 rounded-2xl bg-[#233756]"
-                    opacity={[0.5, 1.2]}
-                    speed={3}
-                  >
-                    <div className="m-6 mb-2 h-3/4 rounded-2xl bg-white"></div>
-                    <p className=" text-center text-lg font-normal">
-                      Moderan te lako razumljiv dizajn
-                    </p>
-                  </Parallax>
-                  <Parallax
-                    className="col-span-3 col-start-3 row-span-2 row-start-4 rounded-2xl bg-[#99abc4]"
-                    opacity={[0.5, 1.2]}
-                    speed={0}
-                  >
-                    <div className="m-6 mb-2 h-3/4 rounded-2xl bg-white"></div>
-                    <p className=" text-center text-lg font-normal">
-                      Moderan te lako razumljiv dizajn
-                    </p>
-                  </Parallax>
+              {/* DESKOP VERSION */}
+              <div className="z-50  hidden h-full max-h-[1000px] min-h-[700px] w-full justify-center overflow-visible lg:flex">
+                <div className="z-50  mx-5 grid min-h-[700px] w-full  max-w-7xl grid-cols-5 grid-rows-5 gap-10 overflow-visible text-white">
+                  {featuresArray.map((item, idx) => {
+                    return (
+                      <Parallax
+                        key={idx}
+                        className={item.parallaxValuesAndGrid.classNames}
+                        easing={"easeIn"}
+                        opacity={[1.5, 0]}
+                        translateY={[30, 0]}
+                        // speed={item.parallaxValuesAndGrid.speed}
+                      >
+                        <div className=" flex h-full flex-col items-center justify-center text-center font-Trochut text-3xl italic text-slate-600">
+                          {item.icon}
+                          <p>{item.text}</p>
+                        </div>
+                      </Parallax>
+                    );
+                  })}
                 </div>
               </div>
+              {/* MOBILE VERSION OF FEATURES */}
               <div className="mx-3 flex flex-col gap-5 lg:hidden">
-                {[1, 2, 3, 4].map((item, idx) => {
+                {featuresArray.map((item, idx) => {
                   return (
-                    <div key={idx} className="min-h-52 rounded-2xl bg-black">
-                      <div className="m-3 h-40 rounded-2xl bg-white"></div>
-
-                      <p className=" p-2 text-center text-white">
-                        {" "}
-                        Moderan te lako razumljiv dizajn Moderan te lako
-                        razumljiv dizajn Moderan te lako razumljiv dizajn
-                        Moderan te lako razumljiv dizajn
+                    <div
+                      key={idx}
+                      className={`min-h-52 rounded-2xl ${
+                        idx % 2 === 0 ? "bg-[#99abc4]" : "bg-[#a088b891]"
+                      }`}
+                    >
+                      <p className=" p-2 py-7 text-center text-2xl text-white">
+                        {item.text}
                       </p>
                     </div>
                   );
@@ -175,6 +190,10 @@ import superjson from "superjson";
 import { appRouter } from "~/server/api/root";
 import { prisma } from "~/server/db";
 import Link from "next/link";
+import ListCard from "~/Molecules/ListCard/ListCard";
+import { MdCelebration, MdDesignServices, MdNextPlan } from "react-icons/md";
+import { FaFreeCodeCamp } from "react-icons/fa";
+import { GiCelebrationFire } from "react-icons/gi";
 
 export const getStaticProps: GetStaticProps = async ({}) => {
   const ssg = createServerSideHelpers({

@@ -271,6 +271,16 @@ const Index = () => {
                       />
                       €
                     </div>
+                    <QuestionMarkCircleIcon
+                      className="h-6 w-6 text-primary"
+                      data-tooltip-id="budgets-tooltip"
+                    />{" "}
+                    <Tooltip
+                      id={"budgets-tooltip"}
+                      style={{ ...tooltipStyle, fontSize: "12px" }}
+                      offset={7}
+                      content="Postavite si potreban budzet za plan te pratite potrosnju dodavanjem novih placanja."
+                    />
                   </div>
 
                   {/* Budgets */}

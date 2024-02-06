@@ -55,7 +55,7 @@ const MobileMenu = ({ appLogo, userCompany }: Props) => {
               path ==
                 `${userCompany ? `/company/dashboard` : `/user/dashboard`}` &&
               "bg-primary text-white"
-            }`}
+            } transition-all ease-in-out hover:bg-primary hover:text-white`}
           >
             <UserIcon className="h-5 w-5" />
             <span className="text-center text-xs">Moj Portal</span>
@@ -64,7 +64,7 @@ const MobileMenu = ({ appLogo, userCompany }: Props) => {
         <li>
           <button
             onClick={toggleOffCanvas}
-            className={`flex flex-col items-center gap-1 rounded-md px-3 py-2`}
+            className={`flex flex-col items-center gap-1 rounded-md px-3 py-2 transition-all ease-in-out hover:bg-primary hover:text-white`}
           >
             <Bars3Icon className="h-5 w-5" />
             <span className="text-center text-xs">Meni</span>
@@ -110,7 +110,7 @@ const MobileMenu = ({ appLogo, userCompany }: Props) => {
                     href={`${
                       userCompany ? `/company/dashboard` : `/user/dashboard`
                     }`}
-                    className={`flex items-center gap-2 rounded-md px-6 py-3 duration-300 ${
+                    className={`flex cursor-pointer items-center gap-2 rounded-md px-6 py-3 duration-300 ${
                       path ==
                         `${
                           userCompany ? `/company/dashboard` : `/user/dashboard`
@@ -123,7 +123,7 @@ const MobileMenu = ({ appLogo, userCompany }: Props) => {
                   </Link>
                 ) : (
                   <SignInButton>
-                    <div className="flex items-center gap-2 rounded-md px-6 py-3 duration-300">
+                    <div className="flex cursor-pointer items-center gap-2 rounded-md px-6 py-3 duration-300">
                       <ClipboardDocumentListIcon className="h-5 w-5" />
                       Moj Portal
                     </div>

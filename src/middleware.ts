@@ -22,6 +22,7 @@ export default authMiddleware({
     "/api/trpc/businessPost.getFavoritePosts,bussines.getById,businessPost.getPostByBusinessId,businessCategoryType.getAllEventCategories,businessPost.getPostByCategory,businessPost.getPostById",
     "/post/(.*)/details",
     "/api/trpc/businessPost.getFavoritePosts,bussines.getById,businessPost.getPostById",
+    "/api/trpc/bussines.getById,businessPost.getPostByBusinessId,businessCategoryType.getAllEventCategories,businessPost.getPostByCategory,businessPost.getFavoritePosts,user.getUserOnboarding,user.doesUserExist,businessPost.getPostById",
   ],
 });
 
